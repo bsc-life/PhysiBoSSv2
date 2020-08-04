@@ -16,10 +16,5 @@ script:
   - make cancer-immune-sample
   - make reset
   - make virus-macrophage-sample
-
-notifications:
-  email:
-    recipients:
-      - randy.heiland@gmail.com
-    on_success: always # default: change  (always, never)
-    on_failure: always # default: always
+  - make reset
+  - make spheroid-TNF
