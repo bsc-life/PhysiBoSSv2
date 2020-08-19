@@ -3,6 +3,14 @@
 /* Default constructor */
 void MaBoSSNetwork::init_maboss( std::string networkFile, std::string configFile)
 {
+	if (this->network != NULL) {
+		delete this->network;
+	}
+	
+	if (this->config != NULL) {
+		delete this->config;
+	}
+
 	// Initialize MaBoSS Objects for a model
 	this->network = new Network();
 	this->network->parse(networkFile.c_str());
@@ -12,108 +20,99 @@ void MaBoSSNetwork::init_maboss( std::string networkFile, std::string configFile
 
 	IStateGroup::checkAndComplete(this->network);
 
-	// Initialize the map relation between node name and index positions
-	int i = 0;
-	std::vector<Node *> nodes = this->network->getNodes();
-	for (auto node : nodes)
-	{
-		this->node_names[ node->getLabel() ] = i;
-		i++;
+	engine = new StochasticSimulationEngine(this->network, this->config, PhysiCell::UniformInt());
+
+	this->update_time_step = this->config->getMaxTime();
+	
+	// Building map of nodes for fast later access 
+	for (auto node : this->network->getNodes()) {
+		this->nodesByName[node->getLabel()] = node;
+	}
+	
+	// Building map of parameters for fast later access
+	for (auto parameter : this->network->getSymbolTable()->getSymbolsNames()) {
+		if (parameter[0] == '$')
+			this->parametersByName[parameter] = this->network->getSymbolTable()->getSymbol(parameter);
+	}
+	
+	for (auto node : network->getNodes())
+      if (!node->isInternal()) 
+        output_mask.setNodeState(node, true);
+
+}
+
+void MaBoSSNetwork::mutate(std::map<std::string, double> mutations) 
+{
+	for (auto mutation : mutations) {
+		nodesByName[mutation.first]->mutate(mutation.second);
 	}
 }
 
-/** Default estructor */
-void MaBoSSNetwork::delete_maboss()
-{
-	delete this->network;
-	this->network = NULL;
-	delete this->config;
-	this->config = NULL;
+void MaBoSSNetwork::set_parameters(std::map<std::string, double> parameters) 
+{	
+	for (auto parameter: parameters) {
+		set_parameter_value(parameter.first, parameter.second);
+	}
 }
 
-/* Creates a NetworkState_Impl from the input vector */
-NetworkState_Impl MaBoSSNetwork::create_networkstate(std::vector<bool>* input)
+double MaBoSSNetwork::get_parameter_value(std::string name) 
 {
-	int i = 0;
-	std::vector<Node*> nodes = this->network->getNodes();
-	NetworkState state;
-	for (auto node : nodes)
-	{
-		state.setNodeState(node, (NodeState) (*input)[i]);
-		i ++;
-	}
-	return state.getState();
+	return network->getSymbolTable()->getSymbolValue(parametersByName[name]);
 }
 
-/* Transfer state values to an output vector */
-void MaBoSSNetwork::retrieve_networkstate_values(NetworkState_Impl input_state, std::vector<bool>* output)
+
+void MaBoSSNetwork::set_parameter_value(std::string name, double value) 
 {
-	int i = 0;
-	std::vector<Node*> nodes = this->network->getNodes();
-	NetworkState state = (NetworkState) input_state;
-	for ( auto node: nodes )
-	{
-		(*output)[i] = state.getNodeState( node ) ;
-		i++;
-	}
+	network->getSymbolTable()->setSymbolValue(parametersByName[name], value);
+	network->getSymbolTable()->unsetSymbolExpressions();
 }
 
 /* Reset a vector of bools to the init state of the network */
-void MaBoSSNetwork::restart_node_values(std::vector<bool>* output)
+void MaBoSSNetwork::restart_node_values()
 {
-	// Create MaBoSS objects to get an initial state of the network
-	NetworkState network_state;
-	RandomGeneratorFactory *randgen_factory = this->config->getRandomGeneratorFactory();
-  	RandomGenerator *random_generator = randgen_factory->generateRandomGenerator(UniformInt());
+	// NetworkState network_state;
+	this->network->initStates(state, engine->random_generator);
 	
-	// Create MaBoSS initial states
-	this->network->initStates(network_state, random_generator);
-
-	// Transfer network state to output vector
-	int i = 0;
-	std::vector<Node *> nodes = this->network->getNodes();
-	(*output).resize(nodes.size());
-	for (auto node : nodes)
-	{
-		(*output)[i] =  network_state.getNodeState( node );
-		i++;
+	for (auto initial_value : initial_values) {
+		state.setNodeState(nodesByName[initial_value.first], PhysiCell::UniformRandom() < initial_value.second);
 	}
-}
-
-/* Run a MaBoSS simulation with the input values*/
-void MaBoSSNetwork::run_simulation(std::vector<bool>* node_values)
-{	
-	NetworkState_Impl state = this->create_networkstate(node_values);
-
-	// Engine created for a single isolated simulation
-	StochasticSimulationEngine* engine = new StochasticSimulationEngine(this->network, this->config);
-	engine->setSeed(UniformInt());
-	state = engine->run(&state, NULL);
-	delete engine;
-
-	this->retrieve_networkstate_values(state, node_values);
-}
-
-/* Return the index of node based on node name */
-int MaBoSSNetwork::get_maboss_node_index( std::string name )
-{
-	auto res = this->node_names.find(name);
-	if ( res != this->node_names.end() )
-		return res->second;
 	
-	// If node name is noy found, throw an exception
-	std::string err_msg = "A node with name " + name + " does not exist in the network.";
-	throw std::invalid_argument(err_msg);
+	this->set_time_to_update();
+}
+
+/* Run the current network */
+void MaBoSSNetwork::run_simulation()
+{	
+	engine->setMaxTime(time_to_update/scaling);
+	state = engine->run(state, NULL);
+	this->set_time_to_update();
+
+}
+
+bool MaBoSSNetwork::has_node( std::string name ) {
+	return nodesByName.find(name) != nodesByName.end();
+}
+
+void MaBoSSNetwork::set_node_value(std::string name, bool value) {
+	state.setNodeState(nodesByName[name], value);
+}
+
+bool MaBoSSNetwork::get_node_value(std::string name) {
+	return state.getNodeState(nodesByName[name]);
+}
+
+std::string MaBoSSNetwork::get_state() {
+	return NetworkState(state.getState() & output_mask.getState()).getName(network);
 }
 
 /* Print current state of all the nodes of the network */
-void MaBoSSNetwork::print_nodes(std::vector<bool>* node_values)
+void MaBoSSNetwork::print_nodes()
 {
 	int i = 0;
 	std::vector<Node*> nodes = this->network->getNodes();
 	for ( auto node: nodes )
 	{
-		std::cout << node->getLabel() << "=" << (*node_values)[i] << "; ";
+		std::cout << node->getLabel() << "=" << state.getNodeState(node) << "; ";
 		i++;
 	}
 	std::cout << std::endl;
