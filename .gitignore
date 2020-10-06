@@ -46,3 +46,5 @@ Makefile-backup
 rsync_life
 update_modules
 .ipynb_checkpoints/*
+
+.venv/*
