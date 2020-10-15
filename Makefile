@@ -63,7 +63,7 @@ all:
 # sample projects 	
 list-projects:
 	@echo "Sample projects: template2D template3D biorobots-sample cancer-biorobots-sample heterogeneity-sample"
-	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF spheroid-TNF-v2 drug-AGS drug-AGS-baseline"
+	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF spheroid-TNF-v2 drug-AGS "
 	
 template2D: 
 	cp ./sample_projects/template2D/custom_modules/* ./custom_modules/
@@ -181,7 +181,7 @@ drug-AGS:
 	mkdir ./scripts/
 	cp ./sample_projects/drug_AGS/scripts/* ./scripts/
 
-drug-AGS-baseline: 	
+: 	
 	cp ./sample_projects/drug_AGS_baseline/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
 	cp ./sample_projects/drug_AGS_baseline/main-drug_AGS.cpp ./main.cpp 
