@@ -213,7 +213,7 @@
 			</phenotype>
 			<custom_data>
 				<!-- Time steps for maboss update-->
-				<next_physibossa_run units="dimensionless">10.</next_physibossa_run>
+				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
 				
 				<!-- Molecular model internal variables-->
 				<TNFR_binding_rate type="double" units="1/min" description="TNF receptor binding rate">0.025</TNFR_binding_rate>

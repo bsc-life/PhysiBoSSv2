@@ -158,19 +158,19 @@ void setup_tissue( void )
 		
 		pC->boolean_network = tnf_network;
 		pC->boolean_network.restart_nodes();
-		static int index_next_physibossa_run = pC->custom_data.find_variable_index("next_physibossa_run");
-		pC->custom_data.variables.at(index_next_physibossa_run).value = pC->boolean_network.get_time_to_update();
+		static int index_next_physiboss_run = pC->custom_data.find_variable_index("next_physiboss_run");
+		pC->custom_data.variables.at(index_next_physiboss_run).value = pC->boolean_network.get_time_to_update();
 		update_custom_variables(pC);
 	}
 
 	return; 
 }
 
-// custom cell phenotype function to run PhysiBoSSa when is needed
+// custom cell phenotype function to run PhysiBoSS when is needed
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
-	static int index_next_physibossa_run = pCell->custom_data.find_variable_index("next_physibossa_run");
+	static int index_next_physiboss_run = pCell->custom_data.find_variable_index("next_physiboss_run");
 
 	if( phenotype.death.dead == true )
 	{
@@ -178,14 +178,14 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 		return;
 	}
 
-	if (PhysiCell_globals.current_time >= pCell->custom_data.variables.at(index_next_physibossa_run).value)
+	if (PhysiCell_globals.current_time >= pCell->custom_data.variables.at(index_next_physiboss_run).value)
 	{
 		set_input_nodes(pCell);
 
 		pCell->boolean_network.run_maboss();
 		// Get noisy step size
 		double next_run_in = pCell->boolean_network.get_time_to_update();
-		pCell->custom_data.variables.at(index_next_physibossa_run).value = PhysiCell_globals.current_time + next_run_in;
+		pCell->custom_data.variables.at(index_next_physiboss_run).value = PhysiCell_globals.current_time + next_run_in;
 		
 		update_custom_variables(pCell);
 

@@ -80,7 +80,7 @@
 #include "./PhysiCell_standard_models.h" 
 
 #ifdef ADDON_PHYSIBOSS
-#include "../addons/PhysiBoSSa/src/boolean_network.h"
+#include "../addons/PhysiBoSS/src/boolean_network.h"
 #endif
 
 using namespace BioFVM; 

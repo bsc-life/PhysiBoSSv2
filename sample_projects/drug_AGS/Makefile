@@ -22,7 +22,7 @@ MABOSS_MAX_NODES = 64
 endif
 
 # MaBoSS directory
-MABOSS_DIR = addons/PhysiBoSSa/MaBoSS-env-2.0/engine
+MABOSS_DIR = addons/PhysiBoSS/MaBoSS-env-2.0/engine
 CUR_DIR = $(shell pwd)
 
 ifneq ($(OS), Windows_NT)
@@ -73,14 +73,14 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 # put your custom objects here (they should be in the custom_modules directory)
 
-PhysiBoSSa_OBJECTS := utils.o maboss_network.o boolean_network.o
+PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
 PhysiCell_custom_module_OBJECTS := custom.o custom_main.o
 
 pugixml_OBJECTS := pugixml.o
 
 PhysiCell_OBJECTS := $(BioFVM_OBJECTS)  $(pugixml_OBJECTS) $(PhysiCell_core_OBJECTS) $(PhysiCell_module_OBJECTS)
-ALL_OBJECTS := $(PhysiCell_OBJECTS) $(PhysiCell_custom_module_OBJECTS) $(PhysiBoSSa_OBJECTS)
+ALL_OBJECTS := $(PhysiCell_OBJECTS) $(PhysiCell_custom_module_OBJECTS) $(PhysiBoSS_OBJECTS)
 
 # compile the project 
 
@@ -171,14 +171,14 @@ PhysiCell_settings.o: ./modules/PhysiCell_settings.cpp
 MaBoSS:
 	cd $(MABOSS_DIR)/src && make MAXNODES=$(MABOSS_MAX_NODES) install_alib
 
-maboss_network.o: ./addons/PhysiBoSSa/src/maboss_network.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./addons/PhysiBoSSa/src/maboss_network.cpp
+maboss_network.o: ./addons/PhysiBoSS/src/maboss_network.cpp
+	$(COMPILE_COMMAND) $(INC) -c ./addons/PhysiBoSS/src/maboss_network.cpp
 
-utils.o: ./addons/PhysiBoSSa/src/utils.cpp
-	$(COMPILE_COMMAND) -c ./addons/PhysiBoSSa/src/utils.cpp
+utils.o: ./addons/PhysiBoSS/src/utils.cpp
+	$(COMPILE_COMMAND) -c ./addons/PhysiBoSS/src/utils.cpp
 
-boolean_network.o: ./addons/PhysiBoSSa/src/boolean_network.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./addons/PhysiBoSSa/src/boolean_network.cpp
+boolean_network.o: ./addons/PhysiBoSS/src/boolean_network.cpp
+	$(COMPILE_COMMAND) $(INC) -c ./addons/PhysiBoSS/src/boolean_network.cpp
 
 custom.o: ./custom_modules/custom.cpp 
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom.cpp

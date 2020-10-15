@@ -320,7 +320,7 @@
 				<molecular />
 			</phenotype>
 			<custom_data>
-				<next_physibossa_run units="dimensionless">10.</next_physibossa_run>
+				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
 				<!-- <tnf_concentration units="dimensionless">0</tnf_concentration>
 				<tnf_node units="dimensionless">0</tnf_node> -->
 				<akti_concentration units="dimensionless">0</akti_concentration>
