@@ -1,5 +1,14 @@
-
 #include "./custom.h"
+
+/**
+ *	\main template-BM custom
+ *	\brief Custom module file for template-BM sample_project
+ * 
+ *	\details Modules needed for the template-BM sample_project. This custom module can be used as template to generate other PhysiBoSS examples.
+ *
+ *	\date 19/10/2020
+ *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ */
 
 // declare cell definitions here 
 

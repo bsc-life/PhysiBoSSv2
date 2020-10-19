@@ -1,5 +1,15 @@
 #include "boolean_network.h"
 
+/**
+ *	\class BooleanNetwork
+ *	\brief Boolean network handler
+ * 
+ *	\details Boolean network class stores the values of a boolean network for a specific cell
+ *
+ *	\date 06/08/2020
+ *	\author Gerard Pradas, BSC-CNS, based on code previously developed by Gaelle Letort, Institut Curie
+ */
+
 /* Initialize a MaBoSS Network instance */
 void BooleanNetwork::initialize_boolean_network(std::string bnd_file, std::string cfg_file, double time_step){
 	this->maboss.init_maboss(bnd_file, cfg_file);

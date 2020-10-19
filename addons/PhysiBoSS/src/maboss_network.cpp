@@ -1,5 +1,15 @@
 #include "maboss_network.h"
 
+/**
+ *	\class MaBoSSNetwork
+ *	\brief Interface with MaBoSS software
+ * 
+ *	\details The MaBOSS network class contains network configs to handle the initialization and run the simulations given an input.
+ *
+ *	\date 06/08/2020
+ *	\author Gerard Pradas, BSC-CNS, based on code previously developed by Gaelle Letort, Institut Curie
+ */
+
 /* Default constructor */
 void MaBoSSNetwork::init_maboss( std::string networkFile, std::string configFile)
 {

@@ -29,7 +29,7 @@ make
 *PhysiBoSS \[project-name\] choices:*
 - drug-AGS
 - spheroid-TNF-v2
-- template-BM
+- template_BM
 
 *PhysiCell \[project-name\] choices:*
 - biorobots-sample

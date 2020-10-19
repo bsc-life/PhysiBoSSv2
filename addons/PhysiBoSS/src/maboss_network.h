@@ -10,12 +10,12 @@
  *	\class MaBoSSNetwork
  *	\brief Interface with MaBoSS software
  * 
- *	\details The MaBOSS network class contains network configs to handel the initialization and run the simulations given an input.
+ *	\details The MaBOSS network class contains network configs to handle the initialization and run the simulations given an input.
  *
  *	\date 06/08/2020
- *	\author Gaelle Letort, Institut Curie
- *	\author Gerard Pradas, BSC-CNS
+ *	\author Gerard Pradas, BSC-CNS, based on code developed by Gaelle Letort, Institut Curie
  */
+
 class MaBoSSNetwork
 {
 	private:
@@ -47,7 +47,7 @@ class MaBoSSNetwork
 	public:
 		/** 
 		 * \brief Class initializer 
-		 * \param networkFile,configFile MaBoSS configutation files
+		 * \param networkFile, configFile MaBoSS configutation files
 		 */
 		void init_maboss( std::string networkFile, std::string configFile);
 

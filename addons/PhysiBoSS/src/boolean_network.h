@@ -5,13 +5,12 @@
 
 /**
  *	\class BooleanNetwork
- *	\brief Boolean network handeler
+ *	\brief Boolean network handler
  * 
  *	\details Boolean network class stores the values of a boolean network for a specific cell
  *
  *	\date 06/08/2020
- *	\author Gaelle Letort, Institut Curie
- *	\author Gerard Pradas, BSC-CNS
+ *	\author Gerard Pradas, BSC-CNS, based on code developed by Gaelle Letort, Institut Curie
  */
 class BooleanNetwork
 {
