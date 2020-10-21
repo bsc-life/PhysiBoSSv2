@@ -1,35 +1,36 @@
 
 
-#include "./tnf_response_dynamics.h" 
+#include "./tnf_receptor_dynamics.h" 
 
 using namespace PhysiCell; 
 
-Submodel_Information tnf_dynamics_info;
+Submodel_Information tnf_receptor_info;
 
-void tnf_dynamics_model_setup()
+void tnf_receptor_model_setup()
 {
-    tnf_dynamics_info.name = "Tumor Necrotic Factor model dynamics"; 
-	tnf_dynamics_info.version = "0.1.0";
+    tnf_receptor_info.name = "TNF trasnporter model"; 
+	tnf_receptor_info.version = "0.1.0";
 	
-    tnf_dynamics_info.main_function= tnf_dynamics_model; 
+    tnf_receptor_info.main_function = tnf_receptor_model; 
 
 	// what custom data do I need?
-	tnf_dynamics_info.cell_variables.push_back( "TNFR_activation_threshold" );
+	tnf_receptor_info.cell_variables.push_back( "TNFR_activation_threshold" );
 
-    tnf_dynamics_info.cell_variables.push_back( "unbound_external_TNFR" );
-	tnf_dynamics_info.cell_variables.push_back( "bound_external_TNFR" );
-	tnf_dynamics_info.cell_variables.push_back( "bound_internal_TNFR" );
+    tnf_receptor_info.cell_variables.push_back( "unbound_external_TNFR" );
+	tnf_receptor_info.cell_variables.push_back( "bound_external_TNFR" );
+	tnf_receptor_info.cell_variables.push_back( "bound_internal_TNFR" );
     
-    tnf_dynamics_info.cell_variables.push_back( "TNFR_binding_rate" ); 
-	tnf_dynamics_info.cell_variables.push_back( "TNFR_endocytosis_rate" );
-    tnf_dynamics_info.cell_variables.push_back( "TNFR_recycling_rate" );
-	tnf_dynamics_info.cell_variables.push_back( "TFN_net_production_rate" );
+    tnf_receptor_info.cell_variables.push_back( "TNFR_binding_rate" ); 
+	tnf_receptor_info.cell_variables.push_back( "TNFR_endocytosis_rate" );
+    tnf_receptor_info.cell_variables.push_back( "TNFR_recycling_rate" );
+	tnf_receptor_info.cell_variables.push_back( "TFN_net_production_rate" );
 
-	tnf_dynamics_info.register_model();
+	tnf_receptor_info.register_model();
+
+	return
 }
 
-
-void tnf_dynamics_model( Cell* pCell, Phenotype& phenotype, double dt )
+void tnf_receptor_model( Cell* pCell, Phenotype& phenotype, double dt )
 {
 	static int nTNF_external = microenvironment.find_density_index( "tnf" );
 
@@ -100,57 +101,18 @@ void tnf_dynamics_model( Cell* pCell, Phenotype& phenotype, double dt )
 	// update the TNF uptake rate 
 	phenotype.secretion.uptake_rates[nTNF_external] = R_binding_rate * pCell->custom_data[nR_EU]; 
 
+	return
 }
 
-void update_boolean_model_input( Cell* pCell, Phenotype& phenotype, double dt )
+void tnf_receptor_model_main( double dt )
 {
-    static int nR_EB = pCell->custom_data.find_variable_index( "bound_external_TNFR" ); 
-    static int nTNF_threshold = pCell->custom_data.find_variable_index( "TNFR_activation_threshold" );
-
-    if( phenotype.death.dead == true )
-	{ return; } 
-
-    if ( pCell->custom_data[nR_EB] > pCell->custom_data[nTNF_threshold] )
-	{ pCell->boolean_network.set_node_value("TNF", 1); }
-	else
-    { pCell->boolean_network.set_node_value("TNF", 0); }
-
-}
-
-
-void update_cell_state_model_based(Cell* pCell, Phenotype& phenotype, double dt)
-{	
-    static int nTNF_external = microenvironment.find_density_index( "tnf" );
-    static int nTNF_export_rate = pCell->custom_data.find_variable_index( "TFN_net_production_rate" );
-	static int nR_EB = pCell->custom_data.find_variable_index( "bound_external_TNFR" ); 
-    static int nTNF_threshold = pCell->custom_data.find_variable_index( "TNFR_activation_threshold" );
-	static int nNFkB_activated = pCell->custom_data.find_variable_index( "NFkB_activated" );
+	#pragma omp parallel for 
+	for( int i=0; i < (*all_cells).size() ; i++ )
+	{
+		Cell* pC = (*all_cells)[i]; 
+		if( pC->phenotype.death.dead == false )
+		{ tnf_receptor_model( pC, pC->phenotype , dt ); }
+	}
 	
-	if ( pCell->boolean_network.get_node_value( "Apoptosis" ) )
-	{
-		int apoptosis_model_index = phenotype.death.find_death_model_index( "Apoptosis" );
-		pCell->start_death(apoptosis_model_index);
-		return;
-	}
-
-	if ( pCell->boolean_network.get_node_value( "NonACD" ) )
-	{
-		int necrosis_model_index = phenotype.death.find_death_model_index( "Necrosis" );
-		pCell->start_death(necrosis_model_index);
-		return;
-	}
-
-	if ( pCell->boolean_network.get_node_value( "Survival" ) )
-	{
-		if ( pCell->phenotype.cycle.current_phase_index() == PhysiCell_constants::Ki67_negative )
-		{ pCell->phenotype.cycle.advance_cycle(pCell, phenotype, dt); }
-	}
-
-	// If NFkB node is active produce some TNF
-	double tnf_export_rate = 0;	
-	if ( pCell->boolean_network.get_node_value( "NFkB" ) )
-	{ 
-		tnf_export_rate = pCell->custom_data[nTNF_export_rate]; 
-	}
-    phenotype.secretion.net_export_rates[nTNF_external] = tnf_export_rate;
+	return; 
 }

@@ -115,10 +115,23 @@ int main( int argc, char* argv[] )
 	double duration_add_tnf = parameters.ints("duration_add_tnf");
 	double time_tnf_next = 0;
 	double time_remove_tnf = parameters.ints("time_remove_tnf");
-	double concentration_tnf = parameters.doubles("concentration_tnf") * 0.1;
-	std::cout << "## TNF concentrations " << concentration_tnf << std::endl;
-	double membrane_lenght = parameters.ints("membrane_length");
 	
+	// change concentration units too match voxel volume
+	double concentration_tnf = parameters.doubles("concentration_tnf") * microenvironment.voxels(0).volume * 0.000001;
+	// radious around which the tnf pulse is injected
+	double membrane_lenght = parameters.ints("membrane_length");
+	// tnf density index
+	static int tnf_idx = microenvironment.find_density_index("tnf");	
+
+	// this is to emulate PhysiBoSSv1 TNF experiment
+	bool seed_tnf = false;
+	// do small diffusion steps alone to initialize densities
+	if ( seed_tnf )
+	{
+		inject_density_sphere(tnf_idx, concentration_tnf, membrane_lenght);
+		for ( int i = 0; i < 25; i ++ )
+			microenvironment.simulate_diffusion_decay( diffusion_dt );
+	}
 	/* PhysiCell setup */ 
  	
 	// set mechanics voxel size, and match the data structure to BioFVM
@@ -130,14 +143,6 @@ int main( int argc, char* argv[] )
 	create_cell_types();
 	
 	setup_tissue();
-
-	
-	static int tnf = microenvironment.find_density_index("tnf");
-	// inject_density_sphere(tnf, concentration_tnf, membrane_lenght);
-	// // do small diffusion steps alone to initialize densities
-	// for ( int i = 0; i < 25; i ++ )
-	// 	microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
-	
 
 	/* Users typically stop modifying here. END USERMODS */ 
 	
@@ -232,17 +237,20 @@ int main( int argc, char* argv[] )
 
 			if ( PhysiCell_globals.current_time >= time_remove_tnf )
 			{
-				remove_density(tnf);
+				remove_density(tnf_idx);
 				time_remove_tnf += PhysiCell_settings.max_time;
 			}
 
 			if ( PhysiCell_globals.current_time <= time_tnf_next )
 			{
-				inject_density_sphere(tnf, concentration_tnf, membrane_lenght);
+				inject_density_sphere(tnf_idx, concentration_tnf, membrane_lenght);
 			}
-				
+
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
+			
+			// update te TNF receptor model of each cell
+			tnf_receptor_model_main( diffusion_dt );
 			
 			// run PhysiCell 
 			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );

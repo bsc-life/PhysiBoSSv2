@@ -216,9 +216,9 @@
 				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
 				
 				<!-- Molecular model internal variables-->
-				<TNFR_binding_rate type="double" units="1/min" description="TNF receptor binding rate">0.025</TNFR_binding_rate>
-				<TNFR_endocytosis_rate type="double" units="1/min" description="TNF receptor-TNF endocytosis rate">0.1255555</TNFR_endocytosis_rate>
-				<TNFR_recycling_rate type="double" units="1/min" description="TNF receptor recycling">.5</TNFR_recycling_rate>
+				<TNFR_binding_rate type="double" units="1/min" description="TNF receptor binding rate">0.243</TNFR_binding_rate>
+				<TNFR_endocytosis_rate type="double" units="1/min" description="TNF receptor-TNF endocytosis rate">0.128</TNFR_endocytosis_rate>
+				<TNFR_recycling_rate type="double" units="1/min" description="TNF receptor recycling">0.293</TNFR_recycling_rate>
 				<TNFR_activation_threshold type="double" units="" description="TNFR threshold to update booleano model input">0.5</TNFR_activation_threshold>
 				<TNFR_receptors_per_cell type="double" units="dimensionless" description="number of TNFR receptors per cell">1.0</TNFR_receptors_per_cell>
 				<TFN_net_production_rate type="double" units="TNF/cell/min" description="The total TNF produced by the cell when NFkB is active">0</TFN_net_production_rate> <!-- 0.5 ng/mL -->

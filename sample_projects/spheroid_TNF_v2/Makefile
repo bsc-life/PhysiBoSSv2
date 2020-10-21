@@ -69,7 +69,7 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
-PhysiCell_custom_module_OBJECTS := custom.o custom_main.o submodel_data_structures.o tnf_response_dynamics.o
+PhysiCell_custom_module_OBJECTS := custom.o custom_main.o submodel_data_structures.o tnf_receptor_dynamics.o tnf_boolean_model_interface.o
 
 pugixml_OBJECTS := pugixml.o
 
@@ -186,9 +186,12 @@ custom_main.o: ./custom_modules/custom_main.cpp
 submodel_data_structures.o: ./custom_modules/submodel_data_structures.cpp
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/submodel_data_structures.cpp
 
-tnf_response_dynamics.o: ./custom_modules/tnf_response_dynamics.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/tnf_response_dynamics.cpp
+tnf_receptor_dynamics.o: ./custom_modules/tnf_receptor_dynamics.cpp
+	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/tnf_receptor_dynamics.cpp
 
+tnf_boolean_model_interface.o: ./custom_modules/tnf_boolean_model_interface.cpp
+	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/tnf_boolean_model_interface.cpp
+	
 # cleanup
 
 reset:

@@ -67,10 +67,7 @@
 
 #include "./custom.h"
 
-#include "./tnf_response_dynamics.h"
-
 // declare cell definitions here 
-
 void create_cell_types( void )
 {
 	// use the same random seed so that future experiments have the 
@@ -88,62 +85,29 @@ void create_cell_types( void )
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
 	
 	cell_defaults.functions.update_migration_bias = NULL; 
-	cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_signaling;
+		
 	cell_defaults.functions.custom_cell_rule = NULL; 
+	cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_signaling;
 	
 	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL; 
 	cell_defaults.functions.calculate_distance_to_membrane = NULL; 
-	
 	cell_defaults.functions.set_orientation = NULL;
-
-	cell_defaults.phenotype.sync_to_functions( cell_defaults.functions ); 
-
-	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment ); 
-	cell_defaults.phenotype.molecular.sync_to_microenvironment( &microenvironment ); 
-
-	// custom parameter
-	/*
-	Parameter<double> paramD;
-
-	paramD = parameters.doubles["TNFR_binding_rate"];
-	cell_defaults.custom_data[ "TNFR binding rate" ] = paramD.value;
-
-	paramD = parameters.doubles["TNFR_endocytosis_rate"];
-	cell_defaults.custom_data[ "TNFR endocytosis rate" ] = paramD.value;
-
-	paramD = parameters.doubles["TNFR_recycling_rate"];
-	cell_defaults.custom_data[ "TNFR recycling rate" ] = paramD.value;
-
-	paramD = parameters.doubles["TNFR_receptors_per_cell"]; 
-	cell_defaults.custom_data[ "unbound external TNFR" ] = paramD.value;
-
-	paramD = parameters.doubles["TFN_net_production_rate"]; 
-	cell_defaults.custom_data[ "TFN net production rate" ] = paramD.value;
-
-	paramD = parameters.doubles["TNFR_activation_threshold"]; 
-	cell_defaults.custom_data[ "TNFR activation threshold" ] = paramD.value;
-	
-	*/
 
 	/*
 	   This parses the cell definitions in the XML config file. 
 	*/
 	initialize_cell_definitions_from_pugixml();
-	std::cout << cell_defaults.name << std::endl;
-	build_cell_definitions_maps();
-	display_cell_definitions( std::cout );
 
-	tnf_dynamics_model_setup();
+	// initialize tnf 
+	tnf_receptor_model_setup();
+	tnf_boolean_model_interface_setup();
 	submodel_registry.display( std::cout ); 
+
+	cell_defaults.custom_data[ "unbound_external_TNFR" ] = cell_defaults.custom_data["TNFR_receptors_per_cell"];	
+
+	build_cell_definitions_maps();
+	display_cell_definitions( std::cout );	
 		
-	// set molecular properties 
-	int tnf_substrate_index = microenvironment.find_density_index( "tnf" ); 
-	cell_defaults.phenotype.molecular.fraction_released_at_death[tnf_substrate_index] = 0.0;
-
-	float tnf_uptake_rates = cell_defaults.custom_data[ "TNFR binding rate" ] * parameters.doubles["TNFR_receptors_per_cell"].value;
-	cell_defaults.phenotype.secretion.uptake_rates[tnf_substrate_index] = 0;
-	cell_defaults.custom_data[ "unbound_external_TNFR" ] = cell_defaults.custom_data["TNFR_receptors_per_cell"]; 
-
 	return; 
 }
 
@@ -187,65 +151,33 @@ void setup_tissue( void )
 		pC = create_cell(get_cell_definition("default")); 
 		pC->assign_position( x, y, z );
 		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
-		
+#ifdef ADDON_PHYSIBOSS			
 		pC->boolean_network = tnf_network;
 		pC->boolean_network.restart_nodes();
-
 		static int index_next_physiboss_run = pC->custom_data.find_variable_index("next_physiboss_run");
 		pC->custom_data[index_next_physiboss_run] = pC->boolean_network.get_time_to_update();
 		update_monitor_variables(pC);
+#endif
 	}
 
 	return; 
 }
 
 // custom cell phenotype function to run PhysiBoSS when is needed
-
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt )
 {
-	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
-	
-	static int index_next_physiboss_run = pCell->custom_data.find_variable_index("next_physiboss_run");
-
 	if( phenotype.death.dead == true )
 	{
 		pCell->functions.update_phenotype = NULL;
 		return;
 	}
 
-	tnf_dynamics_model(pCell, phenotype, dt );
-	update_boolean_model_input(pCell, phenotype, dt );
+	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
+	tnf_bm_interface_main(pCell, phenotype, dt);
 
-	if (PhysiCell_globals.current_time >= pCell->custom_data[index_next_physiboss_run])
-	{
-		pCell->boolean_network.run_maboss();
-		update_cell_state_model_based(pCell, phenotype, dt);
-
-		// Get noisy step size
-		double next_run_in = pCell->boolean_network.get_time_to_update();
-		pCell->custom_data[index_next_physiboss_run] = PhysiCell_globals.current_time + next_run_in;
-	}
-	update_monitor_variables(pCell);
 }
 
-
-void update_monitor_variables(Cell* pCell )
-{
-    //static int index_tnf_external = microenvironment.find_density_index( "tnf" ); 
-	//static int tnf_internal = pCell->custom_data.find_variable_index( "tnf" );
-    
-	static int index_tnf_node = pCell->custom_data.find_variable_index("tnf_node");
-	static int index_fadd_node = pCell->custom_data.find_variable_index("fadd_node");
-	static int index_nfkb_node = pCell->custom_data.find_variable_index("nfkb_node");
-	
-	pCell->custom_data[index_nfkb_node] = pCell->boolean_network.get_node_value( "NFkB" ) ;
-	pCell->custom_data[index_tnf_node] = pCell->boolean_network.get_node_value("TNF");
-	pCell->custom_data[index_fadd_node] = pCell->boolean_network.get_node_value("FADD");
-
-	// pCell->custom_data[index_tnf_external]= microenvironment.nearest_density_vector;
-	// pCell->custom_data[tnf_internal];	
-}
-
+// cell coloring function for ploting the svg files
 std::vector<std::string> my_coloring_function( Cell* pCell )
 {
 	// start with live coloring 
@@ -267,21 +199,14 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 			output[2].assign( "black" );
 			output[3].assign( szTempString );
 		}
-		//output[0] = "blue"; 
-		//output[2] = "darkblue"; 
-		//output[1] = "red"; 
-		//output[3] = "darkred";
 	}
 	
-	
-
 	
 	
 	return output;
 }
-// ***********************************************************
-// * NOTE: Funtion to read init files created with PhysiBoSS *
-// ***********************************************************
+
+// Funtion to read init files created with PhysiBoSSv2
 std::vector<init_record> read_init_file(std::string filename, char delimiter, bool header) 
 { 
 	// File pointer 
@@ -331,4 +256,26 @@ std::vector<init_record> read_init_file(std::string filename, char delimiter, bo
 	} while (!fin.eof());
 	
 	return result;
+}
+
+
+void inject_density_sphere(int density_index, double concentration, double membrane_lenght) 
+{
+	// Inject given concentration on the extremities only
+	#pragma omp parallel for
+	for( int n=0; n < microenvironment.number_of_voxels() ; n++ )
+	{
+		auto current_voxel = microenvironment.voxels(n);
+		std::vector<double> cent = {current_voxel.center[0], current_voxel.center[1], current_voxel.center[2]};
+
+		if ((membrane_lenght - norm(cent)) <= 0)
+			microenvironment.density_vector(n)[density_index] = concentration; 	
+	}
+}
+
+void remove_density( int density_index )
+{	
+	for( int n=0; n < microenvironment.number_of_voxels() ; n++ )
+		microenvironment.density_vector(n)[density_index] = 0; 	
+	std::cout << "Removal done" << std::endl;
 }

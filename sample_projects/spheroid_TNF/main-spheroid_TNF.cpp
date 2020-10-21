@@ -122,7 +122,7 @@ int main( int argc, char* argv[] )
 	int k = microenvironment.find_density_index("tnf");
 	if ( k >= 0 ) 
 		inject_density_sphere(k, concentration_tnf, membrane_lenght);
-	for ( int i = 0; i < 25; i ++ )
+	for ( int i = 0; i < 20; i ++ )
 		microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
 	
 	/* PhysiCell setup */ 
