@@ -1,5 +1,4 @@
 
-
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -7,14 +6,24 @@
 #include <cmath>
 #include <omp.h>
 #include <fstream>
-
 #include "./core/PhysiCell.h"
 #include "./modules/PhysiCell_standard_modules.h" 
+
+/**
+ *	\main main-template_BM
+ *	\brief Main file of the template examples with Boolena models 
+ * 
+ *	\details Compiling this main file runs the template-BM sample_project. This file and its custom modules can be used as templates to generate other PhysiBoSS examples.
+ *
+ *	\date 19/10/2020
+ *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ */
 
 // put custom code modules here! 
 
 #include "./custom_modules/custom.h" 
 #include "./custom_modules/custom_main.h"
+
 
 using namespace BioFVM;
 using namespace PhysiCell;
