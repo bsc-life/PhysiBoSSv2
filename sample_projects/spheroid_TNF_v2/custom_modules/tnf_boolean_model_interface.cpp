@@ -97,7 +97,7 @@ void tnf_bm_interface_main(Cell* pCell, Phenotype& phenotype, double dt)
     if (PhysiCell_globals.current_time >= pCell->custom_data[index_next_physiboss_run])
     {
         // First we update 
-        update_boolean_model_input(pCell, phenotype, dt );
+        update_boolean_model_inputs(pCell, phenotype, dt );
     
         // Run maboss to update the boolean state of the cell
         pCell->boolean_network.run_maboss();

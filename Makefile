@@ -173,13 +173,13 @@ drug-AGS:
 template_BM: 	
 	cp ./sample_projects/template_BM/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
-	cp ./sample_projects/template_BM/main-drug_AGS.cpp ./main.cpp 
+	cp ./sample_projects/template_BM/main-template_BM.cpp ./main.cpp 
 	cp Makefile Makefile-backup
 	cp ./sample_projects/template_BM/Makefile .
 	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
 	cp -r ./sample_projects/template_BM/config/* ./config/
 	mkdir ./scripts/
-	cp -r ./sample_projects/template_BM/scripts/* ./scripts/
+	cp ./sample_projects/template_BM/scripts/* ./scripts/
 
 # early examples for convergence testing 
 

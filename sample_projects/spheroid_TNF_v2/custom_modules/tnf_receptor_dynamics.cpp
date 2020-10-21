@@ -27,7 +27,7 @@ void tnf_receptor_model_setup()
 
 	tnf_receptor_info.register_model();
 
-	return
+	return;
 }
 
 void tnf_receptor_model( Cell* pCell, Phenotype& phenotype, double dt )
@@ -101,7 +101,7 @@ void tnf_receptor_model( Cell* pCell, Phenotype& phenotype, double dt )
 	// update the TNF uptake rate 
 	phenotype.secretion.uptake_rates[nTNF_external] = R_binding_rate * pCell->custom_data[nR_EU]; 
 
-	return
+	return;
 }
 
 void tnf_receptor_model_main( double dt )
@@ -114,5 +114,5 @@ void tnf_receptor_model_main( double dt )
 		{ tnf_receptor_model( pC, pC->phenotype , dt ); }
 	}
 	
-	return; 
+	return;
 }

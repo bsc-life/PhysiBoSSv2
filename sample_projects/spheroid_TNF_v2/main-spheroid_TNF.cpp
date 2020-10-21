@@ -77,9 +77,7 @@
 #include "./modules/PhysiCell_standard_modules.h" 
 
 // put custom code modules here! 
-
 #include "./custom_modules/custom.h" 
-#include "./custom_modules/custom_main.h" 
 	
 using namespace BioFVM;
 using namespace PhysiCell;

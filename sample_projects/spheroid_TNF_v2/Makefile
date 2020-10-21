@@ -69,7 +69,7 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
-PhysiCell_custom_module_OBJECTS := custom.o custom_main.o submodel_data_structures.o tnf_receptor_dynamics.o tnf_boolean_model_interface.o
+PhysiCell_custom_module_OBJECTS := custom.o submodel_data_structures.o tnf_receptor_dynamics.o tnf_boolean_model_interface.o
 
 pugixml_OBJECTS := pugixml.o
 
@@ -179,9 +179,6 @@ boolean_network.o: ./addons/PhysiBoSS/src/boolean_network.cpp
 
 custom.o: ./custom_modules/custom.cpp 
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom.cpp
-
-custom_main.o: ./custom_modules/custom_main.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom_main.cpp
 
 submodel_data_structures.o: ./custom_modules/submodel_data_structures.cpp
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/submodel_data_structures.cpp

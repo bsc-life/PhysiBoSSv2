@@ -8,7 +8,7 @@ using namespace PhysiCell;
 
 void tnf_boolean_model_interface_setup();
 
-void update_boolean_model_input( Cell* pCell, Phenotype& phenotype, double dt );
+void update_boolean_model_inputs( Cell* pCell, Phenotype& phenotype, double dt );
 
 void update_cell_from_boolean_model(Cell* pCell, Phenotype& phenotype, double dt);
 
