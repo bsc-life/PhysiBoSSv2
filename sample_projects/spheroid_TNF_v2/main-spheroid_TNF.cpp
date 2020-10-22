@@ -186,8 +186,7 @@ int main( int argc, char* argv[] )
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
 	
-	// main loop 
-	
+	// main loop
 	try 
 	{		
 		while( PhysiCell_globals.current_time < PhysiCell_settings.max_time + 0.1*diffusion_dt )

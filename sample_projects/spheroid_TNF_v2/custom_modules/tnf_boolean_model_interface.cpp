@@ -30,11 +30,14 @@ void update_boolean_model_inputs( Cell* pCell, Phenotype& phenotype, double dt )
     static int nTNF_threshold = pCell->custom_data.find_variable_index( "TNFR_activation_threshold" );
 
     // This if the step transfer function used to update the state of boolean model inputs
-    // using the state of the receptor dynamics model
+    // using the state of the receptor dynamics model. The continuos value thresholded is
+    // the total TNF-recptor complex (doi:10.1016/j.cellsig.2010.08.016)
     if ( pCell->custom_data[nR_EB] > pCell->custom_data[nTNF_threshold] )
 	{ pCell->boolean_network.set_node_value("TNF", 1); }
 	else
     { pCell->boolean_network.set_node_value("TNF", 0); }
+
+    return;
 
 }
 
@@ -46,7 +49,6 @@ void update_cell_from_boolean_model(Cell* pCell, Phenotype& phenotype, double dt
 
     static int apoptosis_model_index = phenotype.death.find_death_model_index( "Apoptosis" );
     static int necrosis_model_index = phenotype.death.find_death_model_index( "Necrosis" );
-    
     
     // Getting the state of the boolean model readouts (Readout can be in the XML)
     bool apoptosis = pCell->boolean_network.get_node_value( "Apoptosis" );
@@ -76,6 +78,7 @@ void update_cell_from_boolean_model(Cell* pCell, Phenotype& phenotype, double dt
         phenotype.secretion.net_export_rates[nTNF_external] = 0;
     }
     
+    return;
 }
 
 
@@ -88,11 +91,19 @@ void update_monitor_variables(Cell* pCell )
 	pCell->custom_data[index_nfkb_node] = pCell->boolean_network.get_node_value( "NFkB" ) ;
 	pCell->custom_data[index_tnf_node] = pCell->boolean_network.get_node_value("TNF");
 	pCell->custom_data[index_fadd_node] = pCell->boolean_network.get_node_value("FADD");
+
+    return;
 }
 
 
 void tnf_bm_interface_main(Cell* pCell, Phenotype& phenotype, double dt)
 {
+    if( phenotype.death.dead == true )
+	{
+		pCell->functions.update_phenotype = NULL;
+		return;
+	}
+
     static int index_next_physiboss_run = pCell->custom_data.find_variable_index("next_physiboss_run");
     if (PhysiCell_globals.current_time >= pCell->custom_data[index_next_physiboss_run])
     {
@@ -113,4 +124,6 @@ void tnf_bm_interface_main(Cell* pCell, Phenotype& phenotype, double dt)
         double next_run_in = pCell->boolean_network.get_time_to_update();
         pCell->custom_data[index_next_physiboss_run] = PhysiCell_globals.current_time + next_run_in;
     }
+
+    return;
 }

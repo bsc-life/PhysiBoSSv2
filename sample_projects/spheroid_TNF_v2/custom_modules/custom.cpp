@@ -83,11 +83,27 @@ void create_cell_types( void )
 
 	cell_defaults.functions.volume_update_function = standard_volume_update_function;
 	cell_defaults.functions.update_velocity = standard_update_cell_velocity;
-	
+	// no migration_bias needed
 	cell_defaults.functions.update_migration_bias = NULL; 
-		
-	cell_defaults.functions.custom_cell_rule = NULL; 
-	cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_signaling;
+	// No custom rule needed
+	cell_defaults.functions.custom_cell_rule = NULL;
+	
+	/*
+		update_pc_parameters_O2_based flag controls how is the update_phenotypes
+	 	if update_pc_parameters_O2_based is set to true	the model will call
+		tumor_cell_phenotype_with_signaling which just call two functions 
+		sequentially: 1) update_cell_and_death_parameters_O2_based and 
+		2) tnf_bm_interface_main; the former updates growth and death rates 
+		based on oxygen while the second is the	function that update the boolean model. 
+		If the flag is false then only the tnf_bm_interface_main is invoked
+	*/
+	if ( parameters.bools("update_pc_parameters_O2_based") )
+	{
+		cell_defaults.functions.update_phenotype = tumor_cell_phenotype_with_signaling;
+	} else
+	{
+		cell_defaults.functions.update_phenotype = tnf_bm_interface_main;
+	}
 	
 	cell_defaults.functions.add_cell_basement_membrane_interactions = NULL; 
 	cell_defaults.functions.calculate_distance_to_membrane = NULL; 
@@ -103,7 +119,10 @@ void create_cell_types( void )
 	tnf_boolean_model_interface_setup();
 	submodel_registry.display( std::cout ); 
 
-	cell_defaults.custom_data[ "unbound_external_TNFR" ] = cell_defaults.custom_data["TNFR_receptors_per_cell"];	
+	// Needs to inicialize one of the receptor state to the total receptor value
+	cell_defaults.custom_data[ "unbound_external_TNFR" ] = cell_defaults.custom_data["TNFR_receptors_per_cell"];
+	cell_defaults.custom_data[ "bound_external_TNFR" ] = 0;
+	cell_defaults.custom_data[ "bound_internal_TNFR" ] = 0;
 
 	build_cell_definitions_maps();
 	display_cell_definitions( std::cout );	
@@ -151,13 +170,13 @@ void setup_tissue( void )
 		pC = create_cell(get_cell_definition("default")); 
 		pC->assign_position( x, y, z );
 		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
-#ifdef ADDON_PHYSIBOSS			
+
 		pC->boolean_network = tnf_network;
 		pC->boolean_network.restart_nodes();
 		static int index_next_physiboss_run = pC->custom_data.find_variable_index("next_physiboss_run");
 		pC->custom_data[index_next_physiboss_run] = pC->boolean_network.get_time_to_update();
 		update_monitor_variables(pC);
-#endif
+
 	}
 
 	return; 
