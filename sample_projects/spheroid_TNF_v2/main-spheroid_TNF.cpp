@@ -115,7 +115,8 @@ int main( int argc, char* argv[] )
 	double time_remove_tnf = parameters.ints("time_remove_tnf");
 	
 	// change concentration units too match voxel volume
-	double concentration_tnf = parameters.doubles("concentration_tnf") * microenvironment.voxels(0).volume * 0.000001;
+	// double concentration_tnf = parameters.doubles("concentration_tnf") * microenvironment.voxels(0).volume * 0.000001;
+	double concentration_tnf = parameters.doubles("concentration_tnf") * 0.1;
 	// radious around which the tnf pulse is injected
 	double membrane_lenght = parameters.ints("membrane_length");
 	// tnf density index
