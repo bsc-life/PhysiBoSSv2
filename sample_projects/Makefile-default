@@ -63,7 +63,8 @@ all:
 # sample projects 	
 list-projects:
 	@echo "Sample projects: template2D template3D biorobots-sample cancer-biorobots-sample heterogeneity-sample"
-	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF-v2 drug-AGS template_BM"
+	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF-v2 template_BM"
+	@echo "                 drug-AGS spheroid-TNF-v2-mutants"
 	
 template2D: 
 	cp ./sample_projects/template2D/custom_modules/* ./custom_modules/
@@ -148,6 +149,7 @@ beta-testing:
 	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
 	cp ./sample_projects/beta_testing/config/* ./config/
 
+
 spheroid-TNF-v2: 	
 	cp ./sample_projects/spheroid_TNF_v2/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
@@ -159,16 +161,16 @@ spheroid-TNF-v2:
 	mkdir ./scripts/
 	cp ./sample_projects/spheroid_TNF_v2/scripts/* ./scripts/
 
-drug-AGS: 	
-	cp ./sample_projects/drug_AGS/custom_modules/* ./custom_modules/
+spheroid-TNF-v2-mutants:
+	cp ./sample_projects/spheroid_TNF_v2_mutants/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
-	cp ./sample_projects/drug_AGS/main-drug_AGS.cpp ./main.cpp 
+	cp ./sample_projects/spheroid_TNF_v2_mutants/main-spheroid_TNF.cpp ./main.cpp 
 	cp Makefile Makefile-backup
-	cp ./sample_projects/drug_AGS/Makefile .
+	cp ./sample_projects/spheroid_TNF_v2_mutants/Makefile .
 	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
-	cp -r ./sample_projects/drug_AGS/config/* ./config/
+	cp -r ./sample_projects/spheroid_TNF_v2_mutants/config/* ./config/
 	mkdir ./scripts/
-	cp ./sample_projects/drug_AGS/scripts/* ./scripts/
+	cp ./sample_projects/spheroid_TNF_v2_mutants/scripts/* ./scripts/
 
 template_BM: 	
 	cp ./sample_projects/template_BM/custom_modules/* ./custom_modules/
@@ -180,6 +182,17 @@ template_BM:
 	cp -r ./sample_projects/template_BM/config/* ./config/
 	mkdir ./scripts/
 	cp ./sample_projects/template_BM/scripts/* ./scripts/
+
+drug-AGS: 	
+	cp ./sample_projects/drug_AGS/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/drug_AGS/main-drug_AGS.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/drug_AGS/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp -r ./sample_projects/drug_AGS/config/* ./config/
+	mkdir ./scripts/
+	cp ./sample_projects/drug_AGS/scripts/* ./scripts/
 
 # early examples for convergence testing 
 
