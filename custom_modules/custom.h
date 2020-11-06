@@ -114,3 +114,13 @@ void inject_density_sphere(int density_index, double concentration, double membr
 
 // helper function to remove a density
 void remove_density( int density_index );
+
+// count the number of alive cells at current time step
+double total_live_cell_count();
+
+// count the number of total dead cells at current time step
+double total_dead_cell_count();
+
+// count the number of necrotic cells at current time step
+double total_necrosis_cell_count();
+

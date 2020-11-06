@@ -298,3 +298,42 @@ void remove_density( int density_index )
 		microenvironment.density_vector(n)[density_index] = 0; 	
 	std::cout << "Removal done" << std::endl;
 }
+
+double total_live_cell_count()
+{
+        double out = 0.0;
+
+        for( int i=0; i < (*all_cells).size() ; i++ )
+        {
+                if( (*all_cells)[i]->phenotype.death.dead == false && (*all_cells)[i]->type == 0 )
+                { out += 1.0; }
+        }
+
+        return out;
+}
+
+double total_dead_cell_count()
+{
+        double out = 0.0;
+
+        for( int i=0; i < (*all_cells).size() ; i++ )
+        {
+                if( (*all_cells)[i]->phenotype.death.dead == true && (*all_cells)[i]->phenotype.death.current_death_model_index == 0 )
+                { out += 1.0; }
+        }
+
+        return out;
+}
+
+double total_necrosis_cell_count()
+{
+        double out = 0.0;
+
+        for( int i=0; i < (*all_cells).size() ; i++ )
+        {
+                if( (*all_cells)[i]->phenotype.death.dead == true && (*all_cells)[i]->phenotype.death.current_death_model_index == 1 )
+                { out += 1.0; }
+        }
+
+        return out;
+}

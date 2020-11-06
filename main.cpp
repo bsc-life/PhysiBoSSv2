@@ -229,7 +229,7 @@ int main( int argc, char* argv[] )
 
 				// output metrics
                                 metrics_file << PhysiCell_globals.current_time << "\t" << total_live_cell_count() << "\t";
-			        metrics_filei << total_dead_cell_count() << "\t" << total_necrosis_cell_count() << std::endl;
+			        metrics_file << total_dead_cell_count() << "\t" << total_necrosis_cell_count() << std::endl;
 			}
 
 			/*
