@@ -185,6 +185,10 @@ int main( int argc, char* argv[] )
 		report_file.open(filename); 	// create the data log file 
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
+
+        sprintf( filename , "%s/metrics.txt" , PhysiCell_settings.folder.c_str() );
+        std::ofstream metrics_file;
+        metrics_file.open(filename);
 	
 	// main loop
 	try 
@@ -222,6 +226,10 @@ int main( int argc, char* argv[] )
 					PhysiCell_globals.SVG_output_index++; 
 					PhysiCell_globals.next_SVG_save_time  += PhysiCell_settings.SVG_save_interval;
 				}
+
+				// output metrics
+                                metrics_file << PhysiCell_globals.current_time << "\t" << total_live_cell_count() << "\t";
+			        metrics_filei << total_dead_cell_count() << "\t" << total_necrosis_cell_count() << std::endl;
 			}
 
 			/*
