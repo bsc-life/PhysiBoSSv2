@@ -186,7 +186,7 @@ int main( int argc, char* argv[] )
 		report_file<<"simulated time\tnum cells\tnum division\tnum death\twall time"<<std::endl;
 	}
 
-        sprintf( filename , "%s/metrics.txt" , PhysiCell_settings.folder.c_str() );
+        sprintf( filename , "./metrics.txt" );
         std::ofstream metrics_file;
         metrics_file.open(filename);
 	
