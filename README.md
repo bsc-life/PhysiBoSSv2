@@ -29,6 +29,7 @@ make
 *PhysiBoSS \[project-name\] choices:*
 - drug-AGS
 - spheroid-TNF-v2
+- spheroid-TNF-v2-mutants
 - template_BM
 
 *PhysiCell \[project-name\] choices:*
