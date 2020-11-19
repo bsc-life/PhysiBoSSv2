@@ -1,5 +1,5 @@
 VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := spheroid_TNF_v2_double
+PROGRAM_NAME := spheroid-TNF-v2-double
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name

@@ -64,7 +64,7 @@ all:
 list-projects:
 	@echo "Sample projects: template2D template3D biorobots-sample cancer-biorobots-sample heterogeneity-sample"
 	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF-v2 template_BM"
-	@echo "                 drug-AGS spheroid-TNF-v2-mutants"
+	@echo "                 drug-AGS spheroid-TNF-v2-mutants spheroid-TNF-v2-double"
 	
 template2D: 
 	cp ./sample_projects/template2D/custom_modules/* ./custom_modules/
@@ -171,6 +171,17 @@ spheroid-TNF-v2-mutants:
 	cp -r ./sample_projects/spheroid_TNF_v2_mutants/config/* ./config/
 	mkdir ./scripts/
 	cp ./sample_projects/spheroid_TNF_v2_mutants/scripts/* ./scripts/
+
+spheroid-TNF-v2-double:
+	cp ./sample_projects/spheroid_TNF_v2_double/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/spheroid_TNF_v2_double/main-spheroid_TNF.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/spheroid_TNF_v2_double/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp -r ./sample_projects/spheroid_TNF_v2_double/config/* ./config/
+	mkdir ./scripts/
+	cp ./sample_projects/spheroid_TNF_v2_double/scripts/* ./scripts/
 
 template_BM: 	
 	cp ./sample_projects/template_BM/custom_modules/* ./custom_modules/
