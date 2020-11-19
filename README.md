@@ -27,10 +27,10 @@ make
 **make \[project-name\]**: populates the indicated sample project. Use "make" to compile it. 
 
 *PhysiBoSS \[project-name\] choices:*
-- drug-AGS
-- spheroid-TNF-v2
-- spheroid-TNF-v2-mutants
-- spheroid-TNF-v2-double
+- drug-AGS (used to make Figure S6)
+- spheroid-TNF-v2 (used to make Figure S4, except for panel C and the data behind Figure 1B in main document)
+- spheroid-TNF-v2-mutants (used to make Figure S2)
+- spheroid-TNF-v2-double (used to make Figure S4C)
 - template_BM
 
 *PhysiCell \[project-name\] choices:*
