@@ -30,6 +30,7 @@ make
 - drug-AGS
 - spheroid-TNF-v2
 - spheroid-TNF-v2-mutants
+- spheroid-TNF-v2-double
 - template_BM
 
 *PhysiCell \[project-name\] choices:*
