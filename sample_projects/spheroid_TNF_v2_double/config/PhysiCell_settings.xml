@@ -248,8 +248,8 @@
 		<!-- time_add_tnf (150, 0, 8000),  duration_add_tnf ( 10, 600), concentration_tnf (0.5 ng/mL), time_remove_tnf (8000, 601) -->
 		<time_add_tnf type="int" units="min">8000</time_add_tnf> 
 		<duration_add_tnf type="int" units="min">600</duration_add_tnf> 
-		<!-- <concentration_tnf type="double" units="TNF/um^3"> 0.02 </concentration_tnf> -->
-		<concentration_tnf type="double" units="TNF/um^3"> 0.5 </concentration_tnf>
+		<concentration_tnf type="double" units="TNF/um^3"> 0.02 </concentration_tnf>
+		<!-- <concentration_tnf type="double" units="TNF/um^3"> 0.5 </concentration_tnf> -->
 		<time_remove_tnf type="int" units="min">8000</time_remove_tnf> 
 		<stop_remove_tnf type="int" units="min">8000</stop_remove_tnf> 
 		<membrane_length type="int" units=""> 470 </membrane_length>
@@ -257,8 +257,8 @@
 		<time_put_tnf2 type="int" units="min">601</time_put_tnf2> 
 		<time_add_tnf2 type="int" units="min">8000</time_add_tnf2> 
 		<duration_add_tnf2 type="int" units="min">8000</duration_add_tnf2> 
-		<!-- <concentration_tnf2 type="double" units="TNF/um^3"> 0.2 </concentration_tnf2>  -->
-		<concentration_tnf2 type="double" units="TNF/um^3"> 5 </concentration_tnf2> 
+		<concentration_tnf2 type="double" units="TNF/um^3"> 0.2 </concentration_tnf2> 
+		<!-- <concentration_tnf2 type="double" units="TNF/um^3"> 5 </concentration_tnf2>  -->
 		<time_remove_tnf2 type="int" units="min">8000</time_remove_tnf2> 
 
 		<update_pc_parameters_O2_based type="bool" units="">true</update_pc_parameters_O2_based>
