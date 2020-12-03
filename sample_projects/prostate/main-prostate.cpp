@@ -80,11 +80,11 @@ int main( int argc, char* argv[] )
 	// double concentration_bcati = parameters.doubles("concentration_bcati") * microenvironment.voxels(0).volume * 0.000001;
 
 	// do small diffusion steps alone to initialize densities
-	int k = microenvironment.find_density_index("tnf");
-	if ( k >= 0 ) 
-		inject_density_sphere(k, concentration_tnf, membrane_lenght);
-	for ( int i = 0; i < 25; i ++ )
-		microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
+	// int k = microenvironment.find_density_index("tnf");
+	// if ( k >= 0 ) 
+	// 	inject_density_sphere(k, concentration_tnf, membrane_lenght);
+	// for ( int i = 0; i < 25; i ++ )
+	// 	microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
 	
 	/* PhysiCell setup */ 
  	
