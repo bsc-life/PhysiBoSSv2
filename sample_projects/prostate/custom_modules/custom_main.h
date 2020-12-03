@@ -16,3 +16,15 @@ using namespace BioFVM;
 
 void inject_density_sphere(int density_index, double concentration, double membrane_lenght);
 void remove_density( int density_index );
+inline double current_value( double min, double max, double percent )
+{ return (min + (max-min) * percent); };
+
+static const double EPSILON = std::numeric_limits<double>::epsilon();
+
+/** \brief Relative difference between two numbers */
+inline double relative_diff( double a, double b )
+{ if ( b < EPSILON ) return 0; return ( fabs(a-b)/b ); };
+
+
+/* Change the current value of the input coefficient, increase or decrease according to up value */
+void evolve_coef( int up, double* coef, double dt );

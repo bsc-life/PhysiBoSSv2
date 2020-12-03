@@ -118,9 +118,9 @@ void setup_tissue( void )
 	std::vector<init_record> cells = read_init_file(parameters.strings("init_cells_filename"), ';', true);
 	std::string bnd_file = parameters.strings("bnd_file");
 	std::string cfg_file = parameters.strings("cfg_file");
-	BooleanNetwork ags_network;
+	BooleanNetwork prostate_network;
 	double maboss_time_step = parameters.doubles("maboss_time_step");
-	ags_network.initialize_boolean_network(bnd_file, cfg_file, maboss_time_step);
+	prostate_network.initialize_boolean_network(bnd_file, cfg_file, maboss_time_step);
 
 	for (int i = 0; i < cells.size(); i++)
 	{
@@ -138,7 +138,7 @@ void setup_tissue( void )
 		// pC->phenotype.cycle.data.current_phase_index = phase;
 		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
 		
-		pC->boolean_network = ags_network;
+		pC->boolean_network = prostate_network;
 		pC->boolean_network.restart_nodes();
 		static int index_next_physiboss_run = pC->custom_data.find_variable_index("next_physiboss_run");
 		pC->custom_data.variables.at(index_next_physiboss_run).value = pC->boolean_network.get_time_to_update();
@@ -262,67 +262,40 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 		int end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
 		int apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
 		
-		if(pCell->phenotype.intracellular->has_node("Apoptosis")
-			&& pCell->phenotype.intracellular->get_boolean_value("Apoptosis"))
+		if(pCell->boolean_network.get_node_value("Apoptosis"))
 		{
 			pCell->start_death(apoptosis_index);
 			return;
 		}
 
-		if(pCell->phenotype.intracellular->has_node("Proliferation")
-			&& pCell->phenotype.intracellular->get_boolean_value("Apoptosis"))
+		if(pCell->boolean_network.get_node_value("Proliferation"))
 		{
-			multiplier = proliferation_value + 1.0;
-			phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
-			multiplier = apoposis_value + 1.0;
+			int i = 0;
+			// int multiplier = proliferation_value + 1.0;
+			// phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
 		}
 
 
-		if(pCell->phenotype.intracellular->has_node("Migration"))
+		if(pCell->boolean_network.get_node_value("Migration"))
 		{
-			static_cast<Custom_cell*>(pCell)->evolve_motility_coef( 
-				pCell->phenotype.intracellular->get_boolean_node_value("Migration"), dt 
-			);
+			// static_cast<Custom_cell*>(pCell)->evolve_coef( 
+			// 	pCell->phenotype.intracellular->get_boolean_node_value("Migration"), phenotype.motility.migration_speed, dt 
+			// );
 		}
 
-		if(pCell->phenotype.intracellular->has_node("Invasion"))
+		if(pCell->boolean_network.get_node_value("Invasion"))
 		{
-			
+			int i = 0;
 		}
 
 	}
 
-	//translate migration value into agent-based model 
-	if ( migration_value > 0) 
-	double maximum_speed = 1.2;
-	double minimum_speed = 0.05;
-	{
-		phenotype.motility.is_motile = true;
-		if (phenotype.motility.migration_speed*2 > maximum_speed) {
-			phenotype.motility.migration_speed = 1.2;
-		}
-		else 
-		{
-			phenotype.motility.migration_speed *= 2;
-		}
-	}
-	else 
-	{
-		if (phenotype.motility.migration_speed/2 < minimum_speed) {
-			phenotype.motility.is_motile = false;
-		}
-		else 
-		{
-			phenotype.motility.migration_speed /= 2;
-		}
-	}
 
+	// if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+	// {
+	// 	std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) <<  ". " << prosurvival_value << ", " << antisurvival_value << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0) <<  ". " << prosurvival_value << ", " << antisurvival_value << "\n" << std::endl;
 
-	if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
-	{
-		std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) <<  ". " << prosurvival_value << ", " << antisurvival_value << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0) <<  ". " << prosurvival_value << ", " << antisurvival_value << "\n" << std::endl;
-
-	}
+	// }
 
 	// int tnf_substrate_index = microenvironment.find_density_index( "tnf" );
 	// static double tnf_secretion = parameters.doubles("tnf_secretion_rate");
