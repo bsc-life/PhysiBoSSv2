@@ -35,7 +35,7 @@ void setup_tissue( void );
 void setup_microenvironment( void ); 
 
 // custom pathology coloring function 
-std::vector<std::string> my_coloring_function( Cell* );
+std::vector<std::string> prolif_apoptosis_coloring( Cell* );
 
 // custom cell phenotype functions could go here 
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt );

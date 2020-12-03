@@ -3,9 +3,9 @@
 
 /**
  *	\main drug_AGS custom
- *	\brief Custom module file for drug_AGS example
+ *	\brief Custom module file for prostate example
  * 
- *	\details Modules needed for the drug_AGS example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
+ *	\details Modules needed for the prostate example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
  *
  *
  *	\date 19/10/2020
@@ -184,10 +184,20 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 	}
 }
 
-std::vector<std::string> my_coloring_function( Cell* pCell )
+std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 {
-	// start with live coloring 
-	std::vector<std::string> output = false_cell_coloring_live_dead(pCell); 
+	std::vector<std::string> output;
+	// color apoptotic cells red and proliferating cells green
+	if (pCell->boolean_network.get_node_value("Apoptosis"))
+	{
+		//color red
+		output = {"crimson", "black","darkred", "darkred"};
+	}
+	else 
+	{
+		//color green
+		output = {"limegreen", "black", "darkgreen", "darkgreen"};
+	} 
 	return output; 
 }
 
