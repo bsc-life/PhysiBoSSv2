@@ -131,8 +131,8 @@
 			<initial_condition units="mmHg">38.0</initial_condition>
 			<Dirichlet_boundary_condition units="mmHg" enabled="true">38.0</Dirichlet_boundary_condition>
 		</variable>
-		
- 		<!-- <variable name="AKTi" units="mmol" ID="1">
+
+		<variable name="ERKi" units="mmol" ID="1">
 			<physical_parameter_set>
 				<diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
 				<decay_rate units="1/min">.0275</decay_rate> 
@@ -141,23 +141,15 @@
 			<Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition>
 		</variable>
 
-		<variable name="TAKi" units="mmol" ID="2">
+		<variable name="MYC_MAXi" units="mmol" ID="1">
 			<physical_parameter_set>
 				<diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
 				<decay_rate units="1/min">.0275</decay_rate> 
 			</physical_parameter_set>
 			<initial_condition units="mmol">0.0</initial_condition>
 			<Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition>
-		</variable> -->
-
-		<!-- <variable name="BCATi" units="mmol" ID="7"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
+		</variable>
+		
 
 		<options>
 			<calculate_gradients>true</calculate_gradients>
@@ -233,7 +225,21 @@
 						<uptake_rate units="1/min">10</uptake_rate>
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
 					</substrate> 
-						
+
+					<substrate name="ERKi">
+						<secretion_rate units="1/min">0</secretion_rate>
+						<secretion_target units="substrate density">1</secretion_target>
+						<uptake_rate units="1/min">0.0025</uptake_rate>
+						<net_export_rate units="total substrate/min">0</net_export_rate> 
+					</substrate>  
+					
+					<substrate name="MYC_MAXi">
+						<secretion_rate units="1/min">0</secretion_rate>
+						<secretion_target units="substrate density">1</secretion_target>
+						<uptake_rate units="1/min">0.0025</uptake_rate>
+						<net_export_rate units="total substrate/min">0</net_export_rate> 
+					</substrate>  
+
 					<!-- <substrate name="AKTi">
 						<secretion_rate units="1/min">0</secretion_rate>
 						<secretion_target units="substrate density">1</secretion_target>
@@ -261,6 +267,10 @@
 			</phenotype>
 			<custom_data>
 				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
+				<erki_concentration units="dimensionless">0</erki_concentration>
+				<erki_node units="dimensionless">0</erki_node>
+				<myc_maxi_concentration units="dimensionless">0</myc_maxi_concentration>
+				<myc_maxi_node units="dimensionless">0</myc_maxi_node>
 				<!-- <akti_concentration units="dimensionless">0</akti_concentration>
 				<akti_node units="dimensionless">0</akti_node>
 				<taki_concentration units="dimensionless">0</taki_concentration>
@@ -275,9 +285,14 @@
 	<user_parameters>
 		<random_seed type="int" units="dimensionless">0</random_seed> 
 		<!-- example parameters from the template --> 
-
+		<migration_bias type='double' units="" description="change value of migration bias for cells with migration node active">0</migration_bias>
+		<migration_speed type='double' units="" description="change value of migration speed for cells with migration node active">0.7</migration_speed>
+		<persistence type="double" units="" description="change value of persistence for cells with migration node active">50</persistence>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 		<!-- motility parameters-->
+		<max_motility_speed type="double" units="">1.5</max_motility_speed>
+		<motility_coeff type="double" units= "">0.1</motility_coeff>
+
 		<motility_amplitude_min type="double" units=""> 0.1 </motility_amplitude_min>
     	<motility_amplitude_max type="double" units=""> 0.5 </motility_amplitude_max>
     	<mode_motility type="int" units=""> 1 </mode_motility>
