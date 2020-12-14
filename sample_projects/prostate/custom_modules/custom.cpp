@@ -50,14 +50,11 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	
 	// set molecular properties 
-	// int tnf_substrate_index = microenvironment.find_density_index( "tnf" ); 
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[tnf_substrate_index] = 0.0;
-	// int akti_substrate_index = microenvironment.find_density_index( "AKTi" ); 
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[akti_substrate_index] = 0.0;
-	// int taki_substrate_index = microenvironment.find_density_index( "TAKi" ); 
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[taki_substrate_index] = 0.0;
-	// int bcati_substrate_index = microenvironment.find_density_index( "BCATi" ); 
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[bcati_substrate_index] = 0.0;
+	int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
+	cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
+
+	int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
+	cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
 
 
 	build_cell_definitions_maps(); 
@@ -90,6 +87,18 @@ void update_custom_variables( Cell* pCell )
 	// pCell->custom_data.variables.at(index_tnf_node).value = pCell->boolean_network.get_node_value("TNF");
 	// pCell->custom_data.variables.at(index_fadd_node).value = pCell->boolean_network.get_node_value("FADD");
 	
+	static int erki_index = microenvironment.find_density_index( "ERKi" ); 
+	static int index_erki_concentration = pCell->custom_data.find_variable_index("erki_concentration");
+	static int index_erki_node = pCell->custom_data.find_variable_index("erki_node");
+	pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
+	//pCell->custom_data.variables.at(index_erki_node).value = pCell->boolean_network.get_node_value("anti_ERK");
+
+	static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
+	static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
+	static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
+	pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
+	//pCell->custom_data.variables.at(index_myc_maxi_node).value = pCell->boolean_network.get_node_value("anti_MYC_MAX");
+
 	// static int akti_index = microenvironment.find_density_index( "AKTi" ); 
 	// static int index_akti_concentration = pCell->custom_data.find_variable_index("akti_concentration");
 	// static int index_akti_node = pCell->custom_data.find_variable_index("akti_node");
@@ -201,60 +210,32 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 	return output; 
 }
 
-void set_input_nodes(Cell* pCell) {
-	// static int tnf_index = microenvironment.find_density_index( "tnf" ); 
-	// static double tnf_threshold = parameters.doubles("tnf_threshold");
-	// static int akti_index = microenvironment.find_density_index( "AKTi" );
-	// static double akti_threshold = parameters.doubles("akti_threshold");
-	// static int taki_index = microenvironment.find_density_index( "TAKi" );
-	// static double taki_threshold = parameters.doubles("taki_threshold");
-	// static int bcati_index = microenvironment.find_density_index( "BCATi" );
-	// static double bcati_threshold = parameters.doubles("bcati_threshold");
-
-	// if (tnf_index != -1)
-	// {
-	// 	double tnf_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[tnf_index];
-	// 	if (tnf_cell_concentration >= tnf_threshold)
-	// 		pCell->boolean_network.set_node_value("TNF", 1);
-	// 	else
-	// 	{
-	// 		pCell->boolean_network.set_node_value("TNF", 0);
-	// 	}
-	// }
-	// if (akti_index != -1)
-	// {
-	// 	double akti_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
-	// 	if (akti_cell_concentration >= akti_threshold)
-	// 		pCell->boolean_network.set_node_value("anti_AKT", 1);
-	// 	else
-	// 	{
-	// 		pCell->boolean_network.set_node_value("anti_AKT", 0);
-	// 	}
-	// }
-	
-	// if (taki_index != -1)
-	// {
-	// 	double taki_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
-	// 	if (taki_cell_concentration >= taki_threshold)
-	// 		pCell->boolean_network.set_node_value("anti_TAK1", 1);
-	// 	else
-	// 	{
-	// 		pCell->boolean_network.set_node_value("anti_TAK1", 0);
-	// 	}		
-	// }
-	// 	if (bcati_index != -1)
-	// {
-	// 	double bcati_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[bcati_index];
-	// 	if (bcati_cell_concentration >= bcati_threshold)
-	// 		pCell->boolean_network.set_node_value("anti_betacatenin", 1);
-	// 	else
-	// 	{
-	// 		pCell->boolean_network.set_node_value("anti_betacatenin", 0);
-	// 	}
-	// }
-
-
+void set_boolean_node (Cell* pCell, std::string node_to_be_set, int index, double threshold) {
+	if (index != -1)
+		{
+			double cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[index];
+			if (cell_concentration >= threshold)
+				pCell->boolean_network.set_node_value(node_to_be_set, 1);
+			else 
+			{
+				pCell->boolean_network.set_node_value(node_to_be_set, 0);
+			}
+		}
 }
+
+
+void set_input_nodes(Cell* pCell) {
+	
+	static int erki_index = microenvironment.find_density_index("ERKi");
+	static double erki_threshold = parameters.doubles("erki_threshold");
+	static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
+	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
+
+	// In order to do that i first need to create .cfg file that contain the anti-nodes 
+	//set_boolean_node("anti_ERK", erki_index, erki_threshold);
+	//set_boolean_node("anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
+}
+
 
 void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 {
@@ -278,24 +259,38 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 			return;
 		}
 
-		if(pCell->boolean_network.get_node_value("Proliferation"))
+		if( pCell->boolean_network.get_node_value("EMT"))
 		{
-			int i = 0;
-			// int multiplier = proliferation_value + 1.0;
-			// phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
+			// pCell->evolve_coef_sigmoid( 
+			// 	pCell->boolean_network.get_node_value("EMT"), phenotype.mechanics.cell_cell_adhesion_strength, dt 
+			// );
+
+			//phenotype.mechanics.cell_cell_adhesion_strength = PhysiCell::parameters.doubles("homotypic_adhesion_max") * theta 
 		}
 
-
-		if(pCell->boolean_network.get_node_value("Migration"))
+		if(pCell->boolean_network.get_node_value("Proliferation"))
 		{
-			// static_cast<Custom_cell*>(pCell)->evolve_coef( 
-			// 	pCell->phenotype.intracellular->get_boolean_node_value("Migration"), phenotype.motility.migration_speed, dt 
+			double multiplier = 2.0;
+			phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) *= multiplier;
+		}
+
+		std::cout << "Migration: " << pCell->boolean_network.get_node_value("Migration") << std::endl;
+		
+		if(pCell->boolean_network.get_node_value("Migration"))
+		{ 
+			pCell->phenotype.motility.is_motile = true;
+		 	pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed");
+			pCell->phenotype.motility.migration_bias = PhysiCell::parameters.doubles("migration_bias");
+			pCell->phenotype.motility.persistence_time = PhysiCell::parameters.doubles("persistence");
+
+			// pCell->evolve_coef(pCell->boolean_network.get_node_value("Migration"),	phenotype.motility.migration_speed, dt 
 			// );
+			// pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("max_motility_speed") * migration_coeff
 		}
 
 		if(pCell->boolean_network.get_node_value("Invasion"))
 		{
-			int i = 0;
+			// nothing happens for now 
 		}
 
 	}
