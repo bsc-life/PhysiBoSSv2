@@ -50,11 +50,11 @@ void create_cell_types( void )
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	
 	// set molecular properties 
-	int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
-	cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
+	// int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
+	// cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
 
-	int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
-	cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
+	// int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
+	// cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
 
 
 	build_cell_definitions_maps(); 
@@ -86,17 +86,17 @@ void update_custom_variables( Cell* pCell )
 	// pCell->custom_data.variables.at(index_tnf_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[tnf_index];
 	// pCell->custom_data.variables.at(index_tnf_node).value = pCell->boolean_network.get_node_value("TNF");
 	// pCell->custom_data.variables.at(index_fadd_node).value = pCell->boolean_network.get_node_value("FADD");
-	
-	static int erki_index = microenvironment.find_density_index( "ERKi" ); 
-	static int index_erki_concentration = pCell->custom_data.find_variable_index("erki_concentration");
-	static int index_erki_node = pCell->custom_data.find_variable_index("erki_node");
-	pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
+
+	// static int erki_index = microenvironment.find_density_index( "ERKi" ); 
+	// static int index_erki_concentration = pCell->custom_data.find_variable_index("erki_concentration");
+	// static int index_erki_node = pCell->custom_data.find_variable_index("erki_node");
+	// pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
 	//pCell->custom_data.variables.at(index_erki_node).value = pCell->boolean_network.get_node_value("anti_ERK");
 
-	static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
-	static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
-	static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
-	pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
+	// static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
+	// static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
+	// static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
+	// pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
 	//pCell->custom_data.variables.at(index_myc_maxi_node).value = pCell->boolean_network.get_node_value("anti_MYC_MAX");
 
 	// static int akti_index = microenvironment.find_density_index( "AKTi" ); 
@@ -226,10 +226,10 @@ void set_boolean_node (Cell* pCell, std::string node_to_be_set, int index, doubl
 
 void set_input_nodes(Cell* pCell) {
 	
-	static int erki_index = microenvironment.find_density_index("ERKi");
-	static double erki_threshold = parameters.doubles("erki_threshold");
-	static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
-	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
+	// static int erki_index = microenvironment.find_density_index("ERKi");
+	// static double erki_threshold = parameters.doubles("erki_threshold");
+	// static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
+	// static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
 
 	// In order to do that i first need to create .cfg file that contain the anti-nodes 
 	//set_boolean_node("anti_ERK", erki_index, erki_threshold);
@@ -286,6 +286,10 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 			// pCell->evolve_coef(pCell->boolean_network.get_node_value("Migration"),	phenotype.motility.migration_speed, dt 
 			// );
 			// pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("max_motility_speed") * migration_coeff
+		}
+		else 
+		{
+			pCell->phenotype.motility.is_motile = false;
 		}
 
 		if(pCell->boolean_network.get_node_value("Invasion"))

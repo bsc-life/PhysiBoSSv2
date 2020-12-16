@@ -132,7 +132,7 @@
 			<Dirichlet_boundary_condition units="mmHg" enabled="true">38.0</Dirichlet_boundary_condition>
 		</variable>
 
-		<variable name="ERKi" units="mmol" ID="1">
+		<!-- <variable name="ERKi" units="mmol" ID="1">
 			<physical_parameter_set>
 				<diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
 				<decay_rate units="1/min">.0275</decay_rate> 
@@ -148,7 +148,7 @@
 			</physical_parameter_set>
 			<initial_condition units="mmol">0.0</initial_condition>
 			<Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition>
-		</variable>
+		</variable> -->
 		
 
 		<options>
@@ -225,7 +225,7 @@
 						<uptake_rate units="1/min">10</uptake_rate>
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
 					</substrate> 
-
+<!-- 
 					<substrate name="ERKi">
 						<secretion_rate units="1/min">0</secretion_rate>
 						<secretion_target units="substrate density">1</secretion_target>
@@ -238,7 +238,7 @@
 						<secretion_target units="substrate density">1</secretion_target>
 						<uptake_rate units="1/min">0.0025</uptake_rate>
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
-					</substrate>  
+					</substrate>   -->
 
 					<!-- <substrate name="AKTi">
 						<secretion_rate units="1/min">0</secretion_rate>
@@ -267,10 +267,10 @@
 			</phenotype>
 			<custom_data>
 				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
-				<erki_concentration units="dimensionless">0</erki_concentration>
+				<!-- <erki_concentration units="dimensionless">0</erki_concentration>
 				<erki_node units="dimensionless">0</erki_node>
 				<myc_maxi_concentration units="dimensionless">0</myc_maxi_concentration>
-				<myc_maxi_node units="dimensionless">0</myc_maxi_node>
+				<myc_maxi_node units="dimensionless">0</myc_maxi_node> -->
 				<!-- <akti_concentration units="dimensionless">0</akti_concentration>
 				<akti_node units="dimensionless">0</akti_node>
 				<taki_concentration units="dimensionless">0</taki_concentration>
@@ -288,22 +288,24 @@
 		<migration_bias type='double' units="" description="change value of migration bias for cells with migration node active">0</migration_bias>
 		<migration_speed type='double' units="" description="change value of migration speed for cells with migration node active">0.7</migration_speed>
 		<persistence type="double" units="" description="change value of persistence for cells with migration node active">50</persistence>
-		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
-		<!-- motility parameters-->
-		<max_motility_speed type="double" units="">1.5</max_motility_speed>
+		
+		<!-- motility parameters, just what the people of france used-->
+		<!-- <max_motility_speed type="double" units="">1.5</max_motility_speed>
 		<motility_coeff type="double" units= "">0.1</motility_coeff>
 
 		<motility_amplitude_min type="double" units=""> 0.1 </motility_amplitude_min>
     	<motility_amplitude_max type="double" units=""> 0.5 </motility_amplitude_max>
-    	<mode_motility type="int" units=""> 1 </mode_motility>
+    	<mode_motility type="int" units=""> 1 </mode_motility> -->
+		
 		<!-- adhesion and repulsion parameters-->
-		<homotypic_adhesion_min type="double" units=""> 0.2 </homotypic_adhesion_min>
+		<!-- <homotypic_adhesion_min type="double" units=""> 0.2 </homotypic_adhesion_min>
 		<homotypic_adhesion_max type="double" units=""> 0.8 </homotypic_adhesion_max>
 		<heterotypic_adhesion_min type="double" units=""> 0.2 </heterotypic_adhesion_min>
 		<heterotypic_adhesion_max type="double" units=""> 0.8 </heterotypic_adhesion_max>
 		<cell_basement_membrane_repulsion type="double" units="">10.0</cell_basement_membrane_repulsion>
 		<cell_basement_membrane_adhesion type="double" units="">1.70577155519015</cell_basement_membrane_adhesion>
-		<cell_cell_repulsion type="int" units=""> 10 </cell_cell_repulsion>
+		<cell_cell_repulsion type="int" units=""> 10 </cell_cell_repulsion> -->
+		
 		<!-- oxygen parameters-->
 		<!-- <oxygen_necrotic type="int" units=""> 4 </oxygen_necrotic> -->
 		<oxygen_critical type="int" units=""> 3 </oxygen_critical>
@@ -345,26 +347,24 @@
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 
-		<!-- <duration_add_akti type="int" units="min">8000</duration_add_akti>
-		<time_remove_akti type="int" units="min">8000</time_remove_akti>
-		<time_add_akti type="int" units="min">0</time_add_akti>
-		<akti_threshold type="double" units="dimensionless">0.14</akti_threshold>
-		<concentration_akti type="double" units="ng/mL"> 0.5 </concentration_akti>
+		<!-- <erki_uptake_rate type="double" units="">0.0025</erki_uptake_rate> 
+		<erki_secretion_rate type="double" units="fg/cell/min">0.1</erki_secretion_rate> 
 		
-		<duration_add_taki type="int" units="min">8000</duration_add_taki> 
-		<time_remove_taki type="int" units="min">8000</time_remove_taki> 
-		<time_add_taki type="int" units="min">0</time_add_taki> 
-		<taki_threshold type="double" units="dimensionless">0.14</taki_threshold>
-		<concentration_taki type="double" units="ng/mL"> 0.5 </concentration_taki>  -->
+		<duration_add_erki type="int" units="min">8000</duration_add_erki>
+		<time_remove_erki type="int" units="min">8000</time_remove_erki>
+		<time_add_erki type="int" units="min">0</time_add_erki>
+		<erki_threshold type="double" units="dimensionless">0.14</erki_threshold>
+		<concentration_erki type="double" units="ng/mL"> 0.5 </concentration_erki>
 
-		<!-- <bcati_uptake_rate type="double" units="">0.0025</bcati_uptake_rate> -->
-		<!-- <bcati_secretion_rate type="double" units="fg/cell/min">0.1</bcati_secretion_rate> -->
-		<!-- <duration_add_bcati type="int" units="min">8000</duration_add_bcati> -->
-		<!-- <time_remove_bcati type="int" units="min">8000</time_remove_bcati>  -->
-		<!-- <time_add_bcati type="int" units="min">0</time_add_bcati>  -->
-		<!-- <bcati_threshold type="double" units="dimensionless">0.14</bcati_threshold>  -->
-		<!-- <concentration_bcati type="double" units="ng/mL"> 0.5 </concentration_bcati> -->
+		<myc_maxi_uptake_rate type="double" units="">0.0025</myc_maxi_uptake_rate> 
+		<myc_maxi_secretion_rate type="double" units="fg/cell/min">0.1</myc_maxi_secretion_rate> 
 		
+		<duration_add_myc_maxi type="int" units="min">8000</duration_add_myc_maxi>
+		<time_remove_myc_maxi type="int" units="min">8000</time_remove_myc_maxi>
+		<time_add_myc_maxi type="int" units="min">0</time_add_myc_maxi>
+		<myc_maxi_threshold type="double" units="dimensionless">0.14</myc_maxi_threshold>
+		<concentration_myc_maxi type="double" units="ng/mL"> 0.5 </concentration_myc_maxi> -->
+
 		<membrane_length type="int" units=""> 470 </membrane_length>
 	</user_parameters>
 </PhysiCell_settings>
