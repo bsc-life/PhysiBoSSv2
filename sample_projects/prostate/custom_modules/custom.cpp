@@ -258,14 +258,18 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 		int end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
 		int apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
 		
+		// Update Apoptosis 
 		if(pCell->boolean_network.get_node_value("Apoptosis"))
 		{
 			pCell->start_death(apoptosis_index);
 			return;
 		}
 
+
+		// Update Adhesion
 		if( pCell->boolean_network.get_node_value("EMT"))
 		{
+			// reduce cell-cell adhesion 
 			// pCell->evolve_coef_sigmoid( 
 			// 	pCell->boolean_network.get_node_value("EMT"), phenotype.mechanics.cell_cell_adhesion_strength, dt 
 			// );
@@ -273,14 +277,45 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 			//phenotype.mechanics.cell_cell_adhesion_strength = PhysiCell::parameters.doubles("homotypic_adhesion_max") * theta 
 		}
 
-		if(pCell->boolean_network.get_node_value("Proliferation"))
+
+		// Update pReference_live_phenotype for proliferation node 
+		double max_trans_rate = PhysiCell::parameters.doubles("max_transition_rate");
+		double min_trans_rate = PhysiCell::parameters.doubles("min_transition_rate");
+
+		if (pCell->boolean_network.get_node_value("Proliferation")) 
 		{
-			double multiplier = 2.0;
-			phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) *= multiplier;
+			// multiplier implementation
+			//pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) *= 2.5;
+			//std::cout << "Rate up! " << std::endl;
+
+
+			//switch implementation
+			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("high_transition_rate");
+		}
+		else 
+		{
+			//multiplier implementation 
+			//pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) *= 0.4;
+			//std::cout << "Rate down! " << std::endl;
+
+
+			//switch implementation 
+			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("low_transition_rate");
 		}
 
-		std::cout << "Migration: " << pCell->boolean_network.get_node_value("Migration") << std::endl;
-		
+		 
+	
+		// if (pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) > max_trans_rate) 
+		// {
+		// 	 pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = max_trans_rate;
+		// }
+		// else if (pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) < min_trans_rate)
+		// {
+		// 	 pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = min_trans_rate;
+		// }
+
+
+		// Update Migration
 		if(pCell->boolean_network.get_node_value("Migration"))
 		{ 
 			pCell->phenotype.motility.is_motile = true;
