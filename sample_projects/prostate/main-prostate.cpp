@@ -60,13 +60,14 @@ int main( int argc, char* argv[] )
 	// double time_erki_next = 0;
 	// double time_remove_erki = parameters.ints("time_remove_erki");
 	// double concentration_erki = parameters.doubles("concentration_erki") * microenvironment.voxels(0).volume * 0.000001;
+	double membrane_length = parameters.ints("membrane_length");
 
-	// double time_add_myc_maxi = parameters.ints("time_add_myc_maxi");
-	// double time_put_myc_maxi = 0;
-	// double durantion_add_myc_maxi = parameters.ints("duration_add_myc_maxi");
-	// double time_myc_maxi_next = 0;
-	// double time_remove_myc_maxi = parameters.ints("time_remove_myc_maxi");
-	// double concentration_myc_maxi = parameters.doubles("concentration_myc_maxi") * microenvironment.voxels(0).volume * 0.000001;
+	double time_add_myc_maxi = parameters.ints("time_add_myc_maxi");
+	double time_put_myc_maxi = 0;
+	double duration_add_myc_maxi = parameters.ints("duration_add_myc_maxi");
+	double time_myc_maxi_next = 0;
+	double time_remove_myc_maxi = parameters.ints("time_remove_myc_maxi");
+	double concentration_myc_maxi = parameters.doubles("concentration_myc_maxi") * microenvironment.voxels(0).volume * 0.000001;
 
 	// do small diffusion steps alone to initialize densities
 	// int k = microenvironment.find_density_index("tnf");
@@ -173,8 +174,8 @@ int main( int argc, char* argv[] )
 			  Custom add-ons could potentially go here. 
 			*/			
 			//Call here instead the custom_main.cpp function set_densitiy_for_current_time
-			//set_density_for_current_time("ERKi", time_add_erki, time_put_erki, duration_add_erki, time_remove_erki, time_erki_next, concentration_erki, membrane_length)
-			//set_density_for_current_time("MYC_MAXi", time_add_myc_maxi, time_put_myc_maxi, duration_add_myc_maxi, time_remove_myc_maxi, time_myc_maxi_next, concentration_myc_maxi, membrane_length)
+			// set_density_for_current_time("ERKi", PhysiCell_globals.current_time, PhysiCell_settings.max_time, time_add_erki, time_put_erki, duration_add_erki, time_remove_erki, time_erki_next, concentration_erki, membrane_length)
+			set_density_for_current_time(microenvironment.find_density_index("MYC_MAXi"), PhysiCell_globals.current_time, PhysiCell_settings.max_time, time_add_myc_maxi, time_put_myc_maxi, duration_add_myc_maxi, time_remove_myc_maxi, time_myc_maxi_next, concentration_myc_maxi, membrane_length);
 		
 
 			// update the microenvironment

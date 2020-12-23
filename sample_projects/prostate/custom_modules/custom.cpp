@@ -53,8 +53,8 @@ void create_cell_types( void )
 	// int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
 	// cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
 
-	// int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
+	int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
+	cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
 
 
 	build_cell_definitions_maps(); 
@@ -93,31 +93,17 @@ void update_custom_variables( Cell* pCell )
 	// pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
 	//pCell->custom_data.variables.at(index_erki_node).value = pCell->boolean_network.get_node_value("anti_ERK");
 
-	// static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
-	// static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
-	// static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
-	// pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
-	//pCell->custom_data.variables.at(index_myc_maxi_node).value = pCell->boolean_network.get_node_value("anti_MYC_MAX");
+	static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
+	static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
+	static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
+	pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
+	pCell->custom_data.variables.at(index_myc_maxi_node).value = pCell->boolean_network.get_node_value("anti_MYC_MAX");
 
 	// static int akti_index = microenvironment.find_density_index( "AKTi" ); 
 	// static int index_akti_concentration = pCell->custom_data.find_variable_index("akti_concentration");
 	// static int index_akti_node = pCell->custom_data.find_variable_index("akti_node");
 	// pCell->custom_data.variables.at(index_akti_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
 	// pCell->custom_data.variables.at(index_akti_node).value = pCell->boolean_network.get_node_value("anti_AKT");
-
-	// static int taki_index = microenvironment.find_density_index( "TAKi" ); 
-	// static int index_taki_concentration = pCell->custom_data.find_variable_index("taki_concentration");
-	// static int index_taki_node = pCell->custom_data.find_variable_index("taki_node");
-	// pCell->custom_data.variables.at(index_taki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
-	// pCell->custom_data.variables.at(index_taki_node).value = pCell->boolean_network.get_node_value("anti_TAK1");
-
-	// static int bcati_index = microenvironment.find_density_index( "BCATi" ); 
-	// static int index_bcati_concentration = pCell->custom_data.find_variable_index("bcati_concentration");
-	// static int index_bcati_node = pCell->custom_data.find_variable_index("bcati_node");
-	// pCell->custom_data.variables.at(index_bcati_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[bcati_index];
-	// pCell->custom_data.variables.at(index_bcati_node).value = pCell->boolean_network.get_node_value("anti_betacatenin");
-
-
 }
 
 void setup_tissue( void )

@@ -16,6 +16,7 @@ using namespace BioFVM;
 
 void inject_density_sphere(int density_index, double concentration, double membrane_lenght);
 void remove_density( int density_index );
+void set_density_for_current_time (int density_index, double current_time, double max_time, double time_add_dens, double time_put_dens, double duration_add_dens, double time_remove_dens, double time_dens_next, double concentration_dens, double membrane_length );
 inline double current_value( double min, double max, double percent )
 { return (min + (max-min) * percent); };
 
