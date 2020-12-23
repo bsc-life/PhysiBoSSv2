@@ -126,7 +126,16 @@ void setup_tissue( void )
 		int phase = cells[i].phase;
 		double elapsed_time = cells[i].elapsed_time;
 
-		pC = create_cell(get_cell_definition("default")); 
+		double random_num = (double) rand()/RAND_MAX;
+
+		if (random_num > parameters.doubles("proportion_drug_sensitive")){
+			pC = create_cell(get_cell_definition("drug_insensitive")); 
+		}
+		else 
+		{
+			pC = create_cell(get_cell_definition("default")); 
+		}
+		
 		pC->assign_position( x, y, z );
 		// pC->set_total_volume(sphere_volume_from_radius(radius));
 		
@@ -182,30 +191,37 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 {
 	std::vector<std::string> output;
-	// color apoptotic cells red and proliferating cells green
 	if (pCell->boolean_network.get_node_value("Apoptosis"))
 	{
-		//color red
+		//apoptotic cells are colored red
 		output = {"crimson", "black","darkred", "darkred"};
 	}
+	else if (pCell->type_name == "drug_insensitive")
+	{
+		//drug insensitive living cells are colored blue
+		output = {"deepskyblue", "black", "darkblue", "darkblue"};
+	} 
 	else 
 	{
-		//color green
+		//drug sensitive living cells are colored green
 		output = {"limegreen", "black", "darkgreen", "darkgreen"};
-	} 
+	}
 	return output; 
 }
 
-void set_boolean_node (Cell* pCell, std::string node_to_be_set, int index, double threshold) {
+void set_boolean_node (Cell* pCell, std::string node, int index, double threshold) {
 	if (index != -1)
 		{
 			double cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[index];
 			if (cell_concentration >= threshold)
-				pCell->boolean_network.set_node_value(node_to_be_set, 1);
+			{
+				pCell->boolean_network.set_node_value(node, 1);
+			}
 			else 
 			{
-				pCell->boolean_network.set_node_value(node_to_be_set, 0);
+				pCell->boolean_network.set_node_value(node, 0);
 			}
+			
 		}
 }
 
@@ -214,12 +230,15 @@ void set_input_nodes(Cell* pCell) {
 	
 	// static int erki_index = microenvironment.find_density_index("ERKi");
 	// static double erki_threshold = parameters.doubles("erki_threshold");
-	// static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
-	// static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
+	static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
+	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
 
-	// In order to do that i first need to create .cfg file that contain the anti-nodes 
-	//set_boolean_node("anti_ERK", erki_index, erki_threshold);
-	//set_boolean_node("anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
+	// maboss node is just modified if the cell is drug sensitive
+	if (pCell->type_name == "drug_sensitive") 
+	{
+		set_boolean_node(pCell, "anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
+	}
+	
 }
 
 
@@ -278,6 +297,8 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 			pCell->phenotype.motility.is_motile = false;
 		}
 
+
+		// Update Invasion
 		if(pCell->boolean_network.get_node_value("Invasion"))
 		{
 			// nothing happens for now 
