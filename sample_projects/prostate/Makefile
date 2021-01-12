@@ -2,7 +2,6 @@ VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
 PROGRAM_NAME := prostate
 
 CC := g++
-CXXFLAGS= -g
 # CC := g++-mp-7 # typical macports compiler name
 # CC := g++-7 # typical homebrew compiler name 
 
@@ -57,9 +56,9 @@ ARCH := native # best auto-tuning
 # ARCH := nocona #64-bit pentium 4 or later 
 
 # CFLAGS := -march=$(ARCH) -Ofast -s -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
-CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+# CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 # debug:
-# CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 
 COMPILE_COMMAND := $(CC) $(CFLAGS) 
 

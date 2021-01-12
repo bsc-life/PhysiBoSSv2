@@ -332,7 +332,7 @@
 		<bnd_file type="string" units="">./config/boolean_network/LNCaP_mut_RNA_EGF_MYC_MAX.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/LNCaP_mut_RNA_EGF_MYC_MAX.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
-		<init_cells_filename type="string" units="">./config/init_full.txt</init_cells_filename>
+		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 
 		<!-- <erki_uptake_rate type="double" units="">0.0025</erki_uptake_rate> 
 		<erki_secretion_rate type="double" units="fg/cell/min">0.1</erki_secretion_rate> 

@@ -234,7 +234,7 @@ void set_input_nodes(Cell* pCell) {
 	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
 
 	// maboss node is just modified if the cell is drug sensitive
-	if (pCell->type_name == "drug_sensitive") 
+	if (pCell->type_name == "default") 
 	{
 		set_boolean_node(pCell, "anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
 	}
