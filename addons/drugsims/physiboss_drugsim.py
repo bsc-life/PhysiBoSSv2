@@ -63,8 +63,6 @@ drug_conc_name_list = [str(i).replace(".", "_") for i in drug_conc_value_list]
 print("Inhibited nodes' levels: "+str(drug_conc_value_list).replace("[","").replace("]",""))
 
 # set base paths for output and project folders 
-single_output_path = "output/single"
-double_output_path = "output/double"
 sample_project_path = "sample_projects"
 prostate_path = "{}/{}".format(sample_project_path, project)
 project_path = "{}/{}_{}_{}".format(sample_project_path, "physiboss_drugsim", project, "LNCaP") 
@@ -182,7 +180,7 @@ def add_drugs_to_network(bool_model, druglist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, conc, path_to_xml):
+def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
@@ -191,10 +189,14 @@ def add_drug_to_xml(drug, conc, path_to_xml):
     microenv_setup = root.find('microenvironment_setup')
 
     # 2. childs
+    variables = microenv_setup.findall('variable')
+    variable_count = 0
+    for variable in variables:
+        variable_count += 1
     new_variable = etree.SubElement(microenv_setup, "variable")
     new_variable.set('name', drug)
     new_variable.set('units', 'mmol')
-    #set ID
+    new_variable.set("ID", str(variable_count))
     physical_parameter_set = etree.SubElement(new_variable, "physical_parameter_set")
     initial_cond = etree.SubElement(new_variable, "initial_condition")
     initial_cond.set('units', 'mmHg')
@@ -211,12 +213,15 @@ def add_drug_to_xml(drug, conc, path_to_xml):
     decay_rate = etree.SubElement(physical_parameter_set, "decay_rate")
     decay_rate.set('units', '1/min')
     decay_rate.text = str(0.0275)
-
-
-    # insert drug as a secreting substance for every cell strain 
-    secretion = root.findall('secretion')
-    for cellstrain in secretion:
-        substrate = etree.SubElement(cellstrain, "substrate")
+    
+    cell_definitions = root.find('cell_definitions')
+    # insert drug as a secreting substance for the default strain 
+    cell_definition = cell_definitions.find('cell_definition')
+    phenotype = cell_definition.find('phenotype')
+    if (phenotype != None):
+        secretion = phenotype.find('secretion')
+    if (secretion != None):
+        substrate = etree.SubElement(secretion, "substrate")
         substrate.set("name", drug)
         secretion_rate = etree.SubElement(substrate, "secretion_rate")
         secretion_rate.set("units", "1/min")
@@ -230,15 +235,27 @@ def add_drug_to_xml(drug, conc, path_to_xml):
         net_export_rate = etree.SubElement(substrate, "net_export_rate")
         net_export_rate.set("units", "total substrate/min")
         net_export_rate.text = str(0.0)
-    
+
     # insert drug in custom data 
-    custom_data = root.find('custom_data')
-    new_drug_conc = etree.SubElement(custom_data, drug + "_concentration")
-    new_drug_conc.set("units", "dimensionless")
-    new_drug_conc.text = str(0.0)
-    new_drug_node = etree.SubElement(custom_data, drug + "_node")
-    new_drug_node.set("units", "dimensionless")
-    new_drug_node.text = str(0.0)
+    custom_data = cell_definition.find('custom_data')
+    if (custom_data != None):
+        new_drug_conc = etree.SubElement(custom_data, drug + "_concentration")
+        new_drug_conc.set("units", "dimensionless")
+        new_drug_conc.text = str(0.0)
+        new_drug_node = etree.SubElement(custom_data, drug + "_node")
+        new_drug_node.set("units", "dimensionless")
+        new_drug_node.text = str(0.0)
+
+    # insert two new cell strains for the drug 
+    new_cell_def_1 = etree.SubElement(cell_definitions, "cell_definition")
+    new_cell_def_1.set("name", drug + "_sensitive")
+    new_cell_def_1.set("ID", str(len(cell_definitions.getchildren())-1))
+    new_cell_def_1.set("parent_type", "default")
+
+    new_cell_def_2 = etree.SubElement(cell_definitions, "cell_definition")
+    new_cell_def_2.set("name", drug + "_insensitive")
+    new_cell_def_2.set("ID", str(len(cell_definitions.getchildren())-1))
+    new_cell_def_2.set("parent_type", "default")
 
     # insert drug in user parameters
     user_parameters = root.find('user_parameters')
@@ -269,9 +286,9 @@ def add_drug_to_xml(drug, conc, path_to_xml):
     time_add.text = str(0)
 
     threshold = etree.SubElement(user_parameters, "threshold_" + drug)
-    time_remove.set("type", "double")
-    time_remove.set("units", "dimensionless")
-    time_remove.text = str(0.14)
+    threshold.set("type", "double")
+    threshold.set("units", "dimensionless")
+    threshold.text = str(0.14)
 
     drug_conc = etree.SubElement(user_parameters, "concentration_" + drug)
     drug_conc.set("type", "double")
@@ -283,14 +300,22 @@ def add_drug_to_xml(drug, conc, path_to_xml):
     inhibition_level = etree.SubElement(user_parameters, "prop_drug_sensitive_" + drug)
     inhibition_level.set("type", "double")
     inhibition_level.set("units", "dimensionless")
-    inhibition_level.text = str(conc)
+    inhibition_level.text = str(conc.replace("_", "."))
+
+    # set the new bnd and cfg files 
+    bnd_file = user_parameters.find('bnd_file') 
+    bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "bnd")
+    cfg_file = user_parameters.find('cfg_file') 
+    cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "cfg")
 
     et = etree.ElementTree(root)
     et.write(path_to_xml, pretty_print=True)   
 
 
+def add_drug_to_cpp_files(drug, conc, cpp_path):
+    return
 
-def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_path, base_output_path, conc_list, mode):
+def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_path, conc_list, mode):
 
     # add drugs to network files
     add_drugs_to_network(bool_model, druglist)
@@ -306,6 +331,14 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
         for elem in conc_combinations:
             conc_combinations_list.append(elem)
         conc_list = conc_combinations_list
+
+    # set the output and config path 
+    if (mode == "single"):
+        output_base_path = "output/single"
+        config_base_path = "config/single"
+    else:
+        output_base_path = "output/double"
+        config_base_path = "config/double"
     
     for drug in druglist:
 
@@ -313,13 +346,18 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
             filtered_drugname = str(drug).translate(translation_table)
             filtered_conc = str(conc).translate(translation_table)
             drugsim_path = "{}/{}_{}_{}".format(base_project_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
-            output_path = "{}/{}_{}_{}".format(base_output_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
+            output_path = "{}/{}_{}_{}".format(output_base_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
+            config_path = "{}/{}_{}_{}".format(config_base_path, bool_model_name, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
 
             # create the corresponding output folder
             if os.path.exists(output_path):
                 shutil.rmtree(output_path)
             os.makedirs(output_path)  
 
+            # create the corresponding config folder
+            if os.path.exists(config_path):
+                shutil.rmtree(config_path)
+            os.makedirs(config_path)
 
             # create the project folder and copy the prostate project files in it
             shutil.copytree(prostate_path, drugsim_path)
@@ -328,14 +366,21 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
             xml_path = "{}/{}/{}".format(drugsim_path, "config", "PhysiCell_settings.xml")
             if (type(drug) is tuple):
                 # for the tuples the first two elements of drug and conc belong together
-                add_drug_to_xml(drug[0], conc[0],  xml_path)
-                add_drug_to_xml(drug[1], conc[1], xml_path)
+                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename)
+                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename)
             else: 
-                add_drug_to_xml(drug, conc, xml_path)
+                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename)
 
             # modify custom.cpp file for the current run
+            cpp_path = "{}/{}".format(drugsim_path, "custom_modules")
+            if (type(drug) is tuple):
+                # for the tuples the first two elements of drug and conc belong together
+                add_drug_to_cpp_files(drug[0], conc[0], cpp_path)
+                add_drug_to_cpp_files(drug[1], conc[1], cpp_path)
+            else: 
+                add_drug_to_cpp_files(drug, conc, cpp_path)
 
-            # modify the Makefile for the current run 
+            # modify the Makefile for the current run // add also that the files have to be stored in the new config and new output folders 
 
             # run physiboss
 
@@ -349,12 +394,12 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
 
 mode = args.mode
 if (mode == "single"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, single_output_path,drug_conc_name_list,mode)
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, drug_conc_name_list,mode)
 elif (mode == "double"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, double_output_path, drug_conc_name_list, mode)
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, drug_conc_name_list, mode)
 elif (mode == "both"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, single_output_path, drug_conc_name_list, "single")
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, double_output_path, drug_conc_name_list, "double")
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, drug_conc_name_list, "single")
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, drug_conc_name_list, "double")
 
 # for each run: each drug and each concentration (and each initial condition) depending on the mode create the different run folders in sample_projects
 # named for example "MYC_MAX_00_0_8" or "MYC_MAX_ERK_00_0_4_0_8"
