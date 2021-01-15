@@ -49,13 +49,18 @@ void create_cell_types( void )
 
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	
-	// set molecular properties 
 	// int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
 	// cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
 
-	int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
-	cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
+	// int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
+	// cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
 
+	// set molecular properties for each drug defined in PhysiCell_settings.xml
+	// starts with the second density because the first density is oxygen
+	for (int i = 1; i < microenvironment.number_of_densities(); i++) 
+	{
+		cell_defaults.phenotype.molecular.fraction_released_at_death[i] = 0.0;
+	}
 
 	build_cell_definitions_maps(); 
 	display_cell_definitions( std::cout ); 
@@ -79,31 +84,23 @@ void setup_microenvironment( void )
 }
 void update_custom_variables( Cell* pCell )
 {
-	// static int tnf_index = microenvironment.find_density_index( "tnf" ); 
-	// static int index_tnf_concentration = pCell->custom_data.find_variable_index("tnf_concentration");
-	// static int index_tnf_node = pCell->custom_data.find_variable_index("tnf_node");
-	// static int index_fadd_node = pCell->custom_data.find_variable_index("fadd_node");
-	// pCell->custom_data.variables.at(index_tnf_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[tnf_index];
-	// pCell->custom_data.variables.at(index_tnf_node).value = pCell->boolean_network.get_node_value("TNF");
-	// pCell->custom_data.variables.at(index_fadd_node).value = pCell->boolean_network.get_node_value("FADD");
+	// first density is oxygen - shouldn't be changed: index from 1
+	for (int i = 1; i < microenvironment.number_of_densities(); i++) 
+	{
+		std::string drug_name = microenvironment.density_names[i];
+		int drug_index = microenvironment.find_density_index(drug_name);
+		int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
+		int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
+		pCell->custom_data.variables.at(index_drug_conc).value = pCell->phenotype.molecular.internalized_total_substrates[drug_index];
+		pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_name);
 
+		
+	}
 	// static int erki_index = microenvironment.find_density_index( "ERKi" ); 
 	// static int index_erki_concentration = pCell->custom_data.find_variable_index("erki_concentration");
 	// static int index_erki_node = pCell->custom_data.find_variable_index("erki_node");
 	// pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
 	//pCell->custom_data.variables.at(index_erki_node).value = pCell->boolean_network.get_node_value("anti_ERK");
-
-	static int myc_maxi_index = microenvironment.find_density_index( "MYC_MAXi" ); 
-	static int index_myc_maxi_concentration = pCell->custom_data.find_variable_index("myc_maxi_concentration");
-	static int index_myc_maxi_node = pCell->custom_data.find_variable_index("myc_maxi_node");
-	pCell->custom_data.variables.at(index_myc_maxi_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[myc_maxi_index];
-	pCell->custom_data.variables.at(index_myc_maxi_node).value = pCell->boolean_network.get_node_value("anti_MYC_MAX");
-
-	// static int akti_index = microenvironment.find_density_index( "AKTi" ); 
-	// static int index_akti_concentration = pCell->custom_data.find_variable_index("akti_concentration");
-	// static int index_akti_node = pCell->custom_data.find_variable_index("akti_node");
-	// pCell->custom_data.variables.at(index_akti_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
-	// pCell->custom_data.variables.at(index_akti_node).value = pCell->boolean_network.get_node_value("anti_AKT");
 }
 
 void setup_tissue( void )
@@ -126,16 +123,56 @@ void setup_tissue( void )
 		int phase = cells[i].phase;
 		double elapsed_time = cells[i].elapsed_time;
 
-		double random_num = (double) rand()/RAND_MAX;
+		double random_num_1 = (double) rand()/RAND_MAX;
+		double random_num_2 = (double) rand()/RAND_MAX;
 
-		if (random_num > parameters.doubles("proportion_drug_sensitive")){
-			pC = create_cell(get_cell_definition("drug_insensitive")); 
-		}
-		else 
+		if (parameters.ints("simulation_mode") == 0)
 		{
-			pC = create_cell(get_cell_definition("default")); 
+			// single inhibition - just one drug is present 
+			if (random_num_1 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			{
+				// cell is sensitive to the drug
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+			}
+			else 
+			{
+				// cell is not sensitive to the drug
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_insensitive"));
+			}
 		}
-		
+		else
+		{
+			// double inhibition - two drugs are present - we have 4 cell strains 
+			if (random_num_1 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			{
+				if (random_num_2 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				{
+					// cell is sensitive to both drugs
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+				}
+				else 
+				{
+					// cell is only sensitive to the first drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_insensitive"));
+				}
+			}
+			else
+			{
+				if (random_num_2 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				{
+					// cell is only sensitive to the second drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
+				}
+				else
+				{
+					// cell is sensitive to no drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_insensitive"));
+				}
+				
+			}
+			
+		}
+ 
 		pC->assign_position( x, y, z );
 		// pC->set_total_volume(sphere_volume_from_radius(radius));
 		
@@ -157,7 +194,7 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 {
 	if ( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model) 
 	{
-		std::cout << pCell->phenotype.cycle.current_phase().name << " 0,0: " << pCell->phenotype.cycle.data.transition_rate(0, 0) << "\n" << std::endl;
+		//std::cout << pCell->phenotype.cycle.current_phase().name << " 0,0: " << pCell->phenotype.cycle.data.transition_rate(0, 0) << "\n" << std::endl;
 	}
 	// if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
 	// {
@@ -196,19 +233,26 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 {
 	std::vector<std::string> output;
-	if (pCell->boolean_network.get_node_value("Apoptosis"))
+	if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptosis_death_model)
 	{
 		//apoptotic cells are colored red
 		output = {"crimson", "black","darkred", "darkred"};
 	}
-	else if (pCell->type_name == "drug_insensitive")
+
+	else if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrosis_death_model)
 	{
-		//drug insensitive living cells are colored blue
+		//necrotic cells are colored brown
+		output = {"peru", "black","saddlebrown", "saddlebrown"};
+	}
+
+	else if (pCell->type_name == "drug_sensitive")
+	{
+		//drug sensitive living cells are colored blue
 		output = {"deepskyblue", "black", "darkblue", "darkblue"};
 	} 
 	else 
 	{
-		//drug sensitive living cells are colored green
+		//drug insensitive living cells are colored green
 		output = {"limegreen", "black", "darkgreen", "darkgreen"};
 	}
 	return output; 
@@ -239,10 +283,10 @@ void set_input_nodes(Cell* pCell) {
 	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
 
 	// maboss node is just modified if the cell is drug sensitive
-	if (pCell->type_name == "default") 
-	{
-		set_boolean_node(pCell, "anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
-	}
+	// if (pCell->type_name == "default") 
+	// {
+	// 	set_boolean_node(pCell, "anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
+	// }
 	
 }
 
