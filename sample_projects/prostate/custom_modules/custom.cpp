@@ -165,6 +165,11 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 	// }
 
 	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
+
+	// update motility state variable
+	static int index_motility_state = pCell->custom_data.find_variable_index("motility_state");
+	pCell->custom_data.variables.at(index_motility_state).value = int(pCell->phenotype.motility.is_motile);
+
 	static int index_next_physiboss_run = pCell->custom_data.find_variable_index("next_physiboss_run");
 
 	if( phenotype.death.dead == true )
