@@ -2,7 +2,7 @@
 
 ##ADD YOUR SBATCH HEADERS BELOW!!!##
 #SBATCH -n 1
-#SBATCH --cpus-per-task=6
+#SBATCH --cpus-per-task=8
 #SBATCH -o t6_%j.out
 #SBATCH -e t6_%j.err
 #SBATCH -J "PC_6"
