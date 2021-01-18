@@ -180,9 +180,14 @@ def add_drugs_to_network(bool_model, druglist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode):
+def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode, output_path):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
+
+    # set the output directory for the current run
+    save = root.find("save")
+    output_folder = save.find("folder")
+    output_folder.text(output_path)
 
     # insert drug as a density in the microenvironment 
     # 1. childs 
@@ -324,9 +329,6 @@ def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode):
     et.write(path_to_xml, pretty_print=True)   
 
 
-def add_drug_to_cpp_files(drug, conc, cpp_path):
-    return
-
 def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_path, conc_list, mode):
 
     # add drugs to network files
@@ -378,26 +380,23 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
             xml_path = "{}/{}/{}".format(drugsim_path, "config", "PhysiCell_settings.xml")
             if (type(drug) is tuple):
                 # for the tuples the first two elements of drug and conc belong together
-                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename, mode)
-                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename, mode)
+                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename, mode, output_path)
+                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename, mode, output_path)
             else: 
-                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename, mode)
+                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename, mode, output_path)
 
-            # modify custom.cpp file for the current run
-            cpp_path = "{}/{}".format(drugsim_path, "custom_modules")
-            if (type(drug) is tuple):
-                # for the tuples the first two elements of drug and conc belong together
-                add_drug_to_cpp_files(drug[0], conc[0], cpp_path)
-                add_drug_to_cpp_files(drug[1], conc[1], cpp_path)
-            else: 
-                add_drug_to_cpp_files(drug, conc, cpp_path)
+            # add the new sample project to the Makefile in the main Physiboss folder
 
             # modify the Makefile for the current run // add also that the files have to be stored in the new config and new output folders 
 
             # run physiboss
 
     # delete created folders again 
-   # shutil.rmtree(project_path)
+    # shutil.rmtree(project_path)
+    # delete new .cfg and .bnd in the original prostate folder 
+    os.remove("{}_{}.cfg".format(bool_model,"all_drugs"))
+    os.remove("{}_{}.bnd".format(bool_model,"all_drugs"))
+
          
 
 ####################################################################
