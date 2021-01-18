@@ -24,7 +24,7 @@ parser.add_argument("-c", "--drug_conc", default="0, 0.2, 0.4, 0.6, 0.8, 1.0", h
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
-# example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK" -c "0.2, 0.8" -m "single" -i "00" -cl yes
+# example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
 
 args = parser.parse_args()
 #%% Process Arguments
@@ -65,10 +65,8 @@ print("Inhibited nodes' levels: "+str(drug_conc_value_list).replace("[","").repl
 # set base paths for output and project folders 
 sample_project_path = "sample_projects"
 prostate_path = "{}/{}".format(sample_project_path, project)
-project_path = "{}/{}_{}_{}".format(sample_project_path, "physiboss_drugsim", project, "LNCaP") 
-single_run_path = "{}/{}".format(project_path, "single_runs")
-double_run_path = "{}/{}".format(project_path, "double_runs")
-
+project_name = "{}_{}_{}".format("physiboss_drugsim", project, "LNCaP")
+project_path = "{}/{}".format(sample_project_path, project_name) 
 
 ####################################################################
 # Function definitions
@@ -180,14 +178,14 @@ def add_drugs_to_network(bool_model, druglist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode, output_path):
+def add_drug_to_xml(drug, conc, path_to_xml, xml_output_path, model_name, mode, output_path):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
     # set the output directory for the current run
     save = root.find("save")
     output_folder = save.find("folder")
-    output_folder.text(output_path)
+    output_folder.text = output_path
 
     # insert drug as a density in the microenvironment 
     # 1. childs 
@@ -310,10 +308,8 @@ def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode, outp
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
     # this path is for later when i have in the makefile saved where the files are 
-    # bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "bnd")
     bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", "config", "boolean_network", model_name, "all_drugs", "bnd")
     cfg_file = user_parameters.find('cfg_file') 
-    # cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "cfg")
     cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", "config", "boolean_network", model_name, "all_drugs", "cfg")
 
     # set the chosen simulation mode 
@@ -326,10 +322,30 @@ def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode, outp
         simulation_mode.text = "1"
 
     et = etree.ElementTree(root)
-    et.write(path_to_xml, pretty_print=True)   
+    et.write(xml_output_path, pretty_print=True)   
 
 
-def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_path, conc_list, mode):
+def add_project_to_makefile(project_name, makefile_path):
+    with open(makefile_path, "r") as input_makefile:
+        buf = input_makefile.readlines()
+
+    with open(makefile_path, "w") as output_makefile:
+        for line in buf:
+            if "template_BM:" in line:
+                indent = '      '
+                line = project_name + ":\n" \
+                    + indent + " cp ./sample_projects/"+ project_name + "/custom_modules/* ./custom_modules/\n" \
+                    + indent + " touch main.cpp && cp main.cpp main-backup.cpp\n" \
+                    + indent + " cp ./sample_projects/" + project_name + "/main-prostate.cpp ./main.cpp\n" \
+                    + indent + " cp Makefile Makefile-backup\n" \
+                    + indent + " cp ./sample_projects/" + project_name + "/Makefile .\n" \
+                    + indent + " cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml\n" \
+                    + indent + " cp -r ./sample_projects/" + project_name + "/config/* ./config/mkdir ./scripts/\n" \
+                    + indent + " cp ./sample_projects/" + project_name + "/scripts/* ./scripts/\n" + "\n"  + line 
+            output_makefile.write(line)
+
+
+def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, conc_list, mode):
 
     # add drugs to network files
     add_drugs_to_network(bool_model, druglist)
@@ -346,50 +362,39 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
             conc_combinations_list.append(elem)
         conc_list = conc_combinations_list
 
-    # set the output and config path 
+    # create the project folder and copy the prostate project files in it
+    if not os.path.exists(project_path):
+        shutil.copytree(prostate_path, project_path)
+
+    # set the output base path 
     if (mode == "single"):
         output_base_path = "output/single"
-        config_base_path = "config/single"
     else:
         output_base_path = "output/double"
-        config_base_path = "config/double"
     
     for drug in druglist:
 
         for conc in conc_list:
             filtered_drugname = str(drug).translate(translation_table)
             filtered_conc = str(conc).translate(translation_table)
-            drugsim_path = "{}/{}_{}_{}".format(base_project_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
+            # drugsim_path = "{}/{}_{}_{}".format(project_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
             output_path = "{}/{}_{}_{}".format(output_base_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
-            config_path = "{}/{}_{}_{}".format(config_base_path, bool_model_name, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
+            config_path = "{}/{}_{}_{}".format("config", bool_model_name, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
 
             # create the corresponding output folder
             if os.path.exists(output_path):
                 shutil.rmtree(output_path)
             os.makedirs(output_path)  
 
-            # create the corresponding config folder
-            if os.path.exists(config_path):
-                shutil.rmtree(config_path)
-            os.makedirs(config_path)
-
-            # create the project folder and copy the prostate project files in it
-            shutil.copytree(prostate_path, drugsim_path)
-
             # modify the .xml file for the current run
-            xml_path = "{}/{}/{}".format(drugsim_path, "config", "PhysiCell_settings.xml")
+            xml_path = "{}/{}/{}".format(project_path, "config", "PhysiCell_settings.xml")
+            new_xml_output_path = "{}/{}/{}_{}_{}.{}".format(project_path, "config", "settings", filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"), "xml")
             if (type(drug) is tuple):
                 # for the tuples the first two elements of drug and conc belong together
-                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename, mode, output_path)
-                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename, mode, output_path)
+                add_drug_to_xml(drug[0], conc[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                add_drug_to_xml(drug[1], conc[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
             else: 
-                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename, mode, output_path)
-
-            # add the new sample project to the Makefile in the main Physiboss folder
-
-            # modify the Makefile for the current run // add also that the files have to be stored in the new config and new output folders 
-
-            # run physiboss
+                add_drug_to_xml(drug, conc, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
 
     # delete created folders again 
     # shutil.rmtree(project_path)
@@ -404,13 +409,31 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
 ####################################################################
 
 mode = args.mode
-if (mode == "single"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, drug_conc_name_list,mode)
-elif (mode == "double"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, drug_conc_name_list, mode)
+if (mode == "single" or mode == "double"):
+    setup_drug_simulations(node_list, bool_model_filename, bool_model,project_path, drug_conc_name_list,mode)
 elif (mode == "both"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, single_run_path, drug_conc_name_list, "single")
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, double_run_path, drug_conc_name_list, "double")
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "single")
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "double")
+
+# modify the project Makefile - rename all prostate to the project name 
+project_makefile = project_path + "/Makefile"
+with open(project_makefile, "r") as input_makefile:
+    buf = input_makefile.readlines()
+
+with open(project_makefile, "w") as output_makefile:
+    for line in buf:
+        if "prostate" in line:
+            line = line.replace("prostate", project_name)
+        output_makefile.write(line)
+
+# add the new sample project to the Makefile in the main Physiboss folder
+makefile_path = "Makefile"
+add_project_to_makefile(project_name, makefile_path)
+
+# add also that the files have to be stored in the new config and new output folders 
+
+# run physiboss
+
 
 # for each run: each drug and each concentration (and each initial condition) depending on the mode create the different run folders in sample_projects
 # named for example "MYC_MAX_00_0_8" or "MYC_MAX_ERK_00_0_4_0_8"
