@@ -108,10 +108,10 @@ void setup_tissue( void )
 	Cell* pC;
 
 	std::vector<init_record> cells = read_init_file(parameters.strings("init_cells_filename"), ';', true);
-	std::string bnd_file = parameters.strings("bnd_file");
-	std::string cfg_file = parameters.strings("cfg_file");
+	std::string bnd_file = PhysiCell::parameters.strings("bnd_file");
+	std::string cfg_file = PhysiCell::parameters.strings("cfg_file");
 	BooleanNetwork prostate_network;
-	double maboss_time_step = parameters.doubles("maboss_time_step");
+	double maboss_time_step = PhysiCell::parameters.doubles("maboss_time_step");
 	prostate_network.initialize_boolean_network(bnd_file, cfg_file, maboss_time_step);
 
 	for (int i = 0; i < cells.size(); i++)
@@ -126,10 +126,10 @@ void setup_tissue( void )
 		double random_num_1 = (double) rand()/RAND_MAX;
 		double random_num_2 = (double) rand()/RAND_MAX;
 
-		if (parameters.ints("simulation_mode") == 0)
+		if (PhysiCell::parameters.ints("simulation_mode") == 0)
 		{
 			// single inhibition - just one drug is present 
-			if (random_num_1 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
 			{
 				// cell is sensitive to the drug
 				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
@@ -143,9 +143,9 @@ void setup_tissue( void )
 		else
 		{
 			// double inhibition - two drugs are present - we have 4 cell strains 
-			if (random_num_1 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
 			{
-				if (random_num_2 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
 				{
 					// cell is sensitive to both drugs
 					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
@@ -158,7 +158,7 @@ void setup_tissue( void )
 			}
 			else
 			{
-				if (random_num_2 < parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
 				{
 					// cell is only sensitive to the second drug
 					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
@@ -245,17 +245,53 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 		output = {"peru", "black","saddlebrown", "saddlebrown"};
 	}
 
-	else if (pCell->type_name == "drug_sensitive")
+	else if (PhysiCell::parameters.ints("simulation_mode") == 0) 
 	{
-		//drug sensitive living cells are colored blue
-		output = {"deepskyblue", "black", "darkblue", "darkblue"};
-	} 
+		std::string drug_name = microenvironment.density_names[1];
+		if (pCell->type_name == drug_name + "_sensitive")
+		{
+			//drug sensitive living cells are colored blue
+			output = {"deepskyblue", "black", "darkblue", "darkblue"};
+		} 
+		else 
+		{
+			//drug insensitive living cells are colored green
+			output = {"limegreen", "black", "darkgreen", "darkgreen"};
+		}
+	}
 	else 
 	{
-		//drug insensitive living cells are colored green
-		output = {"limegreen", "black", "darkgreen", "darkgreen"};
+		// // color living cells just in one color 
+		// output = {"limegreen", "black", "darkgreen", "darkgreen"};
+
+		// In case we want to color all 4 strains differently:
+		// double inhibitions --> 4 cell strains 
+		std::string drug1_name = microenvironment.density_names[1];
+		std::string drug2_name = microenvironment.density_names[2]; 
+		if (pCell->type_name == drug1_name + "_sensitive")
+		{
+			//cells that are sensitive to both drugs are colored blue
+			output = {"deepskyblue", "black", "darkblue", "darkblue"};
+		}
+		else if (pCell->type_name == drug2_name + "_insensitive")
+		{
+			// cells that are just sensitive to the first drug 
+			output = {"limegreen", "black", "darkgreen", "darkgreen"};
+
+		}
+		else if (pCell->type_name == drug2_name + "_sensitive")
+		{
+			// cells are just sensitive to the second drug
+			output = {"gold", "black", "orange", "orange"};
+		}
+		else 
+		{
+			// cells aren't sensitive to any drug
+			output = {"mediumorchid", "black", "mediumpurple", "mediumpurple"};
+		}
 	}
-	return output; 
+	return output;
+
 }
 
 void set_boolean_node (Cell* pCell, std::string node, int index, double threshold) {
@@ -276,18 +312,52 @@ void set_boolean_node (Cell* pCell, std::string node, int index, double threshol
 
 
 void set_input_nodes(Cell* pCell) {
-	
-	// static int erki_index = microenvironment.find_density_index("ERKi");
-	// static double erki_threshold = parameters.doubles("erki_threshold");
-	static int myc_maxi_index = microenvironment.find_density_index("MYC_MAXi");
-	static double myc_maxi_threshold = parameters.doubles("myc_maxi_threshold");
 
-	// maboss node is just modified if the cell is drug sensitive
-	// if (pCell->type_name == "default") 
-	// {
-	// 	set_boolean_node(pCell, "anti_MYC_MAX", myc_maxi_index, myc_maxi_threshold);
-	// }
+	if (PhysiCell::parameters.ints("simulation_mode") == 0)
+	{	
+		// single inhibition - just one drug is present 
+
+		std::string drug_name = microenvironment.density_names[1];
+		int drug_index = microenvironment.find_density_index(drug_name);
+		int drug_threshold = PhysiCell::parameters.doubles( "threshold_" + drug_name);
+
+		if (pCell->type_name == drug_name + "_sensitive")
+		{
+			// cell is sensitive to the drug -> set boolean node
+			set_boolean_node(pCell, "anti_" + drug_name, drug_index, drug_threshold);
+		}
+	}
+	else
+	{	
+		// double inhibition - two drugs are present - we have 4 cell strains 
+
+		std::string drug1_name = microenvironment.density_names[1];
+		int drug1_index = microenvironment.find_density_index(drug1_name);
+		int drug1_threshold = PhysiCell::parameters.doubles( "threshold_" + drug1_name);
+
+		std::string drug2_name = microenvironment.density_names[2];
+		int drug2_index = microenvironment.find_density_index(drug2_name);
+		int drug2_threshold = PhysiCell::parameters.doubles( "threshold_" + drug2_name);
 	
+		if (pCell->type_name == drug1_name + "_sensitive")
+		{	
+			// cell is sensitive to both drugs
+			set_boolean_node(pCell, "anti_" + drug1_name, drug1_index, drug1_threshold);
+			set_boolean_node(pCell, "anti_" + drug2_name, drug2_index, drug2_threshold);
+		}
+		else if (pCell->type_name == drug2_name + "_insensitive")
+		{
+			// cell is only sensitive to the first drug
+			set_boolean_node(pCell, "anti_" + drug1_name, drug1_index, drug1_threshold);
+		}
+		else if (pCell->type_name == drug2_name +  "_sensitive")
+		{
+			// cell is only sensitive to the second drug
+			set_boolean_node(pCell, "anti_" + drug2_name, drug2_index, drug2_threshold);
+		}
+
+		// else: cell is sensitive to no drug --> no boolean node is set
+	}
 }
 
 

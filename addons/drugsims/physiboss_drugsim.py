@@ -180,7 +180,7 @@ def add_drugs_to_network(bool_model, druglist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name):
+def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name, mode):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
@@ -304,9 +304,21 @@ def add_drug_to_xml(drug, conc, path_to_xml, config_path, model_name):
 
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
-    bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "bnd")
+    # this path is for later when i have in the makefile saved where the files are 
+    # bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "bnd")
+    bnd_file.text = "{}/{}/{}/{}_{}.{}".format(".", "config", "boolean_network", model_name, "all_drugs", "bnd")
     cfg_file = user_parameters.find('cfg_file') 
-    cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "cfg")
+    # cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", config_path, "boolean_network", model_name, "all_drugs", "cfg")
+    cfg_file.text = "{}/{}/{}/{}_{}.{}".format(".", "config", "boolean_network", model_name, "all_drugs", "cfg")
+
+    # set the chosen simulation mode 
+    simulation_mode = user_parameters.find("simulation_mode")
+    if (simulation_mode == None):
+        simulation_mode = etree.SubElement(user_parameters, "simulation_mode")
+    if (mode == "single"):
+        simulation_mode.text = "0"
+    else:
+        simulation_mode.text = "1"
 
     et = etree.ElementTree(root)
     et.write(path_to_xml, pretty_print=True)   
@@ -366,10 +378,10 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, base_project_p
             xml_path = "{}/{}/{}".format(drugsim_path, "config", "PhysiCell_settings.xml")
             if (type(drug) is tuple):
                 # for the tuples the first two elements of drug and conc belong together
-                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename)
-                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename)
+                add_drug_to_xml(drug[0], conc[0],  xml_path, config_path, bool_model_filename, mode)
+                add_drug_to_xml(drug[1], conc[1], xml_path, config_path, bool_model_filename, mode)
             else: 
-                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename)
+                add_drug_to_xml(drug, conc, xml_path, config_path, bool_model_filename, mode)
 
             # modify custom.cpp file for the current run
             cpp_path = "{}/{}".format(drugsim_path, "custom_modules")
