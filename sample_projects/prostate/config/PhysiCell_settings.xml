@@ -256,7 +256,7 @@
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 
-		<simulation_mode type="int">0</simulation_mode>
+		<simulation_mode type="int">-1</simulation_mode>
 
 		<membrane_length type="int" units=""> 470 </membrane_length>
 	</user_parameters>

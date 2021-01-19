@@ -140,7 +140,7 @@ void setup_tissue( void )
 				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_insensitive"));
 			}
 		}
-		else
+		else if (PhysiCell::parameters.ints("simulation_mode") == 1)
 		{
 			// double inhibition - two drugs are present - we have 4 cell strains 
 			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
@@ -171,6 +171,10 @@ void setup_tissue( void )
 				
 			}
 			
+		}
+		else
+		{
+			pC = create_cell(get_cell_definition("default"));
 		}
  
 		pC->assign_position( x, y, z );
@@ -259,7 +263,7 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 			output = {"limegreen", "black", "darkgreen", "darkgreen"};
 		}
 	}
-	else 
+	else if (PhysiCell::parameters.ints("simulation_mode") == 1) 
 	{
 		// // color living cells just in one color 
 		// output = {"limegreen", "black", "darkgreen", "darkgreen"};
@@ -289,6 +293,11 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 			// cells aren't sensitive to any drug
 			output = {"mediumorchid", "black", "mediumpurple", "mediumpurple"};
 		}
+	}
+	else 
+	{
+		// no drug simulation - living cells are colored green
+		output = {"limegreen", "black", "darkgreen", "darkgreen"};
 	}
 	return output;
 
@@ -327,7 +336,7 @@ void set_input_nodes(Cell* pCell) {
 			set_boolean_node(pCell, "anti_" + drug_name, drug_index, drug_threshold);
 		}
 	}
-	else
+	else if (PhysiCell::parameters.ints("simulation_mode") == 1)
 	{	
 		// double inhibition - two drugs are present - we have 4 cell strains 
 
