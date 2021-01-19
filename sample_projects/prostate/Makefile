@@ -13,7 +13,7 @@ endif
 
 # prostate model has more than 64 nodes, so we have 
 # to set up this var to the number of nodes
-MABOSS_MAX_NODES = 140
+MABOSS_MAX_NODES = 150
 
 ### MaBoSS configuration 
 # MaBoSS max nodes

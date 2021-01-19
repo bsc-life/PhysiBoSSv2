@@ -13,6 +13,7 @@ import re
 import shutil
 from itertools import combinations, product
 from lxml import etree
+import subprocess
 
 current_wd = os.getcwd()
 arg = sys.argv
@@ -38,6 +39,8 @@ print(args)
 print("\n")
 
 project=args.project
+cluster = args.cluster
+
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
     print(project + " folder is not found")
@@ -330,22 +333,23 @@ def add_project_to_makefile(project_name, makefile_path):
         buf = input_makefile.readlines()
 
     with open(makefile_path, "w") as output_makefile:
+        make_string = ""
+        line_count = 11
         for line in buf:
+            if "prostate:" in line:
+                # save the following lines in a string
+                line_count = 0
+            if line_count <= 10:
+                make_string = make_string + line.replace("prostate", project_name)
+                print(line_count)
+                print(make_string)
+                line_count += 1
             if "template_BM:" in line:
-                indent = '      '
-                line = project_name + ":\n" \
-                    + indent + " cp ./sample_projects/"+ project_name + "/custom_modules/* ./custom_modules/\n" \
-                    + indent + " touch main.cpp && cp main.cpp main-backup.cpp\n" \
-                    + indent + " cp ./sample_projects/" + project_name + "/main-prostate.cpp ./main.cpp\n" \
-                    + indent + " cp Makefile Makefile-backup\n" \
-                    + indent + " cp ./sample_projects/" + project_name + "/Makefile .\n" \
-                    + indent + " cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml\n" \
-                    + indent + " cp -r ./sample_projects/" + project_name + "/config/* ./config/mkdir ./scripts/\n" \
-                    + indent + " cp ./sample_projects/" + project_name + "/scripts/* ./scripts/\n" + "\n"  + line 
+                line = make_string  + line 
             output_makefile.write(line)
 
 
-def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, conc_list, mode):
+def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, conc_list, mode, simulation_list):
 
     # add drugs to network files
     add_drugs_to_network(bool_model, druglist)
@@ -395,6 +399,7 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, 
                 add_drug_to_xml(drug[1], conc[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
             else: 
                 add_drug_to_xml(drug, conc, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+            simulation_list.append(new_xml_output_path) 
 
     # delete created folders again 
     # shutil.rmtree(project_path)
@@ -409,11 +414,12 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, 
 ####################################################################
 
 mode = args.mode
+simulation_list = []
 if (mode == "single" or mode == "double"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model,project_path, drug_conc_name_list,mode)
+    setup_drug_simulations(node_list, bool_model_filename, bool_model,project_path, drug_conc_name_list,mode, simulation_list)
 elif (mode == "both"):
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "single")
-    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "double")
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "single", simulation_list)
+    setup_drug_simulations(node_list, bool_model_filename, bool_model, project_path, drug_conc_name_list, "double", simulation_list)
 
 # modify the project Makefile - rename all prostate to the project name 
 project_makefile = project_path + "/Makefile"
@@ -422,18 +428,42 @@ with open(project_makefile, "r") as input_makefile:
 
 with open(project_makefile, "w") as output_makefile:
     for line in buf:
-        if "prostate" in line:
-            line = line.replace("prostate", project_name)
+        if project in line:
+            line = line.replace(project, project_name)
         output_makefile.write(line)
 
 # add the new sample project to the Makefile in the main Physiboss folder
 makefile_path = "Makefile"
 add_project_to_makefile(project_name, makefile_path)
 
-# add also that the files have to be stored in the new config and new output folders 
+# rename the main file 
+original_main_path = "{}/{}-{}.{}".format(project_path, "main", project, "cpp")
+new_main_path = "{}/{}-{}.{}".format(project_path, "main", project_name, "cpp")
+os.rename(original_main_path, new_main_path)
 
-# run physiboss
+# compile the project
+subprocess.call(["make", project_name])
+subprocess.call(["make"])
 
+# run all simulations with physiboss sequentially if cluster flag is not set
+if (cluster == False):
+    for xml_file in simulation_list:
+        subprocess.call(["{}/{}".format(".", project_name), xml_file])
+else:
+    fw1 = open("./run_drug_simulations.sh", "w")
+    for xml_file in simulation_list:
+        fw1.write("{}/{}".format(".", project_name) + " " + xml_file + "\n")
+    fw1.close()
+    fw1 = open("./run_greasy.sh", "w")
+    fw1.write("#!/bin/bash\n" )
+    fw1.write('#SBATCH --job-name="drug_simulation\n')
+    fw1.write('#SBATCH --output=%j.out\n')
+    fw1.write('#SBATCH --error=%j.err\n')
+    fw1.write('#SBATCH --ntasks=72\n')
+    fw1.write('#SBATCH --tasks-per-node=6\n')
+    fw1.write('#SBATCH --cpus-per-task=8\n')
+    fw1.write('#SBATCH -t 22:00:00\n\n')
+    fw1.write('/apps/GREASY/latest/INTEL/IMPI/bin/greasy run_drug_simulations.sh\n')
 
 # for each run: each drug and each concentration (and each initial condition) depending on the mode create the different run folders in sample_projects
 # named for example "MYC_MAX_00_0_8" or "MYC_MAX_ERK_00_0_4_0_8"
