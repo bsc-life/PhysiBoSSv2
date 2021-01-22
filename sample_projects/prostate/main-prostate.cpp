@@ -35,7 +35,7 @@ int main( int argc, char* argv[] )
 	if( argc > 1 )
 	{ XML_status = load_PhysiCell_config_file( argv[1] ); }
 	else
-	{ XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings.xml" ); }
+	{ XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings_LNCaP.xml" ); }
 	if( !XML_status )
 	{ exit(-1); }
 

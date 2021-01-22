@@ -20,12 +20,14 @@ arg = sys.argv
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate').")
+parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "NCIH660", "PWR1E"], help = "Cell line to be simulated.")
 parser.add_argument("-d", "--drugs", required=True, help="Names of nodes affected by drug, comma separated (ex. 'MYC_MAX, ERK').")
 parser.add_argument("-c", "--drug_conc", default="0, 0.2, 0.4, 0.6, 0.8, 1.0", help="Levels of drug inhibition, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
+# currently just supports input-condition: 00
 
 args = parser.parse_args()
 #%% Process Arguments
@@ -40,6 +42,7 @@ print("\n")
 
 project=args.project
 cluster = args.cluster
+cell_line = args.cell_line
 
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
@@ -53,7 +56,7 @@ print("Nodes to be inhibited: "+str(node_list).replace("[", "").replace("]","").
 # specify boolean model path
 input_cond = args.input_cond
 bool_model_path_dir = "{}/{}/{}/{}".format("sample_projects", project, "config", "boolean_network")
-bool_model_filename = "LNCaP_mut_RNA_00"
+bool_model_filename = cell_line + "_mut_RNA_00"
 bool_model = "{}/{}".format(bool_model_path_dir, bool_model_filename)
 
 
@@ -68,7 +71,7 @@ print("Inhibited nodes' levels: "+str(drug_conc_value_list).replace("[","").repl
 # set base paths for output and project folders 
 sample_project_path = "sample_projects"
 prostate_path = "{}/{}".format(sample_project_path, project)
-project_name = "{}_{}_{}".format("physiboss_drugsim", project, "LNCaP")
+project_name = "{}_{}_{}".format("physiboss_drugsim", project, cell_line)
 project_path = "{}/{}".format(sample_project_path, project_name) 
 
 ####################################################################
@@ -391,8 +394,8 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, 
             os.makedirs(output_path)  
 
             # modify the .xml file for the current run
-            xml_path = "{}/{}/{}".format(project_path, "config", "PhysiCell_settings.xml")
-            new_xml_output_path = "{}/{}/{}_{}_{}.{}".format(project_path, "config", "settings", filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"), "xml")
+            xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
+            new_xml_output_path = "{}/{}/{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"), "xml")
             if (type(drug) is tuple):
                 # for the tuples the first two elements of drug and conc belong together
                 add_drug_to_xml(drug[0], conc[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
@@ -459,7 +462,8 @@ else:
     fw1.write('#SBATCH --job-name="drug_simulation\n')
     fw1.write('#SBATCH --output=%j.out\n')
     fw1.write('#SBATCH --error=%j.err\n')
-    fw1.write('#SBATCH --ntasks=72\n')
+    fw1.write('#SBATCH --nodes=1')
+    fw1.write('#SBATCH --ntasks=1\n')
     fw1.write('#SBATCH --tasks-per-node=6\n')
     fw1.write('#SBATCH --cpus-per-task=8\n')
     fw1.write('#SBATCH -t 22:00:00\n\n')
