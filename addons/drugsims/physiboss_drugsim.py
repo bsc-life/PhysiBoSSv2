@@ -384,9 +384,7 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, 
         for conc in conc_list:
             filtered_drugname = str(drug).translate(translation_table)
             filtered_conc = str(conc).translate(translation_table)
-            # drugsim_path = "{}/{}_{}_{}".format(project_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
             output_path = "{}/{}_{}_{}".format(output_base_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
-            config_path = "{}/{}_{}_{}".format("config", bool_model_name, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"))
 
             # create the corresponding output folder
             if os.path.exists(output_path):
@@ -402,7 +400,8 @@ def setup_drug_simulations(druglist, bool_model_name, bool_model, project_path, 
                 add_drug_to_xml(drug[1], conc[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
             else: 
                 add_drug_to_xml(drug, conc, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-            simulation_list.append(new_xml_output_path) 
+            xml_config_path = "{}/{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drugname.replace(",","_"), filtered_conc.replace(",","_"), "xml")
+            simulation_list.append(xml_config_path) 
 
     # delete created folders again 
     # shutil.rmtree(project_path)
