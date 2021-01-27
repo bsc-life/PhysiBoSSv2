@@ -2,14 +2,14 @@
 #include "./custom.h"
 
 /**
- *	\main drug_AGS custom
+ *	\main prostate custom
  *	\brief Custom module file for prostate example
  * 
- *	\details Modules needed for the prostate example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
+ *	\details Modules needed for the prostate example. 
  *
  *
- *	\date 19/10/2020
- *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ *	\date 14/12/2020
+ *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud, Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
 // declare cell definitions here 
@@ -407,8 +407,8 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 
 
 		// Update pReference_live_phenotype for proliferation node 
-		double max_trans_rate = PhysiCell::parameters.doubles("max_transition_rate");
-		double min_trans_rate = PhysiCell::parameters.doubles("min_transition_rate");
+		// double max_trans_rate = PhysiCell::parameters.doubles("max_transition_rate");
+		// double min_trans_rate = PhysiCell::parameters.doubles("min_transition_rate");
 
 		if (pCell->boolean_network.get_node_value("Proliferation")) 
 		{
@@ -418,7 +418,8 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 
 
 			//switch implementation
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("high_transition_rate");
+			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
+			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
 		}
 		else 
 		{
@@ -428,7 +429,7 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 
 
 			//switch implementation 
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("low_transition_rate");
+			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
 		}
 
 		 

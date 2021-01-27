@@ -229,8 +229,8 @@
 		<min_transition_rate type="double" units="">0.00072</min_transition_rate> -->
 
 		<!-- proliferation switch implementation -->
-		<high_transition_rate type="double" units="">0.01</high_transition_rate>
-		<low_transition_rate type="double" units="">0.00072</low_transition_rate>
+		<transition_rate_multiplier type="double" units="">15</transition_rate_multiplier>
+		<base_transition_rate type="double" units="">0.00072</base_transition_rate>
 		
 		<!-- oxygen parameters-->
 		<!-- <oxygen_necrotic type="int" units=""> 4 </oxygen_necrotic> -->
@@ -251,8 +251,8 @@
 		<contact_cell_cell_threshold type="double" units=""> 1 </contact_cell_cell_threshold> 
 
 		<polarity_coefficient type="double" units="">0.5</polarity_coefficient>
-		<bnd_file type="string" units="">./config/boolean_network/BHP1_mut_RNA_00.bnd</bnd_file>
-		<cfg_file type="string" units="">./config/boolean_network/BHP1_mut_RNA_00.cfg</cfg_file>
+		<bnd_file type="string" units="">./config/boolean_network/BPH1_mut_RNA_00.bnd</bnd_file>
+		<cfg_file type="string" units="">./config/boolean_network/BPH1_mut_RNA_00.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 

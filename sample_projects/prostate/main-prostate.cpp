@@ -10,13 +10,11 @@
 #include "./modules/PhysiCell_standard_modules.h" 
 
 /**
- *	\main main-drug_AGS file
- *	\brief Main file of the drug_AGS example
- * 
- *	\details Compiling this main file runs the AGS example with drug presence. This file and its custom modules can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
- *
- *	\date 19/10/2020
- *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ *	\main main-prostate file
+ *	\brief Main file of the prostate example
+
+ *	\date 14/12/2020
+ *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud, Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
 // put custom code modules here! 
