@@ -407,8 +407,6 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 
 
 		// Update pReference_live_phenotype for proliferation node 
-		// double max_trans_rate = PhysiCell::parameters.doubles("max_transition_rate");
-		// double min_trans_rate = PhysiCell::parameters.doubles("min_transition_rate");
 
 		if (pCell->boolean_network.get_node_value("Proliferation")) 
 		{
@@ -432,16 +430,6 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
 		}
 
-		 
-	
-		// if (pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) > max_trans_rate) 
-		// {
-		// 	 pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = max_trans_rate;
-		// }
-		// else if (pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) < min_trans_rate)
-		// {
-		// 	 pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = min_trans_rate;
-		// }
 
 
 		// Update Migration
