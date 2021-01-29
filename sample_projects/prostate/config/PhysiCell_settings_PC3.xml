@@ -87,7 +87,7 @@
 	</domain>
 	
 	<overall>
-		<max_time units="min">10080</max_time>
+		<max_time units="min">3600</max_time>
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 
@@ -104,12 +104,12 @@
 		<folder>output</folder>
 
 		<full_data>
-			<interval units="min">180</interval>
+			<interval units="min">240</interval>
 			<enable>true</enable>
 		</full_data>
 		
 		<SVG>
-			<interval units="min">180</interval>
+			<interval units="min">240</interval>
 			<enable>true</enable>
 		</SVG>
 		
@@ -151,7 +151,7 @@
 			<phenotype>
 				<cycle code="5" name="live_cells_cycle_model">  
 					<phase_transition_rates units="1/min">
-						<rate start_index="0" end_index="0" fixed_duration="false">0.00072‬</rate>
+						<rate start_index="0" end_index="0" fixed_duration="false">0.00038‬</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -225,9 +225,12 @@
 		<persistence type="double" units="" description="change value of persistence for cells with migration node active">50</persistence>
 
 		<!-- proliferation switch implementation -->
-		<transition_rate_multiplier type="double" units="">15</transition_rate_multiplier>
-		<base_transition_rate type="double" units="">0.00072</base_transition_rate>
+		<transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
+		<base_transition_rate type="double" units="">0.00038</base_transition_rate>
 		
+		<!-- Apoptosis rate implementation -->
+		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
+	
 		<bnd_file type="string" units="">./config/boolean_network/PC3_mut_RNA_00.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/PC3_mut_RNA_00.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>

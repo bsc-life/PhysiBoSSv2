@@ -389,10 +389,14 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 		// Update Apoptosis 
 		if(pCell->boolean_network.get_node_value("Apoptosis"))
 		{
-			pCell->start_death(apoptosis_index);
+			// simple implementation, just lead immediately to death
+			// pCell->start_death(apoptosis_index);
+
+			// increase death rate whenever the node is ON 
+			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
+
 			return;
 		}
-
 
 		// Update Adhesion
 		if( pCell->boolean_network.get_node_value("EMT"))

@@ -104,12 +104,12 @@
 		<folder>output</folder>
 
 		<full_data>
-			<interval units="min">180</interval>
+			<interval units="min">240</interval>
 			<enable>true</enable>
 		</full_data>
 		
 		<SVG>
-			<interval units="min">180</interval>
+			<interval units="min">240</interval>
 			<enable>true</enable>
 		</SVG>
 		
@@ -228,6 +228,9 @@
 		<transition_rate_multiplier type="double" units="">15</transition_rate_multiplier>
 		<base_transition_rate type="double" units="">0.00072</base_transition_rate>
 		
+		<!-- Apoptosis rate implementation -->
+		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
+	
 		<bnd_file type="string" units="">./config/boolean_network/PWR1E_mut_RNA_00.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/PWR1E_mut_RNA_00.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
