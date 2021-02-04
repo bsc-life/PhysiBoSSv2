@@ -394,8 +394,6 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 
 			// increase death rate whenever the node is ON 
 			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
-
-			return;
 		}
 
 		// Update Adhesion

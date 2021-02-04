@@ -101,7 +101,7 @@
 	</parallel> 
 	
 	<save>
-		<folder>output</folder>
+		<folder>output_VCaP</folder>
 
 		<full_data>
 			<interval units="min">240</interval>
@@ -151,7 +151,7 @@
 			<phenotype>
 				<cycle code="5" name="live_cells_cycle_model">  
 					<phase_transition_rates units="1/min">
-						<rate start_index="0" end_index="0" fixed_duration="false">0.00011‬</rate>
+						<rate start_index="0" end_index="0" fixed_duration="false">0.000153‬</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -222,11 +222,11 @@
 		<!-- motility parameters --> 
 		<migration_bias type='double' units="" description="change value of migration bias for cells with migration node active">0</migration_bias>
 		<migration_speed type='double' units="" description="change value of migration speed for cells with migration node active">0.7</migration_speed>
-		<persistence type="double" units="" description="change value of persistence for cells with migration node active">50</persistence>
+		<persistence type="double" units="" description="change value of persistence for cells with migration node active">5</persistence>
 
 		<!-- proliferation switch implementation -->
 		<transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-		<base_transition_rate type="double" units="">0.00011</base_transition_rate>
+		<base_transition_rate type="double" units="">0.000153</base_transition_rate>
 		
 		<!-- Apoptosis rate implementation -->
 		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
