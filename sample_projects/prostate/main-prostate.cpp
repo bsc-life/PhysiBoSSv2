@@ -21,6 +21,7 @@
 
 #include "./custom_modules/custom.h" 
 #include "./custom_modules/custom_main.h"
+#include "./custom_modules/drug_sensitivity.h"
 
 using namespace BioFVM;
 using namespace PhysiCell;
@@ -37,6 +38,10 @@ int main( int argc, char* argv[] )
 	if( !XML_status )
 	{ exit(-1); }
 
+	// read drug sensitivity .csv file 
+	std::vector<std::pair<std::string, std::vector<int>>> csv_file = read_csv( "./config/prostate_nlme_stats.csv" );
+
+	std::cout << csv_file[3].first << std::endl;
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
 	

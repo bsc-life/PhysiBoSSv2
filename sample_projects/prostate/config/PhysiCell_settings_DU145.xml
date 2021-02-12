@@ -151,7 +151,7 @@
 			<phenotype>
 				<cycle code="5" name="live_cells_cycle_model">  
 					<phase_transition_rates units="1/min">
-						<rate start_index="0" end_index="0" fixed_duration="false">0.0005‬2</rate>
+						<rate start_index="0" end_index="0" fixed_duration="false">0.0005‬1405</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -226,11 +226,28 @@
 
 		<!-- proliferation switch implementation -->
 		<transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-		<base_transition_rate type="double" units="">0.00052</base_transition_rate>
+		<base_transition_rate type="double" units="">0.00051405</base_transition_rate>
 	
 		<!-- Apoptosis rate implementation -->
 		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
 	
+		<!-- Drug sensitivities (IC50 values) -->
+		<afatinib_sensitivity>31.764368</afatinib_sensitivity>
+		<afuresertib_sensitivity>52.844407</afuresertib_sensitivity>
+		<bibr-1532_sensitivity>180.605139</bibr-1532_sensitivity>
+		<bicalutamide_sensitivity>13.778769</bicalutamide_sensitivity>
+		<pictisilib_sensitivity>17.558022</pictisilib_sensitivity>
+		<trametinib_sensitivity>14.269974</trametinib_sensitivity>
+		<ulixertinib_sensitivity>166.97258</ulixertinib_sensitivity>
+
+		<EGFR_inhibitor>afatinib</EGFR_inhibitor>
+		<AKT_inhibitor>afuresertib</AKT_inhibitor>
+		<TERT_inhibitor>bibr-1532</TERT_inhibitor>
+		<AR_inhibitor>bicatulamide</AR_inhibitor>
+		<PI3K_inhibitor>pictisilib</PI3K_inhibitor>
+		<MEK1_2_inhibitor>trametinib</MEK1_2_inhibitor>
+		<ERK_inhibitor>ulixertinib</ERK_inhibitor>
+		
 		<bnd_file type="string" units="">./config/boolean_network/DU145_mut_RNA_00.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/DU145_mut_RNA_00.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>

@@ -306,18 +306,28 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 void set_boolean_node (Cell* pCell, std::string node, int index, double threshold) {
 	if (index != -1)
 		{
+			std::string drug_name = PhysiCell::parameters.strings(node + "_inhibitor");
+			double drug_sensitivity = PhysiCell::parameters.doubles(drug_name + "_sensitivity");
+			// calculate the probability value according to the drug sensitivity (the lowest drug sensitivity used is 166 so we scale probabilities according to that?)
+			double lowest_sensitivity = 166;
+			double sens_prob = 0.5 + (0.5 - (drug_sensitivity / lowest_sensitivity / 2));
 			double cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[index];
-			if (cell_concentration >= threshold)
+			double random_num = (double) rand()/RAND_MAX;
+
+			if (cell_concentration >= threshold) 
 			{
-				pCell->boolean_network.set_node_value(node, 1);
-			}
-			else 
-			{
-				pCell->boolean_network.set_node_value(node, 0);
-			}
-			
+				if (random_num < sens_prob) 
+				{	 
+					pCell->boolean_network.set_node_value(node, 1);
+				}
+				else 
+				{
+					pCell->boolean_network.set_node_value(node, 0);
+				}
+			}	
 		}
 }
+
 
 
 void set_input_nodes(Cell* pCell) {
@@ -375,10 +385,8 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 	std::vector<bool>* nodes = pCell->boolean_network.get_nodes();
 	int bn_index;
 
-	// For prostate model
-
-	// live model 
-	// translate apoptosis, proliferation and invasion values into agent-based model
+	// Prostate live model
+	// map apoptosis, proliferation and invasion values to agent-based model
 
 	if( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
 	{
