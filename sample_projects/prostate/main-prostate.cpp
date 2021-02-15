@@ -39,9 +39,11 @@ int main( int argc, char* argv[] )
 	{ exit(-1); }
 
 	// read drug sensitivity .csv file 
-	std::vector<std::pair<std::string, std::vector<int>>> csv_file = read_csv( "./config/prostate_nlme_stats.csv" );
+	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( "./config/prostate_nlme_stats.csv" );
 
 	std::cout << csv_file[3].first << std::endl;
+	int index = get_index(csv_file, "Afatinib", "PC3");
+	std::cout << "Index for Afatinib in PC3: " << index << std::endl;
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
 	
