@@ -42,6 +42,14 @@ void create_cell_types( void )
 	
 	cell_defaults.functions.set_orientation = NULL;
 
+	// store each column of drug sensitivity csv file in a custom vector variable
+	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
+	for (std::pair<std::string, std::vector<double>> &element : csv_file ) {
+		if (element.first != "\"\""){
+			cell_defaults.custom_data.add_vector_variable( element.first, element.second );
+		}
+	}
+
 	/*
 	   This parses the cell definitions in the XML config file. 
 	*/
@@ -194,7 +202,7 @@ void setup_tissue( void )
 }
 
 // custom cell phenotype function to run PhysiBoSS when is needed
-void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt )
+void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt)
 {
 	if ( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model) 
 	{
@@ -303,28 +311,24 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 
 }
 
-void set_boolean_node (Cell* pCell, std::string node, int index, double threshold) {
+void set_boolean_node (Cell* pCell, std::string drug_name, int index, double threshold) {
 	if (index != -1)
 		{
-			std::string drug_name = PhysiCell::parameters.strings(node + "_inhibitor");
-			double drug_sensitivity = PhysiCell::parameters.doubles(drug_name + "_sensitivity");
-			// calculate the probability value according to the drug sensitivity (the lowest drug sensitivity used is 166 so we scale probabilities according to that?)
-			double lowest_sensitivity = 166;
-			double sens_prob = 0.5 + (0.5 - (drug_sensitivity / lowest_sensitivity / 2));
-			double cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[index];
+			vector< pair<string, string>>::const_iterator drug_target_it = find_if( drug_targets.begin(), drug_targets.end(),[&drug_name](const pair<string, string>& element){ return element.first == drug_name;} );
+			std::string drug_target = (*drug_target_it).second;
+			std::string node_name = "anti_" + drug_target;
+			double cell_viability = get_cell_viability_for_drug_conc(pCell, parameters.strings("cell_line"), drug_name, index);
 			double random_num = (double) rand()/RAND_MAX;
-
-			if (cell_concentration >= threshold) 
+			if (random_num <= cell_viability) 
 			{
-				if (random_num < sens_prob) 
-				{	 
-					pCell->boolean_network.set_node_value(node, 1);
-				}
-				else 
-				{
-					pCell->boolean_network.set_node_value(node, 0);
-				}
-			}	
+			
+				pCell->boolean_network.set_node_value(node_name, 1);
+			}
+			else 
+			{
+				pCell->boolean_network.set_node_value(node_name, 0);
+			}
+			
 		}
 }
 

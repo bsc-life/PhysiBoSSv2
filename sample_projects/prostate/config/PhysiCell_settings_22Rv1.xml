@@ -231,27 +231,11 @@
 		<!-- Apoptosis rate implementation -->
 		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
 
-		<!-- Drug sensitivities (IC50 values) -->
-
-		<afatinib_sensitivity type="double" units="">11.393734</afatinib_sensitivity>
-		<afuresertib_sensitivity type="double" units="">4.322511</afuresertib_sensitivity>
-		<bibr-1532_sensitivity type="double" units="">400.293237</bibr-1532_sensitivity>
-		<bicalutamide_sensitivity type="double" units="">9.959793</bicalutamide_sensitivity>
-		<pictisilib_sensitivity type="double" units="">2.737905</pictisilib_sensitivity>
-		<trametinib_sensitivity type="double" units="">4.408745</trametinib_sensitivity>
-		<ulixertinib_sensitivity type="double" units="">19.849868</ulixertinib_sensitivity>
-
-		<EGFR_inhibitor type="string" units="">afatinib</EGFR_inhibitor>
-		<AKT_inhibitor type="string" units="">afuresertib</AKT_inhibitor>
-		<TERT_inhibitor type="string" units="">bibr-1532</TERT_inhibitor>
-		<AR_inhibitor type="string" units="">bicatulamide</AR_inhibitor>
-		<PI3K_inhibitor type="string" units="">pictisilib</PI3K_inhibitor>
-		<MEK1_2_inhibitor type="string" units="">trametinib</MEK1_2_inhibitor>
-		<ERK_inhibitor type="string" units="">ulixertinib</ERK_inhibitor>
-
+		<cell_line type="string" units="">22Rv1</cell_line>
 
 		<bnd_file type="string" units="">./config/boolean_network/22Rv1_mut_RNA_00.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/22Rv1_mut_RNA_00.cfg</cfg_file>
+		<drug_sensitivity_file type="string" units="">./config/prostate_drug_sensitivity.csv</drug_sensitivity_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 

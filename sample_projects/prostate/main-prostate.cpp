@@ -38,12 +38,20 @@ int main( int argc, char* argv[] )
 	if( !XML_status )
 	{ exit(-1); }
 
-	// read drug sensitivity .csv file 
-	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( "./config/prostate_nlme_stats.csv" );
+	// // read drug sensitivity .csv file 
+	// std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
 
-	std::cout << csv_file[3].first << std::endl;
-	int index = get_index(csv_file, "Afatinib", "PC3");
-	std::cout << "Index for Afatinib in PC3: " << index << std::endl;
+	// std::cout << csv_file[3].first << std::endl;
+	// int index = get_index(csv_file, "Afatinib", "PC3");
+	// std::cout << "Index for Afatinib in PC3: " << index << std::endl;
+	// vector<double> values = get_values_from_csv(csv_file, "Afatinib", "PC3");
+	// std::cout << "Value 1: " << values[0] << " Value 2: " << values[1] << " Value 3: " << values[2] <<std::endl;
+	
+	// double cell_viability = get_cell_viability_for_drug_conc(csv_file, "PC3", "Afatinib", 43.7);
+	// std::cout << "Cell viability: " << cell_viability << std::endl;
+	// cell_viability = get_cell_viability_for_drug_conc(csv_file, "PC3", "Afatinib", 0.002);
+	// std::cout << "Cell viability: " << cell_viability << std::endl;
+	
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
 	
