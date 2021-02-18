@@ -31,6 +31,8 @@ extern const vector<pair<string, string>> drug_targets;
 
 std::vector<std::pair<std::string, std::vector<double>>> read_csv(std::string filename);
 
+string get_value (const vector<pair<string, string>> dict, string key);
+int get_value (const vector<pair<string, int>> dict, string key);
 int get_index(Cell* pCell, string drug_name, string cell_line_name);
 vector<double> get_drug_sensitivity_values (Cell* pCell, string drug_name, string cell_line_name);
 

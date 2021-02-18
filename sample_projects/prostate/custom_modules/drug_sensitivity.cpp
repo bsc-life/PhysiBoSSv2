@@ -126,19 +126,29 @@ const vector<pair<string, string>> drug_targets = {
     { "BIBR1532", "TERT"}
 };
 
-int get_index(Cell* pCell, string drug_name, string cell_line_name) { 
-    // retrieve the identifier for the drug and cell line
-    vector< pair<string, int>>::const_iterator drug_identifier_it = find_if( drug_ids.begin(), drug_ids.end(),[&drug_name](const pair < string, int>& element){ return element.first  == drug_name;} );
-    vector< pair<string, int>>::const_iterator cell_identifier_it = find_if( cell_line_ids.begin(), cell_line_ids.end(),[&cell_line_name](const pair<string, int>& element){ return element.first == cell_line_name;} );
+string get_value (const vector<pair<string, string>> dict, string key) {
+    vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
+    return (*dict_iterator).second;
+}
 
+int get_value (const vector<pair<string, int>> dict, string key) {
+    vector< pair<string, int>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, int>& element){ return element.first  == key;} );
+    return (*dict_iterator).second;
+}
+
+int get_index(Cell* pCell, string drug_name, string cell_line_name) { 
+    // retrieve the id for the drug and cell line
+    int drug_identifier = get_value(drug_ids, drug_name);
+    int cell_identifier = get_value(cell_line_ids, cell_line_name);
+   
     // retrieve the index for the custom vector data where both identifiers are met
     int index = 0;
-    static int index_CL = pCell->custom_data.find_variable_index("\"CL\"");
+    static int index_CL = pCell->custom_data.find_vector_variable_index("\"CL\"");
 	vector <double > cell_line_vector = pCell->custom_data.vector_variables.at(index_CL).value;
-    static int index_drug = pCell->custom_data.find_variable_index("\"DRUG_ID_lib\"");
+    static int index_drug = pCell->custom_data.find_vector_variable_index("\"DRUG_ID_lib\"");
 	vector <double > drug_vector = pCell->custom_data.vector_variables.at(index_drug).value;
     for (int i = 0; i < drug_vector.size(); i++) {
-        if (cell_line_vector[i] == (*cell_identifier_it).second && drug_vector[i] == (*drug_identifier_it).second)
+        if (cell_line_vector[i] == cell_identifier && drug_vector[i] == drug_identifier)
         {
             index = i;
             break;
@@ -151,9 +161,9 @@ int get_index(Cell* pCell, string drug_name, string cell_line_name) {
 
 vector<double> get_drug_sensitivity_values (Cell* pCell, string drug_name, string cell_line_name) {
     int index = get_index(pCell, drug_name, cell_line_name);
-    static int index_max_conc = pCell->custom_data.find_variable_index("\"maxc\"");
-    static int index_xmid = pCell->custom_data.find_variable_index("\"xmid\"");
-    static int index_scale = pCell->custom_data.find_variable_index("\"scal\"");
+    static int index_max_conc = pCell->custom_data.find_vector_variable_index("\"maxc\"");
+    static int index_xmid = pCell->custom_data.find_vector_variable_index("\"xmid\"");
+    static int index_scale = pCell->custom_data.find_vector_variable_index("\"scal\"");
 
 	vector <double > max_conc_vector = pCell->custom_data.vector_variables.at(index_max_conc).value;
     vector <double > xmid_vector = pCell->custom_data.vector_variables.at(index_xmid).value;
@@ -205,6 +215,7 @@ double get_cell_viability_for_drug_conc (Cell* pCell, string cell_line, string d
 {
     // get internalized substrate concentration
     double drug_conc = pCell->phenotype.molecular.internalized_total_substrates[index];
+    std::cout << "Concentration of " << drug_name << ": " << drug_conc << std::endl;
     // call functions to retrieve data from datastructure cell line and drug
     vector<double> drug_sens_vals = get_drug_sensitivity_values(pCell, drug_name, cell_line);
     // call linear_mixed_model_function
@@ -216,7 +227,8 @@ double get_cell_viability_for_drug_conc (Cell* pCell, string cell_line, string d
     double lx = get_lx_from_x(x, max_conc);
     double y_hat = linear_mixed_model_function(lx, max_conc, xmid, scale);
     // return cell viability value y_hat
-    return 1 - y_hat;
+    std::cout << "Cell viability for " << drug_name << ": " << y_hat << std::endl;
+    return y_hat;
 }
 
 

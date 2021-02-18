@@ -181,7 +181,6 @@ int main( int argc, char* argv[] )
 			  Custom add-ons could potentially go here. 
 			*/			
 			//Call here instead the custom_main.cpp function set_densitiy_for_current_time
-			// set_density_for_current_time("ERKi", PhysiCell_globals.current_time, PhysiCell_settings.max_time, time_add_erki, time_put_erki, duration_add_erki, time_remove_erki, time_erki_next, concentration_erki, membrane_length)
 			
 			for (int i = 1; i < microenvironment.number_of_densities(); i++) 
 			{

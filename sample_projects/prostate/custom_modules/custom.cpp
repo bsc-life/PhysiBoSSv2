@@ -50,6 +50,7 @@ void create_cell_types( void )
 		}
 	}
 
+
 	/*
 	   This parses the cell definitions in the XML config file. 
 	*/
@@ -65,9 +66,11 @@ void create_cell_types( void )
 
 	// set molecular properties for each drug defined in PhysiCell_settings.xml
 	// starts with the second density because the first density is oxygen
-	for (int i = 1; i < microenvironment.number_of_densities(); i++) 
+	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
-		cell_defaults.phenotype.molecular.fraction_released_at_death[i] = 0.0;
+		if (microenvironment.density_names[i] != "oxygen") {
+			cell_defaults.phenotype.molecular.fraction_released_at_death[i] = 0.0;
+		}
 	}
 
 	build_cell_definitions_maps(); 
@@ -93,22 +96,18 @@ void setup_microenvironment( void )
 void update_custom_variables( Cell* pCell )
 {
 	// first density is oxygen - shouldn't be changed: index from 1
-	for (int i = 1; i < microenvironment.number_of_densities(); i++) 
+	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
 		std::string drug_name = microenvironment.density_names[i];
-		int drug_index = microenvironment.find_density_index(drug_name);
-		int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
-		int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
-		pCell->custom_data.variables.at(index_drug_conc).value = pCell->phenotype.molecular.internalized_total_substrates[drug_index];
-		pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_name);
-
-		
+		if (drug_name != "oxygen") {
+			int drug_index = microenvironment.find_density_index(drug_name);
+			int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
+			int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
+			string drug_target = get_value(drug_targets, drug_name);
+			pCell->custom_data.variables.at(index_drug_conc).value = pCell->phenotype.molecular.internalized_total_substrates[drug_index];
+			pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
+		}	
 	}
-	// static int erki_index = microenvironment.find_density_index( "ERKi" ); 
-	// static int index_erki_concentration = pCell->custom_data.find_variable_index("erki_concentration");
-	// static int index_erki_node = pCell->custom_data.find_variable_index("erki_node");
-	// pCell->custom_data.variables.at(index_erki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[erki_index];
-	//pCell->custom_data.variables.at(index_erki_node).value = pCell->boolean_network.get_node_value("anti_ERK");
 }
 
 void setup_tissue( void )
@@ -145,7 +144,7 @@ void setup_tissue( void )
 			else 
 			{
 				// cell is not sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_insensitive"));
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 			}
 		}
 		else if (PhysiCell::parameters.ints("simulation_mode") == 1)
@@ -161,7 +160,7 @@ void setup_tissue( void )
 				else 
 				{
 					// cell is only sensitive to the first drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_insensitive"));
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
 				}
 			}
 			else
@@ -174,7 +173,7 @@ void setup_tissue( void )
 				else
 				{
 					// cell is sensitive to no drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_insensitive"));
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 				}
 				
 			}
@@ -190,6 +189,13 @@ void setup_tissue( void )
 		
 		// pC->phenotype.cycle.data.current_phase_index = phase;
 		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
+
+		// // Careful : last value now has to be the drug index and not the concentration
+		// double cell_viability = get_cell_viability_for_drug_conc(pC, "PC3", "Afatinib", 43.7);
+		// std::cout << "Cell viability: " << cell_viability << std::endl;
+		// cell_viability = get_cell_viability_for_drug_conc(pC, "PC3", "Afatinib", 0.002);
+		// std::cout << "Cell viability: " << cell_viability << std::endl;
+	
 		
 		pC->boolean_network = prostate_network;
 		pC->boolean_network.restart_nodes();
@@ -204,15 +210,6 @@ void setup_tissue( void )
 // custom cell phenotype function to run PhysiBoSS when is needed
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt)
 {
-	if ( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model) 
-	{
-		//std::cout << pCell->phenotype.cycle.current_phase().name << " 0,0: " << pCell->phenotype.cycle.data.transition_rate(0, 0) << "\n" << std::endl;
-	}
-	// if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
-	// {
-	// 	std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0)  << "\n" << std::endl;
-	// }
-
 	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
 
 	// update motility state variable
@@ -267,7 +264,7 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 		} 
 		else 
 		{
-			//drug insensitive living cells are colored green
+			//drug resistant living cells are colored green
 			output = {"limegreen", "black", "darkgreen", "darkgreen"};
 		}
 	}
@@ -285,7 +282,7 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 			//cells that are sensitive to both drugs are colored blue
 			output = {"deepskyblue", "black", "darkblue", "darkblue"};
 		}
-		else if (pCell->type_name == drug2_name + "_insensitive")
+		else if (pCell->type_name == drug2_name + "_resistant")
 		{
 			// cells that are just sensitive to the first drug 
 			output = {"limegreen", "black", "darkgreen", "darkgreen"};
@@ -314,12 +311,12 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
 void set_boolean_node (Cell* pCell, std::string drug_name, int index, double threshold) {
 	if (index != -1)
 		{
-			vector< pair<string, string>>::const_iterator drug_target_it = find_if( drug_targets.begin(), drug_targets.end(),[&drug_name](const pair<string, string>& element){ return element.first == drug_name;} );
-			std::string drug_target = (*drug_target_it).second;
+			string drug_target = get_value(drug_targets, drug_name);
 			std::string node_name = "anti_" + drug_target;
 			double cell_viability = get_cell_viability_for_drug_conc(pCell, parameters.strings("cell_line"), drug_name, index);
+			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
-			if (random_num <= cell_viability) 
+			if (random_num <= cell_inhibition) 
 			{
 			
 				pCell->boolean_network.set_node_value(node_name, 1);
@@ -347,7 +344,7 @@ void set_input_nodes(Cell* pCell) {
 		if (pCell->type_name == drug_name + "_sensitive")
 		{
 			// cell is sensitive to the drug -> set boolean node
-			set_boolean_node(pCell, "anti_" + drug_name, drug_index, drug_threshold);
+			set_boolean_node(pCell, drug_name, drug_index, drug_threshold);
 		}
 	}
 	else if (PhysiCell::parameters.ints("simulation_mode") == 1)
@@ -365,18 +362,18 @@ void set_input_nodes(Cell* pCell) {
 		if (pCell->type_name == drug1_name + "_sensitive")
 		{	
 			// cell is sensitive to both drugs
-			set_boolean_node(pCell, "anti_" + drug1_name, drug1_index, drug1_threshold);
-			set_boolean_node(pCell, "anti_" + drug2_name, drug2_index, drug2_threshold);
+			set_boolean_node(pCell, drug1_name, drug1_index, drug1_threshold);
+			set_boolean_node(pCell, drug2_name, drug2_index, drug2_threshold);
 		}
-		else if (pCell->type_name == drug2_name + "_insensitive")
+		else if (pCell->type_name == drug2_name + "_resistant")
 		{
 			// cell is only sensitive to the first drug
-			set_boolean_node(pCell, "anti_" + drug1_name, drug1_index, drug1_threshold);
+			set_boolean_node(pCell, drug1_name, drug1_index, drug1_threshold);
 		}
 		else if (pCell->type_name == drug2_name +  "_sensitive")
 		{
 			// cell is only sensitive to the second drug
-			set_boolean_node(pCell, "anti_" + drug2_name, drug2_index, drug2_threshold);
+			set_boolean_node(pCell, drug2_name, drug2_index, drug2_threshold);
 		}
 
 		// else: cell is sensitive to no drug --> no boolean node is set
