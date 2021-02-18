@@ -19,8 +19,8 @@ current_wd = os.getcwd()
 arg = sys.argv
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate').")
-parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP"], help = "Cell line to be simulated.")
+parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
+parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "AGS"], help = "Cell line to be simulated.")
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0, 0.2, 0.4, 0.6, 0.8, 1.0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
@@ -33,7 +33,7 @@ args = parser.parse_args()
 #%% Process Arguments
 
 # Dictionary for drug-node pairs
-drug_node_pairs = {
+drug_node_pairs_prostate = {
     "Ipatasertib": "AKT",
      "Afuresertib": "AKT",
      "Afatinib": "EGFR",
@@ -45,6 +45,16 @@ drug_node_pairs = {
      "Pictilisib":"PI3K",
      "Alpelisib": "PI3K",
      "BIBR1532": "TERT"
+}
+
+drug_node_pairs_AGS = {
+    "GSK3" : "GSK3",
+    "p38alpha"  : "p38alpha",
+    "betacatenin" : "betacatenin",
+    "TAK1" : "TAK1",
+    "PI3K" : "PI3K",
+    "MEK" : "MEK",
+    "AKT" : "AKT"
 }
 
 ####################################################################
@@ -68,12 +78,19 @@ drugs=args.drugs
 drug_list = str(drugs.replace (" ", "").replace(",", ", ")).split(", ")
 print("Drugs to be administered: "+str(drug_list).replace("[", "").replace("]","").replace("'",""))
 # convert druglist into node-list
-node_list = [drug_node_pairs.get(item,item)  for item in drug_list]
+if (project == "prostate") :
+    node_list = [drug_node_pairs_prostate.get(item,item)  for item in drug_list]
+else :
+    node_list = [drug_node_pairs_AGS.get(item,item)  for item in drug_list]
+
 
 # specify boolean model path
 input_cond = args.input_cond
 bool_model_path_dir = "{}/{}/{}/{}".format("sample_projects", project, "config", "boolean_network")
-bool_model_filename = cell_line + "_mut_RNA_00"
+if (project == "prostate") :
+    bool_model_filename = cell_line + "_mut_RNA_00"
+else:
+    bool_model_filename = cell_line
 bool_model = "{}/{}".format(bool_model_path_dir, bool_model_filename)
 
 
@@ -356,7 +373,7 @@ def add_project_to_makefile(project_name, makefile_path):
         make_string = ""
         line_count = 11
         for line in buf:
-            if "prostate:" in line:
+            if  "prostate:" in line:
                 # save the following lines in a string
                 line_count = 0
             if line_count <= 10:
