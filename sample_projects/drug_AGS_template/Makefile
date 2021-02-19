@@ -1,5 +1,5 @@
 VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := drug_AGS
+PROGRAM_NAME := drug_AGS_template
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name
