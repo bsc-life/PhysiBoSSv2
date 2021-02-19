@@ -218,7 +218,7 @@ def add_nodes_to_network(bool_model, nodelist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, conc, path_to_xml, xml_output_path, model_name, mode, output_path):
+def add_drug_to_xml(drug, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
@@ -343,7 +343,7 @@ def add_drug_to_xml(drug, conc, path_to_xml, xml_output_path, model_name, mode, 
     inhibition_level = etree.SubElement(user_parameters, "prop_drug_sensitive_" + drug)
     inhibition_level.set("type", "double")
     inhibition_level.set("units", "dimensionless")
-    inhibition_level.text = str(conc.replace("_", "."))
+    inhibition_level.text = str(rest.replace("_", "."))
 
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
@@ -396,9 +396,9 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 
     # modify nodelist and resistancelist if mode is double
     if (mode == "double"):
-        node_combinations = combinations(nodelist, 2)
+        drug_combinations = combinations(druglist, 2)
         rest_combinations = product(rest_list, repeat=2)
-        nodelist = node_combinations
+        druglist = drug_combinations
         rest_combinations_list = []
         for elem in rest_combinations:
             rest_combinations_list.append(elem)
