@@ -1,4 +1,5 @@
 
+
 #include "./custom.h"
 
 /**
@@ -42,14 +43,7 @@ void create_cell_types( void )
 	
 	cell_defaults.functions.set_orientation = NULL;
 
-	// store each column of drug sensitivity csv file in a custom vector variable
-	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
-	for (std::pair<std::string, std::vector<double>> &element : csv_file ) {
-		if (element.first != "\"\""){
-			cell_defaults.custom_data.add_vector_variable( element.first, element.second );
-		}
-	}
-
+	
 
 	/*
 	   This parses the cell definitions in the XML config file. 
@@ -88,11 +82,32 @@ void setup_microenvironment( void )
 		default_microenvironment_options.simulate_2D = false; 
 	}	
 
+	// set intial conditions and dirichlet boundary conditions for the drugs; vector already contains the condition for oxygen
+	double oxygen_condition = 160.0;
+	vector<double> bc_vector {oxygen_condition};
+	vector<bool> activation_vector {1};
+	for (int i = 0; i < microenvironment.number_of_densities(); i++)
+	{
+		std::string drug_name = microenvironment.density_names[i];
+		if (drug_name != "oxygen") {
+			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
+			int total_drug_levels = parameters.ints("total_concentration_levels");
+			string cell_line = parameters.strings("cell_line");
+			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels);
+			bc_vector.push_back(drug_concentration);
+			activation_vector.push_back(1);
+		}
+	}
+	default_microenvironment_options.Dirichlet_activation_vector = activation_vector;
+	default_microenvironment_options.Dirichlet_condition_vector = bc_vector;
+
 	// initialize BioFVM 
 	initialize_microenvironment(); 	
 	
 	return; 
 }
+
+
 void update_custom_variables( Cell* pCell )
 {
 	// first density is oxygen - shouldn't be changed: index from 1
@@ -136,44 +151,44 @@ void setup_tissue( void )
 		if (PhysiCell::parameters.ints("simulation_mode") == 0)
 		{
 			// single inhibition - just one drug is present 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
 			{
 				// cell is sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 			}
 			else 
 			{
 				// cell is not sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
 			}
 		}
 		else if (PhysiCell::parameters.ints("simulation_mode") == 1)
 		{
 			// double inhibition - two drugs are present - we have 4 cell strains 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
 				{
-					// cell is sensitive to both drugs
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+					// cell is resistant to both drugs
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 				}
 				else 
 				{
-					// cell is only sensitive to the first drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
+					// cell is only resistant to the first drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
 				}
 			}
 			else
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
 				{
-					// cell is only sensitive to the second drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
+					// cell is only resistant to the second drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
 				}
 				else
 				{
-					// cell is sensitive to no drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
+					// cell is resistant to no drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
 				}
 				
 			}
@@ -188,14 +203,7 @@ void setup_tissue( void )
 		// pC->set_total_volume(sphere_volume_from_radius(radius));
 		
 		// pC->phenotype.cycle.data.current_phase_index = phase;
-		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
-
-		// // Careful : last value now has to be the drug index and not the concentration
-		// double cell_viability = get_cell_viability_for_drug_conc(pC, "PC3", "Afatinib", 43.7);
-		// std::cout << "Cell viability: " << cell_viability << std::endl;
-		// cell_viability = get_cell_viability_for_drug_conc(pC, "PC3", "Afatinib", 0.002);
-		// std::cout << "Cell viability: " << cell_viability << std::endl;
-	
+		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;	
 		
 		pC->boolean_network = prostate_network;
 		pC->boolean_network.restart_nodes();
@@ -313,7 +321,9 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 		{
 			string drug_target = get_value(drug_targets, drug_name);
 			std::string node_name = "anti_" + drug_target;
-			double cell_viability = get_cell_viability_for_drug_conc(pCell, parameters.strings("cell_line"), drug_name, index);
+			 // get internalized substrate concentration
+    		double drug_conc = pCell->nearest_density_vector()[index];
+			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
 			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
 			if (random_num <= cell_inhibition) 
