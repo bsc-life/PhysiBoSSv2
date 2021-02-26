@@ -2,14 +2,14 @@
 #include "./custom_main.h"
 
 /**
- *	\main prostate custom main file
- *	\brief Custom module file for prostate example
+ *	\main drug_AGS custom main file
+ *	\brief Custom module file for drug_AGS example
  * 
- *	\details Modules needed for the prostate example. 
+ *	\details Modules needed for the drug_AGS example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
  *
  *
- *	\date 14/12/2020
- *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud, Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ *	\date 19/10/2020
+ *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
 void inject_density_sphere(int density_index, double concentration, double membrane_lenght) 
@@ -55,36 +55,4 @@ void set_density_for_current_time (int density_index, double current_time, doubl
 		if (k >= 0)
 			inject_density_sphere(k, concentration_dens, membrane_length);
 	}
-}
-
-
-/* Change the current value of the input coefficient, increase or decrease according to up value */
-void evolve_coef( int up, double* coef, double dt )
-/**{ 
-	// increase exponentially
-	if ( up )
-	{
-		if ( (*coef) < EPSILON ) 
-			(*coef) = EPSILON; 	
-		(*coef) = std::sqrt( (*coef) );
-		(*coef) = (*coef) > 1 ? (1-EPSILON) : (*coef);
-	}
-	else
-	{
-		// decrease exponentially
-		if ( (*coef) >= 1 )
-			(*coef) = 1 - EPSILON;
-		(*coef) *= (*coef);	
-		(*coef) = (*coef) < 0 ? EPSILON : (*coef);
-	}
-}*/
-{ 
-	// if up, increase, else decrease
-	if ( !up )
-		dt = -dt;
-
-	(*coef) +=  (*coef) * (1 - (*coef)) * dt/10.0 ; //what is the dt/10.0?
-
-	(*coef) = (*coef) > 1 ? (1-EPSILON) : (*coef);
-	(*coef) = (*coef) < 0 ? (EPSILON) : (*coef);
 }

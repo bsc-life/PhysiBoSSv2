@@ -10,17 +10,19 @@
 #include "./modules/PhysiCell_standard_modules.h" 
 
 /**
- *	\main main-prostate file
- *	\brief Main file of the prostate example
-
- *	\date 14/12/2020
- *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud, Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ *	\main main-drug_AGS file
+ *	\brief Main file of the drug_AGS example
+ * 
+ *	\details Compiling this main file runs the AGS example with drug presence. This file and its custom modules can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
+ *
+ *	\date 19/10/2020
+ *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
 // put custom code modules here! 
 
 #include "./custom_modules/custom.h" 
-#include "./custom_modules/drug_sensitivity.h"
+#include "./custom_modules/custom_main.h"
 
 using namespace BioFVM;
 using namespace PhysiCell;
@@ -33,10 +35,10 @@ int main( int argc, char* argv[] )
 	if( argc > 1 )
 	{ XML_status = load_PhysiCell_config_file( argv[1] ); }
 	else
-	{ XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings_LNCaP.xml" ); }
+	{ XML_status = load_PhysiCell_config_file( "./config/PhysiCell_settings.xml" ); }
 	if( !XML_status )
 	{ exit(-1); }
-	
+
 	// OpenMP setup
 	omp_set_num_threads(PhysiCell_settings.omp_num_threads);
 	
@@ -48,17 +50,14 @@ int main( int argc, char* argv[] )
 
 	/* Microenvironment setup */ 
 	
-	// store each column of drug sensitivity csv file in a custom vector variable
-	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
-	for (std::pair<std::string, std::vector<double>> &element : csv_file ) {
-		if (element.first != "\"\""){
-			cell_defaults.custom_data.add_vector_variable( element.first, element.second );
-		}
-	}
-
 	setup_microenvironment(); // modify this in the custom code 
 
-	// User parameters
+	// do small diffusion steps alone to initialize densities
+	// int k = microenvironment.find_density_index("tnf");
+	// if ( k >= 0 ) 
+	// 	inject_density_sphere(k, concentration_tnf, membrane_lenght);
+	// for ( int i = 0; i < 25; i ++ )
+	// 	microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
 	
 	/* PhysiCell setup */ 
  	
@@ -94,7 +93,7 @@ int main( int argc, char* argv[] )
 
 	// for simplicity, set a pathology coloring function 
 	
-	std::vector<std::string> (*cell_coloring_function)(Cell*) = prolif_apoptosis_coloring;
+	std::vector<std::string> (*cell_coloring_function)(Cell*) = my_coloring_function;
 	
 	sprintf( filename , "%s/initial.svg" , PhysiCell_settings.folder.c_str() ); 
 	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
@@ -157,6 +156,23 @@ int main( int argc, char* argv[] )
 			/*
 			  Custom add-ons could potentially go here. 
 			*/			
+			//Call here instead the custom_main.cpp function set_densitiy_for_current_time
+			
+			for (int i = 1; i < microenvironment.number_of_densities(); i++) 
+			{
+				std::string drug_name = microenvironment.density_names[i];
+				double time_add_drug = parameters.ints("time_add_" + drug_name);
+				double time_put_drug = 0;
+				double duration_add_drug = parameters.ints("duration_add_" + drug_name);
+				double time_drug_next = 0;
+				double time_remove_drug = parameters.ints("time_remove_" + drug_name);
+				double concentration_drug = parameters.doubles("concentration_" + drug_name) * microenvironment.voxels(0).volume * 0.000001;
+				double membrane_length = parameters.ints("membrane_length");
+				set_density_for_current_time(microenvironment.find_density_index(drug_name), PhysiCell_globals.current_time, PhysiCell_settings.max_time, time_add_drug, time_put_drug, duration_add_drug, time_remove_drug, time_drug_next, concentration_drug, membrane_length);
+		
+			}
+			
+
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
 			

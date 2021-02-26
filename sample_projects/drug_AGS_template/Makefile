@@ -1,5 +1,5 @@
 VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := prostate
+PROGRAM_NAME := drug_AGS_template
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name
@@ -11,9 +11,9 @@ ifdef PHYSICELL_CPP
 	CC := $(PHYSICELL_CPP)
 endif
 
-# prostate model has more than 64 nodes, so we have 
+# AGS model have more than 64 nodes, so we have 
 # to set up this var to the number of nodes
-MABOSS_MAX_NODES = 150
+MABOSS_MAX_NODES = 90
 
 ### MaBoSS configuration 
 # MaBoSS max nodes
@@ -56,9 +56,9 @@ ARCH := native # best auto-tuning
 # ARCH := nocona #64-bit pentium 4 or later 
 
 # CFLAGS := -march=$(ARCH) -Ofast -s -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
-# CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 # debug:
-CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+# CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 
 COMPILE_COMMAND := $(CC) $(CFLAGS) 
 
@@ -75,7 +75,7 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
-PhysiCell_custom_module_OBJECTS := custom.o drug_sensitivity.o
+PhysiCell_custom_module_OBJECTS := custom.o custom_main.o
 
 pugixml_OBJECTS := pugixml.o
 
@@ -183,9 +183,8 @@ boolean_network.o: ./addons/PhysiBoSS/src/boolean_network.cpp
 custom.o: ./custom_modules/custom.cpp 
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom.cpp
 
-drug_sensitivity.o: ./custom_modules/drug_sensitivity.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/drug_sensitivity.cpp
-
+custom_main.o: ./custom_modules/custom_main.cpp
+	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom_main.cpp
 
 # cleanup
 

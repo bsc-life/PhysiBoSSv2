@@ -1,16 +1,15 @@
 
-
 #include "./custom.h"
 
 /**
- *	\main prostate custom
- *	\brief Custom module file for prostate example
+ *	\main drug_AGS_template custom
+ *	\brief Custom module file for drug_AGS_template example
  * 
- *	\details Modules needed for the prostate example. 
+ *	\details Modules needed for the drug_AGS_template example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
  *
  *
- *	\date 14/12/2020
- *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud, Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
+ *	\date 18.02.21
+ *	\author Annika Meert, BSC-CNS, with code previously developed by Arnau Montagud Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
 // declare cell definitions here 
@@ -43,8 +42,6 @@ void create_cell_types( void )
 	
 	cell_defaults.functions.set_orientation = NULL;
 
-	
-
 	/*
 	   This parses the cell definitions in the XML config file. 
 	*/
@@ -52,14 +49,8 @@ void create_cell_types( void )
 
 	cell_defaults.phenotype.secretion.sync_to_microenvironment( &microenvironment );
 	
-	// int erki_substrate_index = microenvironment.find_density_index( "ERKi" );
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[erki_substrate_index] = 0.0;
-
-	// int myc_maxi_substrate_index = microenvironment.find_density_index( "MYC_MAXi" );
-	// cell_defaults.phenotype.molecular.fraction_released_at_death[myc_maxi_substrate_index] = 0.0;
-
-	// set molecular properties for each drug defined in PhysiCell_settings.xml
-	// starts with the second density because the first density is oxygen
+	// set molecular properties 
+	
 	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
 		if (microenvironment.density_names[i] != "oxygen") {
@@ -73,11 +64,6 @@ void create_cell_types( void )
 	return; 
 }
 
-double get_decay_rate(double initial_conc, double half_life){
-	double decay_rate = initial_conc/(2*half_life);
-	return decay_rate;
-}
-
 void setup_microenvironment( void )
 {
 	// make sure to override and go back to 2D 
@@ -87,40 +73,11 @@ void setup_microenvironment( void )
 		default_microenvironment_options.simulate_2D = false; 
 	}	
 
-	// set intial conditions and dirichlet boundary conditions for the drugs; vector already contains the condition for oxygen
-	double oxygen_condition = 160.0;
-	vector<double> condition_vector = {oxygen_condition};
-	vector<bool> activation_vector {1};
-	vector<double> decay_vector {0.1};
-	for (int i = 0; i < microenvironment.number_of_densities(); i++)
-	{
-		std::string drug_name = microenvironment.density_names[i];
-		if (drug_name != "oxygen") {
-			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
-			int total_drug_levels = parameters.ints("total_concentration_levels");
-			string cell_line = parameters.strings("cell_line");
-			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels);
-			condition_vector.push_back(drug_concentration);
-			activation_vector.push_back(1);
-
-			double half_life = get_value(half_lives, drug_name);
-			double decay_rate = get_decay_rate(drug_concentration, half_life);
-			decay_vector.push_back(decay_rate);
-
-		}
-	}
-	default_microenvironment_options.Dirichlet_activation_vector = activation_vector;
-	default_microenvironment_options.Dirichlet_condition_vector = condition_vector;
-
 	// initialize BioFVM 
 	initialize_microenvironment(); 	
-
-	microenvironment.decay_rates = decay_vector;
 	
 	return; 
 }
-
-
 void update_custom_variables( Cell* pCell )
 {
 	// first density is oxygen - shouldn't be changed: index from 1
@@ -131,11 +88,11 @@ void update_custom_variables( Cell* pCell )
 			int drug_index = microenvironment.find_density_index(drug_name);
 			int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
 			int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
-			string drug_target = get_value(drug_targets, drug_name);
 			pCell->custom_data.variables.at(index_drug_conc).value = pCell->phenotype.molecular.internalized_total_substrates[drug_index];
-			pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
+			pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_name);
 		}	
 	}
+
 }
 
 void setup_tissue( void )
@@ -164,44 +121,44 @@ void setup_tissue( void )
 		if (PhysiCell::parameters.ints("simulation_mode") == 0)
 		{
 			// single inhibition - just one drug is present 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
 			{
 				// cell is sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
 			}
 			else 
 			{
 				// cell is not sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 			}
 		}
 		else if (PhysiCell::parameters.ints("simulation_mode") == 1)
 		{
 			// double inhibition - two drugs are present - we have 4 cell strains 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
+			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[1]))
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
 				{
-					// cell is resistant to both drugs
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
+					// cell is sensitive to both drugs
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
 				}
 				else 
 				{
-					// cell is only resistant to the first drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
+					// cell is only sensitive to the first drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
 				}
 			}
 			else
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
+				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_sensitive_" + microenvironment.density_names[2]))
 				{
-					// cell is only resistant to the second drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
+					// cell is only sensitive to the second drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
 				}
 				else
 				{
-					// cell is resistant to no drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+					// cell is sensitive to no drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 				}
 				
 			}
@@ -216,8 +173,8 @@ void setup_tissue( void )
 		// pC->set_total_volume(sphere_volume_from_radius(radius));
 		
 		// pC->phenotype.cycle.data.current_phase_index = phase;
-		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;	
-		
+		pC->phenotype.cycle.data.elapsed_time_in_phase = elapsed_time;
+
 		pC->boolean_network = prostate_network;
 		pC->boolean_network.restart_nodes();
 		static int index_next_physiboss_run = pC->custom_data.find_variable_index("next_physiboss_run");
@@ -229,14 +186,18 @@ void setup_tissue( void )
 }
 
 // custom cell phenotype function to run PhysiBoSS when is needed
-void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt)
+void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt )
 {
+	if ( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model) 
+	{
+		std::cout << pCell->phenotype.cycle.current_phase().name << " 0,0: " << pCell->phenotype.cycle.data.transition_rate(0, 0) << "\n" << std::endl;
+	}
+	// if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+	// {
+	// 	std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0)  << "\n" << std::endl;
+	// }
+
 	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
-
-	// update motility state variable
-	static int index_motility_state = pCell->custom_data.find_variable_index("motility_state");
-	pCell->custom_data.variables.at(index_motility_state).value = int(pCell->phenotype.motility.is_motile);
-
 	static int index_next_physiboss_run = pCell->custom_data.find_variable_index("next_physiboss_run");
 
 	if( phenotype.death.dead == true )
@@ -260,86 +221,20 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 	}
 }
 
-std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )
+std::vector<std::string> my_coloring_function( Cell* pCell )
 {
-	std::vector<std::string> output;
-	if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::apoptosis_death_model)
-	{
-		//apoptotic cells are colored red
-		output = {"crimson", "black","darkred", "darkred"};
-	}
-
-	else if (pCell->phenotype.cycle.current_phase().code == PhysiCell_constants::necrosis_death_model)
-	{
-		//necrotic cells are colored brown
-		output = {"peru", "black","saddlebrown", "saddlebrown"};
-	}
-
-	else if (PhysiCell::parameters.ints("simulation_mode") == 0) 
-	{
-		std::string drug_name = microenvironment.density_names[1];
-		if (pCell->type_name == drug_name + "_sensitive")
-		{
-			//drug sensitive living cells are colored blue
-			output = {"deepskyblue", "black", "darkblue", "darkblue"};
-		} 
-		else 
-		{
-			//drug resistant living cells are colored green
-			output = {"limegreen", "black", "darkgreen", "darkgreen"};
-		}
-	}
-	else if (PhysiCell::parameters.ints("simulation_mode") == 1) 
-	{
-		// // color living cells just in one color 
-		// output = {"limegreen", "black", "darkgreen", "darkgreen"};
-
-		// In case we want to color all 4 strains differently:
-		// double inhibitions --> 4 cell strains 
-		std::string drug1_name = microenvironment.density_names[1];
-		std::string drug2_name = microenvironment.density_names[2]; 
-		if (pCell->type_name == drug1_name + "_sensitive")
-		{
-			//cells that are sensitive to both drugs are colored blue
-			output = {"deepskyblue", "black", "darkblue", "darkblue"};
-		}
-		else if (pCell->type_name == drug2_name + "_resistant")
-		{
-			// cells that are just sensitive to the first drug 
-			output = {"limegreen", "black", "darkgreen", "darkgreen"};
-
-		}
-		else if (pCell->type_name == drug2_name + "_sensitive")
-		{
-			// cells are just sensitive to the second drug
-			output = {"gold", "black", "orange", "orange"};
-		}
-		else 
-		{
-			// cells aren't sensitive to any drug
-			output = {"mediumorchid", "black", "mediumpurple", "mediumpurple"};
-		}
-	}
-	else 
-	{
-		// no drug simulation - living cells are colored green
-		output = {"limegreen", "black", "darkgreen", "darkgreen"};
-	}
-	return output;
-
+	// start with live coloring 
+	std::vector<std::string> output = false_cell_coloring_live_dead(pCell); 
+	return output; 
 }
+
 
 void set_boolean_node (Cell* pCell, std::string drug_name, int index, double threshold) {
 	if (index != -1)
 		{
-			string drug_target = get_value(drug_targets, drug_name);
-			std::string node_name = "anti_" + drug_target;
-			 // get internalized substrate concentration
-    		double drug_conc = pCell->nearest_density_vector()[index];
-			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
-			double cell_inhibition = 1 - cell_viability;
-			double random_num = (double) rand()/RAND_MAX;
-			if (random_num <= cell_inhibition) 
+			std::string node_name = "anti_" + drug_name;
+			 double drug_conc = pCell->phenotype.molecular.internalized_total_substrates[index];
+			if (drug_conc > threshold) 
 			{
 			
 				pCell->boolean_network.set_node_value(node_name, 1);
@@ -352,10 +247,7 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 		}
 }
 
-
-
 void set_input_nodes(Cell* pCell) {
-
 	if (PhysiCell::parameters.ints("simulation_mode") == 0)
 	{	
 		// single inhibition - just one drug is present 
@@ -401,7 +293,9 @@ void set_input_nodes(Cell* pCell) {
 
 		// else: cell is sensitive to no drug --> no boolean node is set
 	}
+
 }
+
 
 
 void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
@@ -409,95 +303,51 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 	std::vector<bool>* nodes = pCell->boolean_network.get_nodes();
 	int bn_index;
 
-	// Prostate live model
-	// map apoptosis, proliferation and invasion values to agent-based model
+	// For AGS model
 
+	std::string prosurvival_basename = "Prosurvival_b";
+	std::string antisurvival_basename = "Antisurvival_b";
+	double prosurvival_value = 0.0;
+	double antisurvival_value = 0.0;
+
+	for(int i=1; i<=3; i++)
+	{
+		bn_index = pCell->boolean_network.get_node_index( prosurvival_basename + std::to_string(i) );
+		if ( (*nodes)[bn_index] > 0)
+		{
+			prosurvival_value += (*nodes)[bn_index];
+		}
+		bn_index = pCell->boolean_network.get_node_index( antisurvival_basename + std::to_string(i) );
+		if ( (*nodes)[bn_index] > 0)
+		{
+			antisurvival_value += (*nodes)[bn_index];
+		}
+	}
+
+	static int start_phase_index; // Q_phase_index; 
+	static int end_phase_index; // K_phase_index;
+	static int apoptosis_index; 
+	double multiplier = 1.0;
+
+	// live model 
+			
 	if( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
 	{
-		int start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
-		int end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
-		int apoptosis_index = phenotype.death.find_death_model_index(PhysiCell_constants::apoptosis_death_model);
-		
-		// Update Apoptosis 
-		if(pCell->boolean_network.get_node_value("Apoptosis"))
-		{
-			// simple implementation, just lead immediately to death
-			// pCell->start_death(apoptosis_index);
+		start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
+		apoptosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model ); 
+		end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
 
-			// increase death rate whenever the node is ON 
-			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
-		}
-
-		// Update Adhesion
-		if( pCell->boolean_network.get_node_value("EMT"))
-		{
-			// reduce cell-cell adhesion 
-			// pCell->evolve_coef_sigmoid( 
-			// 	pCell->boolean_network.get_node_value("EMT"), phenotype.mechanics.cell_cell_adhesion_strength, dt 
-			// );
-
-			//phenotype.mechanics.cell_cell_adhesion_strength = PhysiCell::parameters.doubles("homotypic_adhesion_max") * theta 
-		}
-
-
-		// Update pReference_live_phenotype for proliferation node 
-
-		if (pCell->boolean_network.get_node_value("Proliferation")) 
-		{
-			// multiplier implementation
-			//pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) *= 2.5;
-			//std::cout << "Rate up! " << std::endl;
-
-
-			//switch implementation
-			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
-		}
-		else 
-		{
-			//multiplier implementation 
-			//pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) *= 0.4;
-			//std::cout << "Rate down! " << std::endl;
-
-
-			//switch implementation 
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
-		}
-
-
-
-		// Update Migration
-		if(pCell->boolean_network.get_node_value("Migration"))
-		{ 
-			pCell->phenotype.motility.is_motile = true;
-		 	pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed");
-			pCell->phenotype.motility.migration_bias = PhysiCell::parameters.doubles("migration_bias");
-			pCell->phenotype.motility.persistence_time = PhysiCell::parameters.doubles("persistence");
-
-			// pCell->evolve_coef(pCell->boolean_network.get_node_value("Migration"),	phenotype.motility.migration_speed, dt 
-			// );
-			// pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("max_motility_speed") * migration_coeff
-		}
-		else 
-		{
-			pCell->phenotype.motility.is_motile = false;
-		}
-
-
-		// Update Invasion
-		if(pCell->boolean_network.get_node_value("Invasion"))
-		{
-			// nothing happens for now 
-		}
+		multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
+		phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
+		pCell->phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->phenotype.death.rates[apoptosis_index];
 
 	}
 
+	if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
+	{
+		std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) <<  ". " << prosurvival_value << ", " << antisurvival_value << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0) <<  ". " << prosurvival_value << ", " << antisurvival_value << "\n" << std::endl;
 
-	// if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
-	// {
-	// 	std::cout << pCell->phenotype.cycle.current_phase().name << " 0,1: " << pCell->phenotype.cycle.data.transition_rate(0, 1) <<  ". " << prosurvival_value << ", " << antisurvival_value << " / " << pCell->phenotype.cycle.current_phase().name << " 1,0: " << pCell->phenotype.cycle.data.transition_rate(1, 0) <<  ". " << prosurvival_value << ", " << antisurvival_value << "\n" << std::endl;
-
-	// }
+	}
 
 	// int tnf_substrate_index = microenvironment.find_density_index( "tnf" );
 	// static double tnf_secretion = parameters.doubles("tnf_secretion_rate");

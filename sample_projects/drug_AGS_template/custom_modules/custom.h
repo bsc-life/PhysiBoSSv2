@@ -2,7 +2,6 @@
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
 #include "../addons/PhysiBoSS/src/boolean_network.h"
-#include "drug_sensitivity.h"
 
 /**
  *	\main drug_AGS custom
@@ -17,6 +16,7 @@
 
 using namespace BioFVM; 
 using namespace PhysiCell;
+using namespace std;
 
 struct init_record
 {
@@ -36,7 +36,7 @@ void setup_tissue( void );
 void setup_microenvironment( void ); 
 
 // custom pathology coloring function 
-std::vector<std::string> prolif_apoptosis_coloring( Cell* );
+std::vector<std::string> my_coloring_function( Cell* );
 
 // custom cell phenotype functions could go here 
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt );
