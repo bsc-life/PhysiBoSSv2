@@ -22,8 +22,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
 parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "AGS"], help = "Cell line to be simulated.")
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
-parser.add_argument("-r", "--drug_rest", default="0, 0.2, 0.4, 0.6, 0.8, 1.0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
+parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
+parser.add_argument("--levels", default=3, type=int, help="Number of levels for the drug simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
@@ -68,6 +69,7 @@ print("\n")
 project=args.project
 cluster = args.cluster
 cell_line = args.cell_line
+levels = args.levels
 
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
@@ -207,7 +209,7 @@ def add_nodes_to_network(bool_model, nodelist):
         f.close()
         nf = open(name_cfg, "w")
         for line in lines:
-            if "[{}].istate = ".format(node) in line:
+            if "[{}].istate = ".format(node) in line and not line.startswith("//"):
                 new_line = line
                 new_line = new_line = "[{}].istate = {} [1], {} [0];\n[anti_{}].istate = {} [1], {} [0];\n".format(node, "0.5", "0.5", node, "0", "1")
                 nf.write(str(new_line))
@@ -218,7 +220,7 @@ def add_nodes_to_network(bool_model, nodelist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
+def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
@@ -241,21 +243,21 @@ def add_drug_to_xml(drug, rest, path_to_xml, xml_output_path, model_name, mode, 
     new_variable.set('units', 'mmol')
     new_variable.set("ID", str(variable_count))
     physical_parameter_set = etree.SubElement(new_variable, "physical_parameter_set")
-    initial_cond = etree.SubElement(new_variable, "initial_condition")
-    initial_cond.set('units', 'mmHg')
-    initial_cond.text = str(0.0)
-    dich = etree.SubElement(new_variable, "Dirichlet_boundary_condition")
-    dich.set('units', 'mmHg')
-    dich.set('enabled', 'true')
-    dich.text = str(0.0)
+    # initial_cond = etree.SubElement(new_variable, "initial_condition")
+    # initial_cond.set('units', 'mmHg')
+    # initial_cond.text = str(0.0)
+    # dich = etree.SubElement(new_variable, "Dirichlet_boundary_condition")
+    # dich.set('units', 'mmHg')
+    # dich.set('enabled', 'true')
+    # dich.text = str(0.0)
 
     # 3. childs 
     diffusion_coeff = etree.SubElement(physical_parameter_set, "diffusion_coefficient")
     diffusion_coeff.set('units', 'micron^2/min')
     diffusion_coeff.text = str(1200.0)
-    decay_rate = etree.SubElement(physical_parameter_set, "decay_rate")
-    decay_rate.set('units', '1/min')
-    decay_rate.text = str(0.0275)
+    # decay_rate = etree.SubElement(physical_parameter_set, "decay_rate")
+    # decay_rate.set('units', '1/min')
+    # decay_rate.text = str(0.0275)
     
     cell_definitions = root.find('cell_definitions')
     # insert drug as a secreting substance for the default strain 
@@ -313,37 +315,51 @@ def add_drug_to_xml(drug, rest, path_to_xml, xml_output_path, model_name, mode, 
     secretion_rate.set("units", "fg/cell/min")
     secretion_rate.text = str(0.1)
 
-    duration_add = etree.SubElement(user_parameters, "duration_add_" + drug)
-    duration_add.set("type", "int")
-    duration_add.set("units", "min")
-    duration_add.text = str(8000)
+    # duration_add = etree.SubElement(user_parameters, "duration_add_" + drug)
+    # duration_add.set("type", "int")
+    # duration_add.set("units", "min")
+    # duration_add.text = str(8000)
 
-    time_remove = etree.SubElement(user_parameters, "time_remove_" + drug)
-    time_remove.set("type", "int")
-    time_remove.set("units", "min")
-    time_remove.text = str(8000)
+    # time_remove = etree.SubElement(user_parameters, "time_remove_" + drug)
+    # time_remove.set("type", "int")
+    # time_remove.set("units", "min")
+    # time_remove.text = str(8000)
 
-    time_add = etree.SubElement(user_parameters, "time_add_" + drug)
-    time_add.set("type", "int")
-    time_add.set("units", "min")
-    time_add.text = str(0)
+    # time_add = etree.SubElement(user_parameters, "time_add_" + drug)
+    # time_add.set("type", "int")
+    # time_add.set("units", "min")
+    # time_add.text = str(0)
 
-    threshold = etree.SubElement(user_parameters, "threshold_" + drug)
-    threshold.set("type", "double")
-    threshold.set("units", "dimensionless")
-    threshold.text = str(0.14)
+    # threshold = etree.SubElement(user_parameters, "threshold_" + drug)
+    # threshold.set("type", "double")
+    # threshold.set("units", "dimensionless")
+    # threshold.text = str(0.14)
 
-    drug_rest = etree.SubElement(user_parameters, "concentration_" + drug)
-    drug_rest.set("type", "double")
-    drug_rest.set("units", "ng/mL")
-    drug_rest.text = str(0.5)
+    # drug_rest = etree.SubElement(user_parameters, "concentration_" + drug)
+    # drug_rest.set("type", "double")
+    # drug_rest.set("units", "ng/mL")
+    # drug_rest.text = str(0.5)
 
-    # set the proportion of drug inhibition for the drug 
+    # set the proportion of drug resistance for the drug 
 
-    inhibition_level = etree.SubElement(user_parameters, "prop_drug_sensitive_" + drug)
+    inhibition_level = etree.SubElement(user_parameters, "prop_drug_resistant_" + drug)
     inhibition_level.set("type", "double")
     inhibition_level.set("units", "dimensionless")
     inhibition_level.text = str(rest.replace("_", "."))
+
+    # set the total number of levels of drug concentration 
+    num_levels = user_parameters.find('total_concentration_levels')
+    if (num_levels == None):
+        num_levels = etree.SubElement(user_parameters, "total_concentration_levels")
+        num_levels.set("type", "int")
+        num_levels.set("units", "dimensionless")
+        num_levels.text = str(total_drug_levels)
+
+    # set the current level of drug concentration 
+    current_level = etree.SubElement(user_parameters, "current_concentration_level_" + drug)
+    current_level.set("type", "int")
+    current_level.set("units", "dimensionless")
+    current_level.text = str(drug_level)
 
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
@@ -394,15 +410,24 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
     
     translation_table = dict.fromkeys(map(ord, "[()'[] ]"), None)
 
+    drug_levels = list(range(1,levels+1))
+
     # modify nodelist and resistancelist if mode is double
     if (mode == "double"):
         drug_combinations = combinations(druglist, 2)
         rest_combinations = product(rest_list, repeat=2)
+        conc_combination = product(drug_levels, repeat=2)
+
         druglist = drug_combinations
         rest_combinations_list = []
+        drug_levels_list = []
+
         for elem in rest_combinations:
             rest_combinations_list.append(elem)
+        for elem in conc_combination:
+            drug_levels_list.append(elem)
         rest_list = rest_combinations_list
+        drug_levels = drug_levels_list
 
     # create the project folder and copy the prostate project files in it
     if not os.path.exists(project_path):
@@ -417,26 +442,30 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
     for drug in druglist:
 
         for rest in rest_list:
-            filtered_drugname = str(drug).translate(translation_table)
-            filtered_rest = str(rest).translate(translation_table)
-            output_path = "{}/{}_{}_{}".format(output_base_path, bool_model_name,filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
 
-            # create the corresponding output folder
-            if os.path.exists(output_path):
-                shutil.rmtree(output_path)
-            os.makedirs(output_path)  
+            for drug_level in drug_levels:
 
-            # modify the .xml file for the current run
-            xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
-            new_xml_output_path = "{}/{}/{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-            if (type(drug) is tuple):
-                # for the tuples the first two elements of node and rest belong together
-                add_drug_to_xml(drug[0], rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                add_drug_to_xml(drug[1], rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
-            else: 
-                add_drug_to_xml(drug, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-            xml_config_path = "{}/{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-            simulation_list.append(xml_config_path) 
+                filtered_drugname = str(drug).translate(translation_table)
+                filtered_rest = str(rest).translate(translation_table)
+                filtered_drug_level = str(drug_level).translate(translation_table)
+                output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
+
+                # create the corresponding output folder
+                if os.path.exists(output_path):
+                    shutil.rmtree(output_path)
+                os.makedirs(output_path)  
+
+                # modify the .xml file for the current run
+                xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
+                new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                if (type(drug) is tuple):
+                    # for the tuples the first two elements of node and rest belong together
+                    add_drug_to_xml(drug[0], drug_level[0], levels, rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug[1], drug_level[1], levels, rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                else: 
+                    add_drug_to_xml(drug, drug_level, levels, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                simulation_list.append(xml_config_path) 
 
     # delete created folders again 
     # shutil.rmtree(project_path)
