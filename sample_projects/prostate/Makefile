@@ -56,9 +56,9 @@ ARCH := native # best auto-tuning
 # ARCH := nocona #64-bit pentium 4 or later 
 
 # CFLAGS := -march=$(ARCH) -Ofast -s -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
-CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+# CFLAGS := -march=$(ARCH) -O3 -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 # debug:
-# CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
+CFLAGS := -march=$(ARCH) -O0 -ggdb -fomit-frame-pointer -mfpmath=both -fopenmp -m64 -std=c++11
 
 COMPILE_COMMAND := $(CC) $(CFLAGS) 
 
@@ -75,7 +75,7 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
-PhysiCell_custom_module_OBJECTS := custom.o custom_main.o drug_sensitivity.o
+PhysiCell_custom_module_OBJECTS := custom.o drug_sensitivity.o
 
 pugixml_OBJECTS := pugixml.o
 
@@ -182,9 +182,6 @@ boolean_network.o: ./addons/PhysiBoSS/src/boolean_network.cpp
 
 custom.o: ./custom_modules/custom.cpp 
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom.cpp
-
-custom_main.o: ./custom_modules/custom_main.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom_main.cpp
 
 drug_sensitivity.o: ./custom_modules/drug_sensitivity.cpp
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/drug_sensitivity.cpp
