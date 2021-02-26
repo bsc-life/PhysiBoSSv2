@@ -126,6 +126,20 @@ const vector<pair<string, string>> drug_targets = {
     { "BIBR1532", "TERT"}
 };
 
+const vector<pair<string, int>> half_lives = {
+    { "Ipatasertib", 2748},
+    { "Afuresertib", 2448},
+    { "Afatinib", 2220},
+    { "Erlotinib", 2172},
+
+    { "Luminespib", 7200},
+    { "Trametinib", 5760},
+    { "Selumetinib", 822},
+    { "Pictilisib", 1062},
+    { "Alpelisib", 822},
+    
+};
+
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
     return (*dict_iterator).second;

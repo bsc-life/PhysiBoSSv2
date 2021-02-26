@@ -73,6 +73,11 @@ void create_cell_types( void )
 	return; 
 }
 
+double get_decay_rate(double initial_conc, double half_life){
+	double decay_rate = initial_conc/(2*half_life);
+	return decay_rate;
+}
+
 void setup_microenvironment( void )
 {
 	// make sure to override and go back to 2D 
@@ -84,8 +89,9 @@ void setup_microenvironment( void )
 
 	// set intial conditions and dirichlet boundary conditions for the drugs; vector already contains the condition for oxygen
 	double oxygen_condition = 160.0;
-	vector<double> bc_vector {oxygen_condition};
+	vector<double> condition_vector = {oxygen_condition};
 	vector<bool> activation_vector {1};
+	vector<double> decay_vector {0.1};
 	for (int i = 0; i < microenvironment.number_of_densities(); i++)
 	{
 		std::string drug_name = microenvironment.density_names[i];
@@ -94,15 +100,22 @@ void setup_microenvironment( void )
 			int total_drug_levels = parameters.ints("total_concentration_levels");
 			string cell_line = parameters.strings("cell_line");
 			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels);
-			bc_vector.push_back(drug_concentration);
+			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
+
+			double half_life = get_value(half_lives, drug_name);
+			double decay_rate = get_decay_rate(drug_concentration, half_life);
+			decay_vector.push_back(decay_rate);
+
 		}
 	}
 	default_microenvironment_options.Dirichlet_activation_vector = activation_vector;
-	default_microenvironment_options.Dirichlet_condition_vector = bc_vector;
+	default_microenvironment_options.Dirichlet_condition_vector = condition_vector;
 
 	// initialize BioFVM 
 	initialize_microenvironment(); 	
+
+	microenvironment.decay_rates = decay_vector;
 	
 	return; 
 }
