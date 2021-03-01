@@ -68,8 +68,9 @@ def main():
     color_dict = {"alive": "g", "apoptotic": "r", "necrotic":"k"}
 
     instance_folder = sys.argv[1]
-
-    output_data = instance_folder + 'output_o2_dirichlet/'
+    filename = instance_folder.replace(".", "").replace("/", "")
+    output_data = instance_folder
+    # output_data = instance_folder + 'output_o2_dirichlet/'
 
     mcds = MultiCellDS(output_folder=output_data)
 
@@ -77,23 +78,29 @@ def main():
     df_cell_variables = get_timeserie_mean(mcds)
     # df_time_AKTi = get_timeserie_density(mcds)
 
-    df_time_course.to_csv(instance_folder + "time_course.tsv", sep="\t")
-    df_cell_variables.to_csv(instance_folder + "cell_variables.tsv", sep="\t")
+    # df_time_course.to_csv(instance_folder + "time_course.tsv", sep="\t")
+    # df_cell_variables.to_csv(instance_folder + "cell_variables.tsv", sep="\t")
+    df_time_course.to_csv( filename + "_time_course.tsv", sep="\t")
+    df_cell_variables.to_csv( filename + "_cell_variables.tsv", sep="\t")
+    # df_time_course.to_csv("time_course.tsv", sep="\t")
+    # df_cell_variables.to_csv("cell_variables.tsv", sep="\t")
     # df_time_AKTi.to_csv(instance_folder + "AKTi_time.tsv", sep="\t")
 
-    fig, axes = plt.subplots(2, 1, figsize=(12,12), dpi=150, sharex=True)
-    plot_cells(df_time_course, color_dict, axes[0])
+    fig, axes = plt.subplots(1, 1, figsize=(14,6), dpi=150)
+    # fig, axes = plt.subplots(2, 1, figsize=(12,12), dpi=150, sharex=True)
+    # plot_cells(df_time_course, color_dict, axes[0])
+    plot_cells(df_time_course, color_dict, axes)
     
-    list_of_variables = ['o2_extern', 'o2_intern']
-    plot_molecular_model(df_cell_variables, list_of_variables, axes[1])
-    threshold = 0.14
+    # list_of_variables = ['o2_extern', 'o2_intern']
+    # plot_molecular_model(df_cell_variables, list_of_variables, axes[1])
+    # threshold = 0.14
     
     # axes[1].hlines(threshold, 0, df_time_course.time.iloc[-1], label="Activation threshold")
     # ax2 = axes[1].twinx()
     # ax2.plot(df_time_AKTi.time, df_time_AKTi['AKTi'], 'r', label="[AKTi]")
     # ax2.set_ylabel("[AKTi]")
     # ax2.set_ylim([0, 500])
-    axes[1].legend(loc="upper left")
+    # axes[1].legend(loc="upper left")
     # ax2.legend(loc="upper right")
 
     # list_of_variables = ['akti_node', 'nfkb_node', 'fadd_node']
@@ -107,6 +114,8 @@ def main():
     # ax2.legend(loc="upper right")
 
     fig.tight_layout()
-    fig.savefig(instance_folder + 'variables_vs_time.png')
+    fig.savefig( filename + '_variables_vs_time.png')
+    # fig.savefig(instance_folder + 'variables_vs_time.png')
+    # fig.savefig('variables_vs_time.png')
 
 main()

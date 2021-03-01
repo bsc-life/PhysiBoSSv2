@@ -107,13 +107,12 @@ void create_cell_types( void )
 	// set molecular properties 
 	// int tnf_substrate_index = microenvironment.find_density_index( "tnf" ); 
 	// cell_defaults.phenotype.molecular.fraction_released_at_death[tnf_substrate_index] = 0.0;
-	int akti_substrate_index = microenvironment.find_density_index( "AKTi" ); 
-	cell_defaults.phenotype.molecular.fraction_released_at_death[akti_substrate_index] = 0.0;
-	int taki_substrate_index = microenvironment.find_density_index( "TAKi" ); 
-	cell_defaults.phenotype.molecular.fraction_released_at_death[taki_substrate_index] = 0.0;
+	// int akti_substrate_index = microenvironment.find_density_index( "AKTi" ); 
+	// cell_defaults.phenotype.molecular.fraction_released_at_death[akti_substrate_index] = 0.0;
+	// int taki_substrate_index = microenvironment.find_density_index( "TAKi" ); 
+	// cell_defaults.phenotype.molecular.fraction_released_at_death[taki_substrate_index] = 0.0;
 	// int bcati_substrate_index = microenvironment.find_density_index( "BCATi" ); 
 	// cell_defaults.phenotype.molecular.fraction_released_at_death[bcati_substrate_index] = 0.0;
-
 
 	build_cell_definitions_maps(); 
 	display_cell_definitions( std::cout ); 
@@ -146,17 +145,17 @@ void update_custom_variables( Cell* pCell )
 	// pCell->custom_data.variables.at(index_tnf_node).value = pCell->boolean_network.get_node_value("TNF");
 	// pCell->custom_data.variables.at(index_fadd_node).value = pCell->boolean_network.get_node_value("FADD");
 	
-	static int akti_index = microenvironment.find_density_index( "AKTi" ); 
-	static int index_akti_concentration = pCell->custom_data.find_variable_index("akti_concentration");
-	static int index_akti_node = pCell->custom_data.find_variable_index("akti_node");
-	pCell->custom_data.variables.at(index_akti_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
-	pCell->custom_data.variables.at(index_akti_node).value = pCell->boolean_network.get_node_value("anti_AKT");
+	// static int akti_index = microenvironment.find_density_index( "AKTi" ); 
+	// static int index_akti_concentration = pCell->custom_data.find_variable_index("akti_concentration");
+	// static int index_akti_node = pCell->custom_data.find_variable_index("akti_node");
+	// pCell->custom_data.variables.at(index_akti_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
+	// pCell->custom_data.variables.at(index_akti_node).value = pCell->boolean_network.get_node_value("anti_AKT");
 
-	static int taki_index = microenvironment.find_density_index( "TAKi" ); 
-	static int index_taki_concentration = pCell->custom_data.find_variable_index("taki_concentration");
-	static int index_taki_node = pCell->custom_data.find_variable_index("taki_node");
-	pCell->custom_data.variables.at(index_taki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
-	pCell->custom_data.variables.at(index_taki_node).value = pCell->boolean_network.get_node_value("anti_TAK1");
+	// static int taki_index = microenvironment.find_density_index( "TAKi" ); 
+	// static int index_taki_concentration = pCell->custom_data.find_variable_index("taki_concentration");
+	// static int index_taki_node = pCell->custom_data.find_variable_index("taki_node");
+	// pCell->custom_data.variables.at(index_taki_concentration).value = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
+	// pCell->custom_data.variables.at(index_taki_node).value = pCell->boolean_network.get_node_value("anti_TAK1");
 
 	// TNF:
 	// static int nTNF_external = microenvironment.find_density_index( "tnf" );
@@ -278,10 +277,10 @@ std::vector<std::string> my_coloring_function( Cell* pCell )
 void set_input_nodes(Cell* pCell) {
 	// static int tnf_index = microenvironment.find_density_index( "tnf" ); 
 	// static double tnf_threshold = parameters.doubles("tnf_threshold");
-	static int akti_index = microenvironment.find_density_index( "AKTi" );
-	static double akti_threshold = parameters.doubles("akti_threshold");
-	static int taki_index = microenvironment.find_density_index( "TAKi" );
-	static double taki_threshold = parameters.doubles("taki_threshold");
+	// static int akti_index = microenvironment.find_density_index( "AKTi" );
+	// static double akti_threshold = parameters.doubles("akti_threshold");
+	// static int taki_index = microenvironment.find_density_index( "TAKi" );
+	// static double taki_threshold = parameters.doubles("taki_threshold");
 	// static int bcati_index = microenvironment.find_density_index( "BCATi" );
 	// static double bcati_threshold = parameters.doubles("bcati_threshold");
 
@@ -295,27 +294,27 @@ void set_input_nodes(Cell* pCell) {
 	// 		pCell->boolean_network.set_node_value("TNF", 0);
 	// 	}
 	// }
-	if (akti_index != -1)
-	{
-		double akti_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
-		if (akti_cell_concentration >= akti_threshold)
-			pCell->boolean_network.set_node_value("anti_AKT", 1);
-		else
-		{
-			pCell->boolean_network.set_node_value("anti_AKT", 0);
-		}
-	}
+	// if (akti_index != -1)
+	// {
+	// 	double akti_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[akti_index];
+	// 	if (akti_cell_concentration >= akti_threshold)
+	// 		pCell->boolean_network.set_node_value("anti_AKT", 1);
+	// 	else
+	// 	{
+	// 		pCell->boolean_network.set_node_value("anti_AKT", 0);
+	// 	}
+	// }
 	
-	if (taki_index != -1)
-	{
-		double taki_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
-		if (taki_cell_concentration >= taki_threshold)
-			pCell->boolean_network.set_node_value("anti_TAK1", 1);
-		else
-		{
-			pCell->boolean_network.set_node_value("anti_TAK1", 0);
-		}		
-	}
+	// if (taki_index != -1)
+	// {
+	// 	double taki_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[taki_index];
+	// 	if (taki_cell_concentration >= taki_threshold)
+	// 		pCell->boolean_network.set_node_value("anti_TAK1", 1);
+	// 	else
+	// 	{
+	// 		pCell->boolean_network.set_node_value("anti_TAK1", 0);
+	// 	}		
+	// }
 	// 	if (bcati_index != -1)
 	// {
 	// 	double bcati_cell_concentration = pCell->phenotype.molecular.internalized_total_substrates[bcati_index];

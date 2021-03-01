@@ -129,23 +129,20 @@
 				<diffusion_coefficient units="micron^2/min">100000.0</diffusion_coefficient>
 				<decay_rate units="1/min">.1</decay_rate> 
 			</physical_parameter_set>
-			<!-- <initial_condition units="mmHg">10000000000.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmHg" enabled="false">20.0</Dirichlet_boundary_condition> -->
-			<!-- <initial_condition units="mmHg">38.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmHg" enabled="true">38.0</Dirichlet_boundary_condition> -->
-			<initial_condition units="mmHg">60.0</initial_condition>
-			<Dirichlet_boundary_condition units="mmHg" enabled="true">60.0</Dirichlet_boundary_condition>
+			<initial_condition units="mmHg">38.0</initial_condition>
+			<Dirichlet_boundary_condition units="mmHg" enabled="true">38.0</Dirichlet_boundary_condition>
 		</variable>
 		
-<!-- 		<variable name="tnf" units="mmol" ID="1">
+		<variable name="tnf" units="mmol" ID="1">
 			<physical_parameter_set>
 				<diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
 				<decay_rate units="1/min">.0275</decay_rate> 
 			</physical_parameter_set>
 			<initial_condition units="mmol">0.0</initial_condition>
 			<Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition>
-		</variable>-->
- 		<variable name="AKTi" units="mmol" ID="1">
+		</variable>
+
+ 		<!-- <variable name="AKTi" units="mmol" ID="1">
 			<physical_parameter_set>
 				<diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
 				<decay_rate units="1/min">.0275</decay_rate> 
@@ -161,52 +158,7 @@
 			</physical_parameter_set>
 			<initial_condition units="mmol">0.0</initial_condition>
 			<Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition>
-		</variable>
-
-		<!-- <variable name="BCATi" units="mmol" ID="7"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
-
-		<!-- <variable name="GSK3i" units="mmol" ID="3"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
-
-		<!-- <variable name="MEKi" units="mmol" ID="4"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
-
-		<!-- <variable name="p38i" units="mmol" ID="5"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
-
-		<!-- <variable name="PI3Ki" units="mmol" ID="6"> -->
-			<!-- <physical_parameter_set> -->
-				<!-- <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient> -->
-				<!-- <decay_rate units="1/min">.0275</decay_rate>  -->
-			<!-- </physical_parameter_set> -->
-			<!-- <initial_condition units="mmol">0.0</initial_condition> -->
-			<!-- <Dirichlet_boundary_condition units="mmol" enabled="false">0.0</Dirichlet_boundary_condition> -->
-		<!-- </variable> -->
+		</variable> -->
 
 		<options>
 			<calculate_gradients>true</calculate_gradients>
@@ -292,33 +244,26 @@
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
 					</substrate> 
 						
-					<!-- <substrate name="tnf">
+					<substrate name="tnf">
 						<secretion_rate units="1/min">0</secretion_rate>
 						<secretion_target units="substrate density">0.05</secretion_target>
 						<uptake_rate units="1/min">0.0025</uptake_rate>
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
-					</substrate>  -->
-
-					<substrate name="AKTi">
-						<secretion_rate units="1/min">0</secretion_rate>
-						<secretion_target units="substrate density">1</secretion_target>
-						<uptake_rate units="1/min">0.0025</uptake_rate>
-						<net_export_rate units="total substrate/min">0</net_export_rate> 
-					</substrate>  
-					
-					<substrate name="TAKi">
-						<secretion_rate units="1/min">0</secretion_rate>
-						<secretion_target units="substrate density">1</secretion_target>
-						<uptake_rate units="1/min">0.0025</uptake_rate>
-						<net_export_rate units="total substrate/min">0</net_export_rate> 
 					</substrate> 
 
-					<!-- <substrate name="BCATi">
+					<!-- <substrate name="AKTi">
 						<secretion_rate units="1/min">0</secretion_rate>
 						<secretion_target units="substrate density">1</secretion_target>
 						<uptake_rate units="1/min">0.0025</uptake_rate>
 						<net_export_rate units="total substrate/min">0</net_export_rate> 
 					</substrate>   -->
+					
+					<!-- <substrate name="TAKi">
+						<secretion_rate units="1/min">0</secretion_rate>
+						<secretion_target units="substrate density">1</secretion_target>
+						<uptake_rate units="1/min">0.0025</uptake_rate>
+						<net_export_rate units="total substrate/min">0</net_export_rate> 
+					</substrate>  -->
 
 				</secretion>
 
@@ -326,15 +271,12 @@
 			</phenotype>
 			<custom_data>
 				<next_physiboss_run units="dimensionless">10.</next_physiboss_run>
-				<!-- <tnf_concentration units="dimensionless">0</tnf_concentration>
-				<tnf_node units="dimensionless">0</tnf_node> -->
-				<akti_concentration units="dimensionless">0</akti_concentration>
+				<tnf_concentration units="dimensionless">0</tnf_concentration>
+				<tnf_node units="dimensionless">0</tnf_node>
+				<!-- <akti_concentration units="dimensionless">0</akti_concentration>
 				<akti_node units="dimensionless">0</akti_node>
 				<taki_concentration units="dimensionless">0</taki_concentration>
-				<taki_node units="dimensionless">0</taki_node>
-				<!-- <bcati_concentration units="dimensionless">0</bcati_concentration> -->
-				<!-- <bcati_node units="dimensionless">0</bcati_node> -->
-				<!-- <fadd_node units="dimensionless">0</fadd_node> -->
+				<taki_node units="dimensionless">0</taki_node> -->
 				<o2_extern units="mmHg">0.0</o2_extern>
 				<o2_intern units="mmHg">0.0</o2_intern>
 				<!-- <dirich_value units="mmHg">0.0</dirich_value> -->
@@ -351,41 +293,31 @@
 
 		<bnd_file type="string" units="">./config/boolean_network/AGS_nodes.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/AGS_conf.cfg</cfg_file>
-		<!-- <bnd_file type="string" units="">./config/boolean_network/AGSred_nodes.bnd</bnd_file> -->
-		<!-- <cfg_file type="string" units="">./config/boolean_network/AGSred_conf.cfg</cfg_file>  -->
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 
-		<!-- <tnf_secretion_rate type="double" units="fg/cell/min">0.1</tnf_secretion_rate>
+		<tnf_secretion_rate type="double" units="fg/cell/min">0.1</tnf_secretion_rate>
 		<duration_add_tnf type="int" units="min">8000</duration_add_tnf>
 		<time_remove_tnf type="int" units="min">8000</time_remove_tnf> 
 		<time_add_tnf type="int" units="min">0</time_add_tnf>
 		<tnf_threshold type="double" units="dimensionless">0.14</tnf_threshold>
-		<concentration_tnf type="double" units="ng/mL"> 0.5 </concentration_tnf>  -->
+		<concentration_tnf type="double" units="ng/mL"> 0.5 </concentration_tnf> 
 
-		<!-- <akti_uptake_rate type="double" units="">0.0025</akti_uptake_rate> -->
-		<!-- <akti_secretion_rate type="double" units="fg/cell/min">0.1</akti_secretion_rate> -->
-		<duration_add_akti type="int" units="min">0</duration_add_akti> <!-- 10 -->
-		<time_remove_akti type="int" units="min">0</time_remove_akti> <!-- 8000 -->
-		<time_add_akti type="int" units="min">0</time_add_akti> <!-- 150 -->
-		<akti_threshold type="double" units="dimensionless">0</akti_threshold> <!-- 2.8e-05 -->
-		<concentration_akti type="double" units="ng/mL"> 0 </concentration_akti> <!-- 0.5 -->
+		<!-- <akti_uptake_rate type="double" units="">0.0025</akti_uptake_rate>
+		<akti_secretion_rate type="double" units="fg/cell/min">0.1</akti_secretion_rate>
+		<duration_add_akti type="int" units="min">0</duration_add_akti>
+		<time_remove_akti type="int" units="min">0</time_remove_akti>
+		<time_add_akti type="int" units="min">0</time_add_akti> 
+		<akti_threshold type="double" units="dimensionless">0</akti_threshold> 
+		<concentration_akti type="double" units="ng/mL"> 0 </concentration_akti>  -->
 		
-		<!-- <taki_uptake_rate type="double" units="">0.0025</taki_uptake_rate> -->
-		<!-- <taki_secretion_rate type="double" units="fg/cell/min">0.1</taki_secretion_rate> -->
-		<duration_add_taki type="int" units="min">0</duration_add_taki> <!-- 10 -->
-		<time_remove_taki type="int" units="min">0</time_remove_taki> <!-- 8000 -->
-		<time_add_taki type="int" units="min">0</time_add_taki> <!-- 150 -->
-		<taki_threshold type="double" units="dimensionless">0</taki_threshold> <!-- 2.8e-05 -->
-		<concentration_taki type="double" units="ng/mL"> 0 </concentration_taki> <!-- 0.5 -->
+		<!-- <taki_uptake_rate type="double" units="">0.0025</taki_uptake_rate>
+		<taki_secretion_rate type="double" units="fg/cell/min">0.1</taki_secretion_rate>
+		<duration_add_taki type="int" units="min">0</duration_add_taki>
+		<time_remove_taki type="int" units="min">0</time_remove_taki>
+		<time_add_taki type="int" units="min">0</time_add_taki> 
+		<taki_threshold type="double" units="dimensionless">0</taki_threshold>
+		<concentration_taki type="double" units="ng/mL"> 0 </concentration_taki> -->
 
-		<!-- <bcati_uptake_rate type="double" units="">0.0025</bcati_uptake_rate> -->
-		<!-- <bcati_secretion_rate type="double" units="fg/cell/min">0.1</bcati_secretion_rate> -->
-		<!-- <duration_add_bcati type="int" units="min">8000</duration_add_bcati>
-		<time_remove_bcati type="int" units="min">8000</time_remove_bcati> 
-		<time_add_bcati type="int" units="min">0</time_add_bcati> 
-		<bcati_threshold type="double" units="dimensionless">0.14</bcati_threshold> 
-		<concentration_bcati type="double" units="ng/mL"> 0.5 </concentration_bcati> -->
-		
 		<!-- o2 no dirichlet -->
 		<!-- <duration_add_o2 type="int" units="min">10</duration_add_o2>
 		<time_remove_o2 type="int" units="min">420</time_remove_o2>
@@ -393,12 +325,14 @@
 		<concentration_o2 type="double" units="mmHg"> 10000000000.0 </concentration_o2> -->
 
 		<!-- o2 change dirichlet -->
-		<time_o2_change_dirich type="int" units="min">1000</time_o2_change_dirich>
-		<new_o2_dirich type="double" units="concentration">1</new_o2_dirich>
-
+		<time_o2_change_dirich1 type="int" units="min">700</time_o2_change_dirich1>
+		<!-- <new_o2_dirich1 type="double" units="concentration">38</new_o2_dirich1> -->
+		<new_o2_dirich1 type="double" units="concentration">15</new_o2_dirich1>
+		<time_o2_change_dirich2 type="int" units="min">1000</time_o2_change_dirich2>
+		<!-- <new_o2_dirich2 type="double" units="concentration">38</new_o2_dirich2> -->
+		<new_o2_dirich2 type="double" units="concentration">1</new_o2_dirich2>
+		<!--  Look here: /core/PhysiCell_cell.cpp Line 87: Cell_Parameters::Cell_Parameters() -->
+		
 		<membrane_length type="int" units=""> 470 </membrane_length>
-
-	</user_parameters>
-	
-	
+</user_parameters>
 </PhysiCell_settings>

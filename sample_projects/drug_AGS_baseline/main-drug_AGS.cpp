@@ -110,31 +110,26 @@ int main( int argc, char* argv[] )
 	setup_microenvironment(); // modify this in the custom code 
 
 	// User parameters
-	double time_add_tnf = parameters.ints("time_add_tnf");
-	double time_put_tnf = 0;
-	double duration_add_tnf = parameters.ints("duration_add_tnf");
-	double time_tnf_next = 0;
-	double time_remove_tnf = parameters.ints("time_remove_tnf");
-	double concentration_tnf = parameters.doubles("concentration_tnf") * microenvironment.voxels(0).volume * 0.000001;
-	double time_add_akti = parameters.ints("time_add_akti");
-	double time_put_akti = 0;
-	double duration_add_akti = parameters.ints("duration_add_akti");
-	double time_akti_next = 0;
-	double time_remove_akti = parameters.ints("time_remove_akti");
-	double concentration_akti = parameters.doubles("concentration_akti") * microenvironment.voxels(0).volume * 0.000001;
-	double time_add_taki = parameters.ints("time_add_taki");
-	double time_put_taki = 0;
-	double duration_add_taki = parameters.ints("duration_add_taki");
-	double time_taki_next = 0;
-	double time_remove_taki = parameters.ints("time_remove_taki");
-	double concentration_taki = parameters.doubles("concentration_taki") * microenvironment.voxels(0).volume * 0.000001;
-	double membrane_lenght = parameters.ints("membrane_length");
-	double time_add_bcati = parameters.ints("time_add_bcati");
-	double time_put_bcati = 0;
-	double duration_add_bcati = parameters.ints("duration_add_bcati");
-	double time_bcati_next = 0;
-	double time_remove_bcati = parameters.ints("time_remove_bcati");
-	double concentration_bcati = parameters.doubles("concentration_bcati") * microenvironment.voxels(0).volume * 0.000001;
+	// double time_add_tnf = parameters.ints("time_add_tnf");
+	// double time_put_tnf = 0;
+	// double duration_add_tnf = parameters.ints("duration_add_tnf");
+	// double time_tnf_next = 0;
+	// double time_remove_tnf = parameters.ints("time_remove_tnf");
+	// double concentration_tnf = parameters.doubles("concentration_tnf") * microenvironment.voxels(0).volume * 0.000001;
+	// double time_add_akti = parameters.ints("time_add_akti");
+	// double time_put_akti = 0;
+	// double duration_add_akti = parameters.ints("duration_add_akti");
+	// double time_akti_next = 0;
+	// double time_remove_akti = parameters.ints("time_remove_akti");
+	// double concentration_akti = parameters.doubles("concentration_akti") * microenvironment.voxels(0).volume * 0.000001;
+	// double time_add_taki = parameters.ints("time_add_taki");
+	// double time_put_taki = 0;
+	// double duration_add_taki = parameters.ints("duration_add_taki");
+	// double time_taki_next = 0;
+	// double time_remove_taki = parameters.ints("time_remove_taki");
+	// double concentration_taki = parameters.doubles("concentration_taki") * microenvironment.voxels(0).volume * 0.000001;
+	double membrane_length = parameters.ints("membrane_length");
+
 	// o2 no dirichlet :
 	// double time_add_o2 = parameters.ints("time_add_o2");
 	// double time_put_o2 = 0;
@@ -143,15 +138,17 @@ int main( int argc, char* argv[] )
 	// double time_remove_o2 = parameters.ints("time_remove_o2");
 	// double concentration_o2 = parameters.doubles("concentration_o2") * microenvironment.voxels(0).volume * 0.000001;
 	// o2 change dirichlet :
-	double time_o2_change_dirich = parameters.ints("time_o2_change_dirich");
-	double new_o2_dirich = parameters.doubles("new_o2_dirich");
+	double time_o2_change_dirich1 = parameters.ints("time_o2_change_dirich1");
+	double new_o2_dirich1 = parameters.doubles("new_o2_dirich1");
+	double time_o2_change_dirich2 = parameters.ints("time_o2_change_dirich2");
+	double new_o2_dirich2 = parameters.doubles("new_o2_dirich2");
 
 	// do small diffusion steps alone to initialize densities
-	int k = microenvironment.find_density_index("tnf");
-	if ( k >= 0 ) 
-		inject_density_sphere(k, concentration_tnf, membrane_lenght);
-	for ( int i = 0; i < 25; i ++ )
-		microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
+	// int k = microenvironment.find_density_index("tnf");
+	// if ( k >= 0 ) 
+	// 	inject_density_sphere(k, concentration_tnf, membrane_length);
+	// for ( int i = 0; i < 25; i ++ )
+	// 	microenvironment.simulate_diffusion_decay( 5*diffusion_dt );
 	
 	/* PhysiCell setup */ 
  	
@@ -269,7 +266,51 @@ int main( int argc, char* argv[] )
 			// {
 			// 	int k = microenvironment.find_density_index("tnf");
 			// 	if ( k >= 0 ) 
-			// 		inject_density_sphere(k, concentration_tnf, membrane_lenght);
+			// 		inject_density_sphere(k, concentration_tnf, membrane_length);
+			// }
+
+			//AKTi
+			// if ( PhysiCell_globals.current_time >= time_put_akti )
+			// {
+			// 	time_akti_next = PhysiCell_globals.current_time + duration_add_akti;
+			// 	time_put_akti += time_add_akti;
+			// }
+
+			// if ( PhysiCell_globals.current_time >= time_remove_akti )
+			// {
+			// 	int k = microenvironment.find_density_index("AKTi");
+			// 	if ( k >= 0 )
+			// 		remove_density(k);
+			// 	time_remove_akti += PhysiCell_settings.max_time;
+			// }
+
+			// if ( PhysiCell_globals.current_time <= time_akti_next )
+			// {
+			// 	int k = microenvironment.find_density_index("AKTi");
+			// 	if ( k >= 0 )
+			// 		inject_density_sphere(k, concentration_akti, membrane_length);
+			// }
+			
+			//TAKi
+			// if ( PhysiCell_globals.current_time >= time_put_taki )
+			// {
+			// 	time_taki_next = PhysiCell_globals.current_time + duration_add_taki;
+			// 	time_put_taki += time_add_taki;
+			// }
+
+			// if ( PhysiCell_globals.current_time >= time_remove_taki )
+			// {
+			// 	int k = microenvironment.find_density_index("TAKi");
+			// 	if ( k >= 0 )
+			// 		remove_density(k);
+			// 	time_remove_taki += PhysiCell_settings.max_time;
+			// }
+
+			// if ( PhysiCell_globals.current_time <= time_taki_next )
+			// {
+			// 	int k = microenvironment.find_density_index("TAKi");
+			// 	if ( k >= 0 ) 
+			// 		inject_density_sphere(k, concentration_taki, membrane_length);
 			// }
 				
 			// o2 no dirichlet
@@ -295,93 +336,37 @@ int main( int argc, char* argv[] )
 			// }
 
 			// o2 change dirichlet
-			double time_o2_change_dirich_low = time_o2_change_dirich - 0.005;
-			double time_o2_change_dirich_high = time_o2_change_dirich + 0.005;
+			double time_o2_change_dirich_low1 = time_o2_change_dirich1 - 0.005;
+			double time_o2_change_dirich_high1 = time_o2_change_dirich1 + 0.005;
 			
-			if ( ( PhysiCell_globals.current_time >= time_o2_change_dirich_low ) && ( PhysiCell_globals.current_time <= time_o2_change_dirich_high ) )
+			if ( ( PhysiCell_globals.current_time >= time_o2_change_dirich_low1 ) && ( PhysiCell_globals.current_time <= time_o2_change_dirich_high1 ) )
 			{
 				int k = microenvironment.find_density_index("oxygen");
 				if ( k >= 0 )
 					for( int n=0; n < microenvironment.number_of_voxels() ; n++ )
 					{
-						microenvironment.update_dirichlet_node(n, k, new_o2_dirich);
+						microenvironment.update_dirichlet_node(n, k, new_o2_dirich1);
 					}
 			}
-
-
-			//AKTi
-			// if ( PhysiCell_globals.current_time >= time_put_akti )
-			// {
-			// 	time_akti_next = PhysiCell_globals.current_time + duration_add_akti;
-			// 	time_put_akti += time_put_akti;
-			// }
-
-			// if ( PhysiCell_globals.current_time >= time_remove_akti )
-			// {
-			// 	int k = microenvironment.find_density_index("AKTi");
-			// 	if ( k >= 0 )
-			// 		remove_density(k);
-			// 	time_remove_akti += PhysiCell_settings.max_time;
-			// }
-
-			// if ( PhysiCell_globals.current_time <= time_akti_next )
-			// {
-			// 	int k = microenvironment.find_density_index("AKTi");
-			// 	if ( k >= 0 )
-			// 		inject_density_sphere(k, concentration_akti, membrane_lenght);
-			// }
+			// o2 change dirichlet
+			double time_o2_change_dirich_low2 = time_o2_change_dirich2 - 0.005;
+			double time_o2_change_dirich_high2 = time_o2_change_dirich2 + 0.005;
 			
-			//TAKi
-			// if ( PhysiCell_globals.current_time >= time_put_taki )
-			// {
-			// 	time_taki_next = PhysiCell_globals.current_time + duration_add_taki;
-			// 	time_put_taki += time_add_taki;
-			// }
-
-			// if ( PhysiCell_globals.current_time >= time_remove_taki )
-			// {
-			// 	int k = microenvironment.find_density_index("TAKi");
-			// 	if ( k >= 0 )
-			// 		remove_density(k);
-			// 	time_remove_taki += PhysiCell_settings.max_time;
-			// }
-
-			// if ( PhysiCell_globals.current_time <= time_taki_next )
-			// {
-			// 	int k = microenvironment.find_density_index("TAKi");
-			// 	if ( k >= 0 ) 
-			// 		inject_density_sphere(k, concentration_taki, membrane_lenght);
-			// }
-			
-			//BCATi
-			// if ( PhysiCell_globals.current_time >= time_put_bcati )
-			// {
-			// 	time_bcati_next = PhysiCell_globals.current_time + duration_add_bcati;
-			// 	time_put_bcati += time_put_bcati;
-			// }
-
-			// if ( PhysiCell_globals.current_time >= time_remove_bcati )
-			// {
-			// 	int k = microenvironment.find_density_index("BCATi");
-			// 	if ( k >= 0 )
-			// 		remove_density(k);
-			// 	time_remove_bcati += PhysiCell_settings.max_time;
-			// }
-
-			// if ( PhysiCell_globals.current_time <= time_bcati_next )
-			// {
-			// 	int k = microenvironment.find_density_index("BCATi");
-			// 	if ( k >= 0 )
-			// 		inject_density_sphere(k, concentration_bcati, membrane_lenght);
-			// }
-			
+			if ( ( PhysiCell_globals.current_time >= time_o2_change_dirich_low2 ) && ( PhysiCell_globals.current_time <= time_o2_change_dirich_high2 ) )
+			{
+				int k = microenvironment.find_density_index("oxygen");
+				if ( k >= 0 )
+					for( int n=0; n < microenvironment.number_of_voxels() ; n++ )
+					{
+						microenvironment.update_dirichlet_node(n, k, new_o2_dirich2);
+					}
+			}
 
 			// update the microenvironment
 			microenvironment.simulate_diffusion_decay( diffusion_dt );
 			
 			// run PhysiCell 
-			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );
-			
+			((Cell_Container *)microenvironment.agent_container)->update_all_cells( PhysiCell_globals.current_time );		
 			PhysiCell_globals.current_time += diffusion_dt;
 		}
 
@@ -404,9 +389,7 @@ int main( int argc, char* argv[] )
 	sprintf( filename , "%s/final.svg" , PhysiCell_settings.folder.c_str() ); 
 	SVG_plot( filename , microenvironment, 0.0 , PhysiCell_globals.current_time, cell_coloring_function );
 
-	
 	// timer 
-	
 	std::cout << std::endl << "Total simulation runtime: " << std::endl; 
 	BioFVM::display_stopwatch_value( std::cout , BioFVM::runtime_stopwatch_value() ); 
 
