@@ -3,6 +3,7 @@
 #include "../modules/PhysiCell_standard_modules.h" 
 #include "../addons/PhysiBoSS/src/boolean_network.h"
 #include "drug_sensitivity.h"
+#include "boolean_model_interface.h"
 
 /**
  *	\main drug_AGS custom
@@ -33,6 +34,7 @@ void create_cell_types( void );
 void setup_tissue( void ); 
 
 // set up the BioFVM microenvironment 
+double get_decay_rate(double half_life);
 void setup_microenvironment( void ); 
 
 // custom pathology coloring function 
@@ -40,12 +42,6 @@ std::vector<std::string> prolif_apoptosis_coloring( Cell* );
 
 // custom cell phenotype functions could go here 
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt );
-
-void update_custom_variables( Cell* pCell );
-
-void set_input_nodes(Cell* pCell); 
-void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt);
-void do_proliferation( Cell* pCell, Phenotype& phenotype, double dt );
 
 std::vector<init_record> read_init_file(std::string filename, char delimiter, bool header);
 
