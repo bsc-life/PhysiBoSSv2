@@ -12,7 +12,7 @@ void update_custom_variables( Cell* pCell )
 			int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
 			int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
 			string drug_target = get_value(drug_targets, drug_name);
-			pCell->custom_data.variables.at(index_drug_conc).value = pCell->phenotype.molecular.internalized_total_substrates[drug_index];
+			pCell->custom_data.variables.at(index_drug_conc).value = pCell->nearest_density_vector()[drug_index];
 			pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
 		}	
 	}

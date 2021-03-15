@@ -36,7 +36,7 @@ string get_value (const vector<pair<string, string>> dict, string key);
 int get_value (const vector<pair<string, int>> dict, string key);
 int get_index(string drug_name, string cell_line_name);
 vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_name);
-double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels);
+double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode);
 
 double get_x_from_conc(double x_conc, double max_conc);
 double get_conc_from_x (double x, double max_conc);

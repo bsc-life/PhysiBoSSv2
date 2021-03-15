@@ -66,6 +66,7 @@ void create_cell_types( void )
 }
 
 double get_decay_rate(double half_life){
+	// natural logarithm of 2 / half-life = k (reaction rate coefficient)
 	double decay_rate = log(2)/(half_life);
 	return decay_rate;
 }
@@ -91,7 +92,8 @@ void setup_microenvironment( void )
 			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
 			int total_drug_levels = parameters.ints("total_concentration_levels");
 			string cell_line = parameters.strings("cell_line");
-			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels);
+			int simulation_mode = parameters.ints("simulation_mode")
+			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
 			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
 

@@ -131,7 +131,7 @@ const vector<pair<string, int>> half_lives = {
     { "Afuresertib", 2448},
     { "Afatinib", 2220},
     { "Erlotinib", 2172},
-
+    { "Ulixertinib", 105},
     { "Luminespib", 7200},
     { "Trametinib", 5760},
     { "Selumetinib", 822},
@@ -187,7 +187,7 @@ vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_n
     return {max_conc_vector[index], xmid_vector[index], scale_vector[index]};
 }
 
-double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels) {
+double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode) {
     // IC10 --> cell viability = 0.9, lowest drug concentration
     double highest_limit = 0.9;
     // IC90 --> cell viability = 0.1, highest drug concentration
@@ -207,6 +207,11 @@ double get_drug_concentration_from_level (string cell_line, string drug_name, in
     // get the drug concentration for the cell viability
     double x = get_x_for_cell_viability(xmid, scale, final_viability);
     double drug_conc = get_conc_from_x(x, max_conc);
+
+    // if simulation mode is on double drugs half the drug concentration
+    if (simulation_mode == 1) {
+        drug_conc = drug_conc / 2;
+    }
     return drug_conc;
 }
 
