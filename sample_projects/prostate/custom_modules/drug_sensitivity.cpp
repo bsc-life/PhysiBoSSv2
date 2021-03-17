@@ -140,6 +140,8 @@ const vector<pair<string, int>> half_lives = {
     
 };
 
+const vector<pair<string, vector<double>>> csv_file = read_csv( "config/prostate_drug_sensitivity.csv");
+
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
     return (*dict_iterator).second;
@@ -150,17 +152,24 @@ int get_value (const vector<pair<string, int>> dict, string key) {
     return (*dict_iterator).second;
 }
 
+vector<double> get_value (const vector<pair<string, vector<double>>> dict, string key) {
+    vector< pair<string, vector<double>>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, vector<double>>& element){ return element.first  == key;} );
+    return (*dict_iterator).second;
+}
+
 int get_index(string drug_name, string cell_line_name) { 
     // retrieve the id for the drug and cell line
     int drug_identifier = get_value(drug_ids, drug_name);
     int cell_identifier = get_value(cell_line_ids, cell_line_name);
    
-    // retrieve the index for the custom vector data where both identifiers are met
+    // retrieve the index for the csv datastructure where both identifiers are met
     int index = 0;
-    static int index_CL = cell_defaults.custom_data.find_vector_variable_index("\"CL\"");
-	vector <double > cell_line_vector = cell_defaults.custom_data.vector_variables.at(index_CL).value;
-    static int index_drug = cell_defaults.custom_data.find_vector_variable_index("\"DRUG_ID_lib\"");
-	vector <double > drug_vector = cell_defaults.custom_data.vector_variables.at(index_drug).value;
+    //static int index_CL = cell_defaults.custom_data.find_vector_variable_index("\"CL\"");
+	//vector <double > cell_line_vector = cell_defaults.custom_data.vector_variables.at(index_CL).value;
+    vector <double> cell_line_vector = get_value(csv_file, "\"CL\"");
+    // static int index_drug = cell_defaults.custom_data.find_vector_variable_index("\"DRUG_ID_lib\"");
+	// vector <double > drug_vector = cell_defaults.custom_data.vector_variables.at(index_drug).value;
+    vector <double> drug_vector = get_value(csv_file, "\"DRUG_ID_lib\"");
     for (int i = 0; i < drug_vector.size(); i++) {
         if (cell_line_vector[i] == cell_identifier && drug_vector[i] == drug_identifier)
         {
@@ -176,13 +185,16 @@ int get_index(string drug_name, string cell_line_name) {
 
 vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_name) {
     int index = get_index(drug_name, cell_line_name);
-    static int index_max_conc = cell_defaults.custom_data.find_vector_variable_index("\"maxc\"");
-    static int index_xmid = cell_defaults.custom_data.find_vector_variable_index("\"xmid\"");
-    static int index_scale = cell_defaults.custom_data.find_vector_variable_index("\"scal\"");
+    // static int index_max_conc = cell_defaults.custom_data.find_vector_variable_index("\"maxc\"");
+    // static int index_xmid = cell_defaults.custom_data.find_vector_variable_index("\"xmid\"");
+    // static int index_scale = cell_defaults.custom_data.find_vector_variable_index("\"scal\"");
 
-	vector <double > max_conc_vector = cell_defaults.custom_data.vector_variables.at(index_max_conc).value;
-    vector <double > xmid_vector = cell_defaults.custom_data.vector_variables.at(index_xmid).value;
-    vector <double > scale_vector = cell_defaults.custom_data.vector_variables.at(index_scale).value;
+	// vector <double > max_conc_vector = cell_defaults.custom_data.vector_variables.at(index_max_conc).value;
+    // vector <double > xmid_vector = cell_defaults.custom_data.vector_variables.at(index_xmid).value;
+    // vector <double > scale_vector = cell_defaults.custom_data.vector_variables.at(index_scale).value;
+    vector <double> max_conc_vector = get_value(csv_file, "\"maxc\"");
+    vector <double> xmid_vector = get_value(csv_file, "\"xmid\"");
+    vector <double> scale_vector = get_value(csv_file, "\"scal\"");
     
     return {max_conc_vector[index], xmid_vector[index], scale_vector[index]};
 }

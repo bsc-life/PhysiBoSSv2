@@ -29,6 +29,7 @@ extern const vector<pair<string, int>> cell_line_ids;
 extern const vector<pair<string, int>> drug_ids;
 extern const vector<pair<string, string>> drug_targets;
 extern const vector<pair<string, int>> half_lives;
+extern const std::vector<std::pair<std::string, std::vector<double>>> csv_file;
 
 std::vector<std::pair<std::string, std::vector<double>>> read_csv(std::string filename);
 

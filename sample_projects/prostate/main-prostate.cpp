@@ -49,12 +49,12 @@ int main( int argc, char* argv[] )
 	/* Microenvironment setup */ 
 	
 	// store each column of drug sensitivity csv file in a custom vector variable
-	std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
-	for (std::pair<std::string, std::vector<double>> &element : csv_file ) {
-		if (element.first != "\"\""){
-			cell_defaults.custom_data.add_vector_variable( element.first, element.second );
-		}
-	}
+	// std::vector<std::pair<std::string, std::vector<double>>> csv_file = read_csv( parameters.strings("drug_sensitivity_file") );
+	// for (std::pair<std::string, std::vector<double>> &element : csv_file ) {
+	// 	if (element.first != "\"\""){
+	// 		cell_defaults.custom_data.add_vector_variable( element.first, element.second );
+	// 	}
+	// }
 
 	setup_microenvironment(); // modify this in the custom code 
 
