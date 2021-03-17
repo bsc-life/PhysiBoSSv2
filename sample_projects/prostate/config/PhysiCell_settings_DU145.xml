@@ -87,7 +87,7 @@
 	</domain>
 	
 	<overall>
-		<max_time units="min">3000</max_time>
+		<max_time units="min">10080</max_time>
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 
@@ -151,7 +151,7 @@
 			<phenotype>
 				<cycle code="5" name="live_cells_cycle_model">  
 					<phase_transition_rates units="1/min">
-						<rate start_index="0" end_index="0" fixed_duration="false">0.0005‬1405</rate>
+						<rate start_index="0" end_index="0" fixed_duration="false">0.0005‬51</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -221,12 +221,12 @@
 		<random_seed type="int" units="dimensionless">0</random_seed> 
 		<!-- motility parameters --> 
 		<migration_bias type='double' units="" description="change value of migration bias for cells with migration node active">0</migration_bias>
-		<migration_speed type='double' units="" description="change value of migration speed for cells with migration node active">0.7</migration_speed>
-		<persistence type="double" units="" description="change value of persistence for cells with migration node active">5</persistence>
+		<migration_speed type='double' units="" description="change value of migration speed for cells with migration node active">0.35</migration_speed>
+		<persistence type="double" units="" description="change value of persistence for cells with migration node active">2</persistence>
 
 		<!-- proliferation switch implementation -->
 		<transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-		<base_transition_rate type="double" units="">0.00051405</base_transition_rate>
+		<base_transition_rate type="double" units="">0.000551</base_transition_rate>
 	
 		<!-- Apoptosis rate implementation -->
 		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
