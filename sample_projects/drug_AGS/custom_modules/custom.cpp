@@ -341,7 +341,8 @@ void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt)
 		end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live );
 
 		multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
-		phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
+		// phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
+		phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier * pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index);
 		pCell->phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->phenotype.death.rates[apoptosis_index];
 
 	}
