@@ -105,6 +105,13 @@ void setup_microenvironment( void )
 	}
 	default_microenvironment_options.Dirichlet_activation_vector = activation_vector;
 	default_microenvironment_options.Dirichlet_condition_vector = condition_vector;
+	default_microenvironment_options.Dirichlet_zmax_values = condition_vector;
+	default_microenvironment_options.Dirichlet_zmin_values = condition_vector;
+	default_microenvironment_options.Dirichlet_ymax_values = condition_vector;
+	default_microenvironment_options.Dirichlet_ymin_values = condition_vector;
+	default_microenvironment_options.Dirichlet_xmax_values = condition_vector;
+	default_microenvironment_options.Dirichlet_xmin_values = condition_vector;
+
 
 	// initialize BioFVM 
 	initialize_microenvironment(); 	
