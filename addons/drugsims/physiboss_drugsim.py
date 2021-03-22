@@ -527,7 +527,7 @@ else:
     fw1.close()
     fw1 = open("./run_greasy.sh", "w")
     fw1.write("#!/bin/bash\n" )
-    fw1.write('#SBATCH --job-name="drug_simulation\n')
+    fw1.write('#SBATCH --job-name="drug_simulation"\n')
     fw1.write('#SBATCH --output=%j.out\n')
     fw1.write('#SBATCH --error=%j.err\n')
     fw1.write('#SBATCH --nodes=1')
