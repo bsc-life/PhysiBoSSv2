@@ -36,16 +36,16 @@ args = parser.parse_args()
 # Dictionary for drug-node pairs
 drug_node_pairs_prostate = {
     "Ipatasertib": "AKT",
-     "Afuresertib": "AKT",
+      "Afuresertib": "AKT",
      "Afatinib": "EGFR",
-     "Erlotinib": "EGFR",
-    "Ulixertinib": "ERK",
+      "Erlotinib": "EGFR",
+     "Ulixertinib": "ERK",
      "Luminespib": "HSPs",
-     "Trametinib": "MEK1_2",
+      "Trametinib": "MEK1_2",
      "Selumetinib": "MEK1_2",
      "Pictilisib":"PI3K",
-     "Alpelisib": "PI3K",
-     "BIBR1532": "TERT"
+      "Alpelisib": "PI3K",
+      "BIBR1532": "TERT"
 }
 
 drug_node_pairs_AGS = {
@@ -255,9 +255,9 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
     diffusion_coeff = etree.SubElement(physical_parameter_set, "diffusion_coefficient")
     diffusion_coeff.set('units', 'micron^2/min')
     diffusion_coeff.text = str(1200.0)
-    # decay_rate = etree.SubElement(physical_parameter_set, "decay_rate")
-    # decay_rate.set('units', '1/min')
-    # decay_rate.text = str(0.0275)
+    decay_rate = etree.SubElement(physical_parameter_set, "decay_rate")
+    decay_rate.set('units', '1/min')
+    decay_rate.text = str(0.0275)
     
     cell_definitions = root.find('cell_definitions')
     # insert drug as a secreting substance for the default strain 
@@ -405,6 +405,8 @@ def add_project_to_makefile(project_name, makefile_path):
 def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, project_path, rest_list, mode, simulation_list):
 
 
+    # set variable to count the number of simulations 
+    sim_count = 0
     # add nodes to network files
     add_nodes_to_network(bool_model, nodelist)
     
@@ -444,6 +446,8 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
         for rest in rest_list:
 
             for drug_level in drug_levels:
+
+                sim_count += 1
 
                 filtered_drugname = str(drug).translate(translation_table)
                 filtered_rest = str(rest).translate(translation_table)
@@ -508,8 +512,8 @@ new_main_path = "{}/{}-{}.{}".format(project_path, "main", project_name, "cpp")
 os.rename(original_main_path, new_main_path)
 
 # compile the project
-subprocess.call(["make", project_name])
-subprocess.call(["make"])
+#subprocess.call(["make", project_name])
+#subprocess.call(["make"])
 
 # run all simulations with physiboss sequentially if cluster flag is not set
 if (cluster == False):

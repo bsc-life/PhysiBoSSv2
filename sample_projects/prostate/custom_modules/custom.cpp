@@ -97,9 +97,9 @@ void setup_microenvironment( void )
 			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
 
-			double half_life = get_value(half_lives, drug_name);
-			double decay_rate = get_decay_rate(half_life);
-			decay_vector.push_back(decay_rate);
+			// double half_life = get_value(half_lives, drug_name);
+			// double decay_rate = get_decay_rate(half_life);
+			// decay_vector.push_back(decay_rate);
 
 		}
 	}
@@ -116,7 +116,7 @@ void setup_microenvironment( void )
 	// initialize BioFVM 
 	initialize_microenvironment(); 	
 
-	microenvironment.decay_rates = decay_vector;
+	// microenvironment.decay_rates = decay_vector;
 	
 	return; 
 }
