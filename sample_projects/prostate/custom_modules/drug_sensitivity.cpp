@@ -221,9 +221,9 @@ double get_drug_concentration_from_level (string cell_line, string drug_name, in
     double drug_conc = get_conc_from_x(x, max_conc);
 
     // if simulation mode is on double drugs half the drug concentration
-    if (simulation_mode == 1) {
-        drug_conc = drug_conc / 2;
-    }
+    //if (simulation_mode == 1) {
+    //    drug_conc = drug_conc / 2;
+    //}
     return drug_conc;
 }
 
