@@ -89,7 +89,6 @@ vector<pair<string, vector<double>>> read_csv(string filename){
     return result;
 }
 
-// TODO: include AGS, drugs and drug-to-node
 const vector<pair<string, int>> cell_line_ids = {
     { "LNCaP", 907788},
     { "BPH1", 924105},
@@ -97,7 +96,7 @@ const vector<pair<string, int>> cell_line_ids = {
     { "22Rv1", 924100},
     { "VCaP", 1299075},
     { "PC3", 905934},
-    {"AGS",906790}
+    { "AGS",906790}
 };
 
 const vector<pair<string, int>> drug_ids = {
@@ -111,10 +110,11 @@ const vector<pair<string, int>> drug_ids = {
     { "Selumetinib", 1736},
     { "Pictilisib", 1058},
     { "Alpelisib", 1560},
-    { "BIBR1532", 2043},
+    { "BIBR1532", 2043},  //No growth data
     { "PI103", 302},
     { "PD0325901", 1060}
 };
+//  
 // { "AKT_inhibitor_VIII", 171},
 // { "BIRB0796", 1042},
 // { "CT99021", 1241},
@@ -140,6 +140,7 @@ const vector<pair<string, string>> drug_targets = {
 // { "CT99021", "GSK3"},
 // { "Oxozeaenol", "TAK1"}
 
+// not used anymore
 const vector<pair<string, int>> half_lives = {
     { "Ipatasertib", 2748},
     { "Afuresertib", 2448},
@@ -151,11 +152,11 @@ const vector<pair<string, int>> half_lives = {
     { "Selumetinib", 822},
     { "Pictilisib", 1062},
     { "Alpelisib", 822},
-    { "PI103", "PI3K"},
-    { "PD0325901", "MEK"}
+    { "PI103", 2748},
+    { "PD0325901", 2748}
 };
 
-const vector<pair<string, vector<double>>> csv_file = read_csv( "config/prostate_drug_sensitivity.csv");
+const vector<pair<string, vector<double>>> csv_file = read_csv( "config/gastric_drug_sensitivity.csv");
 
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
@@ -236,9 +237,9 @@ double get_drug_concentration_from_level (string cell_line, string drug_name, in
     double drug_conc = get_conc_from_x(x, max_conc);
 
     // if simulation mode is on double drugs half the drug concentration
-    if (simulation_mode == 1) {
-        drug_conc = drug_conc / 2;
-    }
+    // if (simulation_mode == 1) {
+    //     drug_conc = drug_conc / 2;
+    // }
     return drug_conc;
 }
 

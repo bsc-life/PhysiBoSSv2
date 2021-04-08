@@ -2,8 +2,6 @@
 #include "../core/PhysiCell.h"
 #include "../modules/PhysiCell_standard_modules.h" 
 #include "../addons/PhysiBoSS/src/boolean_network.h"
-#include "drug_sensitivity.h"
-#include "boolean_model_interface.h"
 
 /**
  *	\main drug_AGS custom
@@ -12,7 +10,7 @@
  *	\details Modules needed for the drug_AGS example. This custom module can be used to study the inhibition of AGS cell lines with AKT, beta-catenin and TAK inhibitors.
  *
  *
- *	\date 18/03/2020
+ *	\date 19/10/2020
  *	\author Arnau Montagud, BSC-CNS, with code previously developed by Gerard Pradas and Miguel Ponce de Leon, BSC-CNS
  */
 
@@ -35,20 +33,19 @@ void create_cell_types( void );
 void setup_tissue( void ); 
 
 // set up the BioFVM microenvironment 
-double get_decay_rate(double half_life);
 void setup_microenvironment( void ); 
 
 // custom pathology coloring function 
-std::vector<std::string> prolif_apoptosis_coloring( Cell* );
+std::vector<std::string> my_coloring_function( Cell* );
 
 // custom cell phenotype functions could go here 
 void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, double dt );
 
-// void update_custom_variables( Cell* pCell );
+void update_custom_variables( Cell* pCell );
 
-// void set_input_nodes(Cell* pCell); 
-// void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt);
-// void do_proliferation( Cell* pCell, Phenotype& phenotype, double dt );
+void set_input_nodes(Cell* pCell); 
+void from_nodes_to_cell(Cell* pCell, Phenotype& phenotype, double dt);
+void do_proliferation( Cell* pCell, Phenotype& phenotype, double dt );
 
 std::vector<init_record> read_init_file(std::string filename, char delimiter, bool header);
 

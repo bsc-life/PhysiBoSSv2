@@ -75,7 +75,7 @@ PhysiCell_pugixml.o PhysiCell_settings.o
 
 PhysiBoSS_OBJECTS := utils.o maboss_network.o boolean_network.o
 
-PhysiCell_custom_module_OBJECTS := custom.o custom_main.odrug_sensitivity.o boolean_model_interface.o
+PhysiCell_custom_module_OBJECTS := custom.o custom_main.o
 
 pugixml_OBJECTS := pugixml.o
 
@@ -185,13 +185,6 @@ custom.o: ./custom_modules/custom.cpp
 
 custom_main.o: ./custom_modules/custom_main.cpp
 	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/custom_main.cpp
-
-drug_sensitivity.o: ./custom_modules/drug_sensitivity.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/drug_sensitivity.cpp
-
-boolean_model_interface.o: ./custom_modules/boolean_model_interface.cpp
-	$(COMPILE_COMMAND) $(INC) -c ./custom_modules/boolean_model_interface.cpp
-
 
 # cleanup
 

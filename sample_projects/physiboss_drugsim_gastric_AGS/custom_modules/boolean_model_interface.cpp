@@ -6,16 +6,22 @@ void update_custom_variables( Cell* pCell )
 	// first density is oxygen - shouldn't be changed: index from 1
 	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
+		//TODO: check that this works
 		std::string drug_name = microenvironment.density_names[i];
-		if (drug_name != "oxygen") {
+		if (drug_name != "oxygen")
+		{
 			int drug_index = microenvironment.find_density_index(drug_name);
-			int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
+			int index_drug_conc = pCell->custom_data.find_variable_index("concentration_reporter_"+drug_name);
+			// int index_drug_conc = pCell->custom_data.find_variable_index(drug_name + "_concentration");
 			int index_drug_node = pCell->custom_data.find_variable_index(drug_name + "_node");
 			string drug_target = get_value(drug_targets, drug_name);
-			pCell->custom_data.variables.at(index_drug_conc).value = pCell->nearest_density_vector()[drug_index];
-			pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
-		}	
+			// pCell->custom_data.variables.at(index_drug_conc).value = pCell->nearest_density_vector()[drug_index];
+			// pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
+			pCell->custom_data[index_drug_conc] = pCell->nearest_density_vector()[drug_index];
+			pCell->custom_data[index_drug_node] = pCell->boolean_network.get_node_value("anti_" + drug_target);
+		}
 	}
+
 }
 
 
@@ -29,7 +35,7 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
 			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
-			if (random_num <= cell_inhibition) 
+			if (random_num <= cell_inhibition)
 			{
 			
 				pCell->boolean_network.set_node_value(node_name, 1);
@@ -181,10 +187,11 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 	int start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live ); // Q_phase_index; 
 	int end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live ); // K_phase_index;
 	int apoptosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );  
+	// static double multiplier = 1.0;
 	double multiplier = 1.0;
+	// TODO: connect multiplier_reporter with multiplier
 
 	// live model
-			
 	if( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
 	{
 		multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
@@ -204,7 +211,7 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
 		}
-		else ( multiplier < 1) // smaller prosurvival_value than antisurvival_value
+		else if ( multiplier < 1) // smaller prosurvival_value than antisurvival_value
 		{
 			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
 		}
@@ -218,6 +225,7 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 	pCell->set_internal_uptake_constants(dt);
 }
 
+// Following is NOT used
 void from_nodes_to_cell_prostate (Cell* pCell, Phenotype& phenotype, double dt)
 {
 	std::vector<bool>* nodes = pCell->boolean_network.get_nodes();
@@ -262,7 +270,6 @@ void from_nodes_to_cell_prostate (Cell* pCell, Phenotype& phenotype, double dt)
 			//pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) *= 2.5;
 			//std::cout << "Rate up! " << std::endl;
 
-
 			//switch implementation
 			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
@@ -278,15 +285,13 @@ void from_nodes_to_cell_prostate (Cell* pCell, Phenotype& phenotype, double dt)
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
 		}
 
-
-
 		// Update Migration
 		if(pCell->boolean_network.get_node_value("Migration"))
 		{ 
-			pCell->phenotype.motility.is_motile = true;
-		 	pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed");
-			pCell->phenotype.motility.migration_bias = PhysiCell::parameters.doubles("migration_bias");
-			pCell->phenotype.motility.persistence_time = PhysiCell::parameters.doubles("persistence");
+			// pCell->phenotype.motility.is_motile = true;
+		 	// pCell->phenotype.motility.migration_speed = PhysiCell::parameters.doubles("migration_speed");
+			// pCell->phenotype.motility.migration_bias = PhysiCell::parameters.doubles("migration_bias");
+			// pCell->phenotype.motility.persistence_time = PhysiCell::parameters.doubles("persistence");
 
 			// pCell->evolve_coef(pCell->boolean_network.get_node_value("Migration"),	phenotype.motility.migration_speed, dt 
 			// );

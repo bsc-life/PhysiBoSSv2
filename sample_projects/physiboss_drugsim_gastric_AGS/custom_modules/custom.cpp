@@ -88,17 +88,24 @@ void setup_microenvironment( void )
 	{
 		std::string drug_name = microenvironment.density_names[i];
 		if (drug_name != "oxygen") {
-			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
 			int total_drug_levels = parameters.ints("total_concentration_levels");
+			if ( total_drug_levels == 0 ) {
+				int drug_concentration= parameters.ints("concentration_" + drug_name);
+				condition_vector.push_back(drug_concentration);
+				activation_vector.push_back(1);
+			}
+			else {
+			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
+			// int total_drug_levels = parameters.ints("total_concentration_levels");
 			string cell_line = parameters.strings("cell_line");
 			int simulation_mode = parameters.ints("simulation_mode");
 			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
 			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
-
-			double half_life = get_value(half_lives, drug_name);
-			double decay_rate = get_decay_rate(half_life);
-			decay_vector.push_back(decay_rate);
+			}
+			// double half_life = get_value(half_lives, drug_name);
+			// double decay_rate = get_decay_rate(half_life);
+			// decay_vector.push_back(decay_rate);
 
 		}
 	}
@@ -112,9 +119,9 @@ void setup_microenvironment( void )
 	default_microenvironment_options.Dirichlet_xmin_values = condition_vector;
 
 	// initialize BioFVM 
-	initialize_microenvironment(); 	
+	initialize_microenvironment();
 
-	microenvironment.decay_rates = decay_vector;
+	// microenvironment.decay_rates = decay_vector;
 	
 	return; 
 }
@@ -142,57 +149,74 @@ void setup_tissue( void )
 		double random_num_1 = (double) rand()/RAND_MAX;
 		double random_num_2 = (double) rand()/RAND_MAX;
 
-		if (PhysiCell::parameters.ints("simulation_mode") == 0)
+		// double drug_sim = microenvironment.number_of_densities();
+		// if ( drug_sim == 1 )
+		if ( microenvironment.number_of_densities() == 1 )
 		{
-			// single inhibition - just one drug is present 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
-			{
-				// cell is sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
-			}
-			else 
-			{
-				// cell is not sensitive to the drug
-				pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
-			}
+			pC = create_cell(get_cell_definition("default"));
 		}
-		else if (PhysiCell::parameters.ints("simulation_mode") == 1)
+		else
 		{
-			// double inhibition - two drugs are present - we have 4 cell strains 
-			if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
+			if (PhysiCell::parameters.ints("simulation_mode") == 0)
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
+				// single inhibition - just one drug is present 
+				std::string drug_name1 = microenvironment.density_names[1];
+				double eval1 = PhysiCell::parameters.doubles( "prop_drug_resistant_" + drug_name1);
+				if (random_num_1 < eval1)
+				// if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
 				{
-					// cell is resistant to both drugs
+					// cell is NOT sensitive to the drug
 					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
 				}
 				else 
 				{
-					// cell is only resistant to the first drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
+					// cell is sensitive to the drug
+					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
 				}
 			}
-			else
+			else if (PhysiCell::parameters.ints("simulation_mode") == 1)
 			{
-				if (random_num_2 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[2]))
+				// double inhibition - two drugs are present - we have 4 cell strains 
+				std::string drug_name1 = microenvironment.density_names[1];
+				double eval1 = PhysiCell::parameters.doubles( "prop_drug_resistant_" + drug_name1);
+				std::string drug_name2 = microenvironment.density_names[1];
+				double eval2 = PhysiCell::parameters.doubles( "prop_drug_resistant_" + drug_name2);
+				// if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
+				if (random_num_1 < eval1)
 				{
-					// cell is only resistant to the second drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
+					// TODO: check that these gates makes sense. Right now drug1 rules: if a cell is drug1_sensitive it will also be drug2_sensitive. There is no way that a cell is drug1_sensitive and drug2_resistant. (see boolean_model_interface.cpp, line 91). Also, in this line, check that the cell definitions make sense.
+					if (random_num_2 < eval2)
+					{
+						// cell is resistant to both drugs
+						pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_resistant"));
+					}
+					else 
+					{
+						// cell is only resistant to the first drug
+						pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_sensitive"));
+					}
 				}
 				else
 				{
-					// cell is resistant to no drug
-					pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+					if (random_num_2 < eval2)
+					{
+						// cell is only resistant to the second drug
+						pC = create_cell(get_cell_definition(microenvironment.density_names[2] + "_resistant"));
+					}
+					else
+					{
+						// cell is resistant to no drug
+						pC = create_cell(get_cell_definition(microenvironment.density_names[1] + "_sensitive"));
+					}
+					
 				}
 				
 			}
-			
+			else
+			{
+				pC = create_cell(get_cell_definition("default"));
+			}
 		}
-		else
-		{
-			pC = create_cell(get_cell_definition("default"));
-		}
- 
 		pC->assign_position( x, y, z );
 		// pC->set_total_volume(sphere_volume_from_radius(radius));
 		
@@ -244,7 +268,7 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 	// 	update_custom_variables(pCell);
 
 	// 	from_nodes_to_cell(pCell, phenotype, dt);
-	}
+	// }
 }
 
 std::vector<std::string> prolif_apoptosis_coloring( Cell* pCell )

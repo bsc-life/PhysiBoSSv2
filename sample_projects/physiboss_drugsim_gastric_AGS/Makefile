@@ -1,5 +1,5 @@
 VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := gastric
+PROGRAM_NAME := physiboss_drugsim_gastric_AGS
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name
@@ -207,8 +207,8 @@ reset:
 	mv ./PhysiCell_settings-backup.xml ./config/PhysiCell_settings-backup.xml 
 	cp ./config/PhysiCell_settings-backup.xml ./config/PhysiCell_settings.xml 
 	rm -rf ./scripts
-	# rm -rf ./sample_projects/gastric
-	rm -rf ./gastric
+	# rm -rf ./sample_projects/physiboss_drugsim_gastric_AGS
+	rm -rf ./physiboss_drugsim_gastric_AGS
 	rm -f run_drug_simulations.sh run_greasy.sh
 
 MaBoSS-clean:
