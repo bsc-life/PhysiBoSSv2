@@ -28,6 +28,7 @@ parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", 
 # parser.add_argument("--levels", default=3, type=int, help="[Deprecated: Use --drug-concs instead!] Number of levels for the drug simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
+parser.add_argument("--runs", default=1, type=int, help="Number of runs for each simulation")
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
 # currently just supports input-condition: 00
 
@@ -72,6 +73,7 @@ cluster = args.cluster
 cell_line = args.cell_line
 # levels = args.levels
 drug_concs = args.drug_concs
+runs = args.runs
 
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
@@ -459,33 +461,35 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
             # for drug_level in drug_levels:
             for drug_conc in drug_concs:
 
-                sim_count += 1
+                for run in range(1, runs + 1):
 
-                filtered_drugname = str(drug).translate(translation_table)
-                filtered_rest = str(rest).translate(translation_table)
-                # filtered_drug_level = str(drug_level).translate(translation_table)
-                filtered_drug_conc = str(drug_conc).translate(translation_table)
-                print(filtered_drug_conc)
-                output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
+                    sim_count += 1
 
-                # create the corresponding output folder
-                if os.path.exists(output_path):
-                    shutil.rmtree(output_path)
-                os.makedirs(output_path)  
+                    filtered_drugname = str(drug).translate(translation_table)
+                    filtered_rest = str(rest).translate(translation_table)
+                    # filtered_drug_level = str(drug_level).translate(translation_table)
+                    filtered_drug_conc = str(drug_conc).translate(translation_table)
+                    print(filtered_drug_conc)
+                    output_path = "{}/{}_{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run)
 
-                # modify the .xml file for the current run
-                xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
-                # new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-                new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-                
-                if (type(drug) is tuple):
-                    # for the tuples the first two elements of node and rest belong together
-                    add_drug_to_xml(drug[0], drug_conc[0], rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    add_drug_to_xml(drug[1], drug_conc[1], rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                else: 
-                    add_drug_to_xml(drug, drug_conc, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-                simulation_list.append(xml_config_path) 
+                    # create the corresponding output folder
+                    if os.path.exists(output_path):
+                        shutil.rmtree(output_path)
+                    os.makedirs(output_path)  
+
+                    # modify the .xml file for the current run
+                    xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
+                    # new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                    new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run, "xml")
+                    
+                    if (type(drug) is tuple):
+                        # for the tuples the first two elements of node and rest belong together
+                        add_drug_to_xml(drug[0], drug_conc[0], rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                        add_drug_to_xml(drug[1], drug_conc[1], rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    else: 
+                        add_drug_to_xml(drug, drug_conc, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    xml_config_path = "{}/{}_{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run, "xml")
+                    simulation_list.append(xml_config_path) 
 
     # delete created folders again 
     # shutil.rmtree(project_path)
