@@ -24,7 +24,7 @@ parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "D
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
-parser.add_argument("--drug-concs", default=["IC10", "IC30", "IC50", "IC70", "IC90"], type=list, help="Drug concentrations to be simulated.")
+parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", "IC70", "IC90"], help="Drug concentrations to be simulated either in IC values: IC10 IC50 or in mmol: 0.1 2.3.")
 # parser.add_argument("--levels", default=3, type=int, help="[Deprecated: Use --drug-concs instead!] Number of levels for the drug simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
@@ -37,16 +37,16 @@ args = parser.parse_args()
 # Dictionary for drug-node pairs
 drug_node_pairs_prostate = {
     "Ipatasertib": "AKT",
-      "Afuresertib": "AKT",
-     "Afatinib": "EGFR",
-      "Erlotinib": "EGFR",
-     "Ulixertinib": "ERK",
-     "Luminespib": "HSPs",
-      "Trametinib": "MEK1_2",
-     "Selumetinib": "MEK1_2",
-     "Pictilisib":"PI3K",
-      "Alpelisib": "PI3K",
-      "BIBR1532": "TERT"
+    "Afuresertib": "AKT",
+    "Afatinib": "EGFR",
+    "Erlotinib": "EGFR",
+    "Ulixertinib": "ERK",
+    "Luminespib": "HSPs",
+    "Trametinib": "MEK1_2",
+    "Selumetinib": "MEK1_2",
+    "Pictilisib":"PI3K",
+    "Alpelisib": "PI3K",
+    "BIBR1532": "TERT"
 }
 
 drug_node_pairs_AGS = {
@@ -368,7 +368,7 @@ def add_drug_to_xml(drug, drug_concs, rest, path_to_xml, xml_output_path, model_
     drug_concentration.set("type", "string")
     drug_concentration.set("units", "dimensionless")
     drug_concentration.text = str(drug_concs)
-
+   
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
     # this path is for later when i have in the makefile saved where the files are 

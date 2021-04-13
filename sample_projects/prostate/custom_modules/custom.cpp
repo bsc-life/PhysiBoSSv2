@@ -92,10 +92,21 @@ void setup_microenvironment( void )
 			// int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
 			// int total_drug_levels = parameters.ints("total_concentration_levels");
 			string cell_line = parameters.strings("cell_line");
-			string IC_value = parameters.strings("drug_concentration_" + drug_name);
 			int simulation_mode = parameters.ints("simulation_mode");
+
+			//drug_conc can either be an IC value or an actual drug concentration
+			string drug_conc = parameters.strings("drug_concentration_" + drug_name);
+			double drug_concentration;
+			// check if drug_conc contains the string "IC"
+			if(drug_conc.find("IC") != string::npos) {
+				drug_concentration = get_drug_concentration_from_IC(cell_line, drug_name, drug_conc, simulation_mode);
+			
+			}
+			else {
+				drug_concentration = stod(drug_conc);
+				}
+			
 			// double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
-			double drug_concentration = get_drug_concentration_from_IC(cell_line, drug_name, IC_value, simulation_mode);
 			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
 
