@@ -24,11 +24,11 @@ parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "D
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
-parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", "IC70", "IC90"], help="Drug concentrations to be simulated either in IC values: IC10 IC50 or in mmol: 0.1 2.3.")
+parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", "IC70", "IC90"], help="Drug concentrations to be simulated either in IC values: IC10 IC50 or in uM: 0.1 2.3.")
 # parser.add_argument("--levels", default=3, type=int, help="[Deprecated: Use --drug-concs instead!] Number of levels for the drug simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
-parser.add_argument("--runs", default=1, type=int, help="Number of runs for each simulation")
+parser.add_argument("--replicates", default=1, type=int, help="Number of replicates for each simulation")
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
 # currently just supports input-condition: 00
 
@@ -73,7 +73,7 @@ cluster = args.cluster
 cell_line = args.cell_line
 # levels = args.levels
 drug_concs = args.drug_concs
-runs = args.runs
+replicates = args.replicates
 
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
@@ -461,7 +461,7 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
             # for drug_level in drug_levels:
             for drug_conc in drug_concs:
 
-                for run in range(1, runs + 1):
+                for replicate in range(1, replicates + 1):
 
                     sim_count += 1
 
@@ -470,17 +470,17 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
                     # filtered_drug_level = str(drug_level).translate(translation_table)
                     filtered_drug_conc = str(drug_conc).translate(translation_table)
                     print(filtered_drug_conc)
-                    output_path = "{}/{}_{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run)
+                    output_path = "{}/{}_{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), replicate)
 
                     # create the corresponding output folder
                     if os.path.exists(output_path):
                         shutil.rmtree(output_path)
                     os.makedirs(output_path)  
 
-                    # modify the .xml file for the current run
+                    # modify the .xml file for the current replicate
                     xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
                     # new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-                    new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run, "xml")
+                    new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), replicate, "xml")
                     
                     if (type(drug) is tuple):
                         # for the tuples the first two elements of node and rest belong together
@@ -488,7 +488,7 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
                         add_drug_to_xml(drug[1], drug_conc[1], rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
                     else: 
                         add_drug_to_xml(drug, drug_conc, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    xml_config_path = "{}/{}_{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), run, "xml")
+                    xml_config_path = "{}/{}_{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), replicate, "xml")
                     simulation_list.append(xml_config_path) 
 
     # delete created folders again 
@@ -506,7 +506,7 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 mode = args.mode
 simulation_list = []
 if (mode == "single" or mode == "double"):
-    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model,project_path, drug_rest_name_list,mode, simulation_list)
+    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model,project_path, drug_rest_name_list, drug_concs, mode, simulation_list)
 elif (mode == "both"):
     setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, drug_concs, "single", simulation_list)
     setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, drug_concs, "double", simulation_list)
