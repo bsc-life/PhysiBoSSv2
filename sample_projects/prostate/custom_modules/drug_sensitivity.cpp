@@ -199,6 +199,7 @@ vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_n
     return {max_conc_vector[index], xmid_vector[index], scale_vector[index]};
 }
 
+// deprecated function: not used
 double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode) {
     // IC10 --> cell viability = 0.9, lowest drug concentration
     double highest_limit = 0.9;
@@ -208,6 +209,31 @@ double get_drug_concentration_from_level (string cell_line, string drug_name, in
     // divide the range into the total number of levels
     double range_size = (highest_limit - lowest_limit) / (num_of_conc_levels - 1);
     double final_viability = highest_limit - (conc_level - 1) * range_size;
+    
+   // call functions to retrieve data from datastructure cell line and drug
+    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
+    // call linear_mixed_model_function
+    double max_conc = drug_sens_vals[0];
+    double xmid = drug_sens_vals[1];
+    double scale = drug_sens_vals[2];
+
+    // get the drug concentration for the cell viability
+    double x = get_x_for_cell_viability(xmid, scale, final_viability);
+    double drug_conc = get_conc_from_x(x, max_conc);
+
+    // if simulation mode is on double drugs half the drug concentration
+    //if (simulation_mode == 1) {
+    //    drug_conc = drug_conc / 2;
+    //}
+    return drug_conc;
+}
+
+double get_drug_concentration_from_IC (string cell_line, string drug_name, string IC_value, int simulation_mode) {
+    std::stringstream ss;
+    ss << IC_value[3] << "." << IC_value[2];
+    double inhibition_value = stod(ss.str());
+    std::cout << "Inhibition value for "<< drug_name << " is: " << inhibition_value << '\n';
+    double final_viability = 1.0 - inhibition_value;
     
    // call functions to retrieve data from datastructure cell line and drug
     vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);

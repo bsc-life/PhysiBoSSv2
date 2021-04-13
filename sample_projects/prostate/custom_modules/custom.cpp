@@ -89,11 +89,13 @@ void setup_microenvironment( void )
 	{
 		std::string drug_name = microenvironment.density_names[i];
 		if (drug_name != "oxygen") {
-			int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
-			int total_drug_levels = parameters.ints("total_concentration_levels");
+			// int current_drug_level= parameters.ints("current_concentration_level_" + drug_name);
+			// int total_drug_levels = parameters.ints("total_concentration_levels");
 			string cell_line = parameters.strings("cell_line");
+			string IC_value = parameters.strings("drug_concentration_" + drug_name);
 			int simulation_mode = parameters.ints("simulation_mode");
-			double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
+			// double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
+			double drug_concentration = get_drug_concentration_from_IC(cell_line, drug_name, IC_value, simulation_mode);
 			condition_vector.push_back(drug_concentration);
 			activation_vector.push_back(1);
 

@@ -24,7 +24,8 @@ parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "D
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
-parser.add_argument("--levels", default=3, type=int, help="Number of levels for the drug simulation.")
+parser.add_argument("--drug-concs", default=["IC10", "IC30", "IC50", "IC70", "IC90"], type=list, help="Drug concentrations to be simulated.")
+# parser.add_argument("--levels", default=3, type=int, help="[Deprecated: Use --drug-concs instead!] Number of levels for the drug simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
@@ -69,7 +70,8 @@ print("\n")
 project=args.project
 cluster = args.cluster
 cell_line = args.cell_line
-levels = args.levels
+# levels = args.levels
+drug_concs = args.drug_concs
 
 # check if the project is in sample projects 
 if not os.path.isdir("sample_projects/" + project):
@@ -220,7 +222,7 @@ def add_nodes_to_network(bool_model, nodelist):
 
 
 # adds a drug to a physicell xml file
-def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
+def add_drug_to_xml(drug, drug_concs, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
     parser = etree.XMLParser(remove_blank_text=True)
     root = etree.parse(path_to_xml, parser).getroot()
 
@@ -347,19 +349,25 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
     inhibition_level.set("units", "dimensionless")
     inhibition_level.text = str(rest.replace("_", "."))
 
-    # set the total number of levels of drug concentration 
-    num_levels = user_parameters.find('total_concentration_levels')
-    if (num_levels == None):
-        num_levels = etree.SubElement(user_parameters, "total_concentration_levels")
-        num_levels.set("type", "int")
-        num_levels.set("units", "dimensionless")
-        num_levels.text = str(total_drug_levels)
+    # [Deprecated] set the total number of levels of drug concentration 
+    # num_levels = user_parameters.find('total_concentration_levels')
+    # if (num_levels == None):
+    #     num_levels = etree.SubElement(user_parameters, "total_concentration_levels")
+    #     num_levels.set("type", "int")
+    #     num_levels.set("units", "dimensionless")
+    #     num_levels.text = str(total_drug_levels)
 
-    # set the current level of drug concentration 
-    current_level = etree.SubElement(user_parameters, "current_concentration_level_" + drug)
-    current_level.set("type", "int")
-    current_level.set("units", "dimensionless")
-    current_level.text = str(drug_level)
+    # # [Deprecated] set the current level of drug concentration 
+    # current_level = etree.SubElement(user_parameters, "current_concentration_level_" + drug)
+    # current_level.set("type", "int")
+    # current_level.set("units", "dimensionless")
+    # current_level.text = str(drug_level)
+
+    # set the current drug concentration
+    drug_concentration = etree.SubElement(user_parameters, "drug_concentration_" + drug)
+    drug_concentration.set("type", "string")
+    drug_concentration.set("units", "dimensionless")
+    drug_concentration.text = str(drug_concs)
 
     # set the new bnd and cfg files 
     bnd_file = user_parameters.find('bnd_file') 
@@ -402,7 +410,7 @@ def add_project_to_makefile(project_name, makefile_path):
             output_makefile.write(line)
 
 
-def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, project_path, rest_list, mode, simulation_list):
+def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, project_path, rest_list, drug_concs, mode, simulation_list):
 
 
     # set variable to count the number of simulations 
@@ -412,24 +420,27 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
     
     translation_table = dict.fromkeys(map(ord, "[()'[] ]"), None)
 
-    drug_levels = list(range(1,levels+1))
+    # drug_levels = list(range(1,levels+1))
 
     # modify nodelist and resistancelist if mode is double
     if (mode == "double"):
         drug_combinations = combinations(druglist, 2)
         rest_combinations = product(rest_list, repeat=2)
-        conc_combination = product(drug_levels, repeat=2)
-
+        # conc_combination = product(drug_levels, repeat=2)
+        conc_combination = product(drug_concs, repeat=2)
+        
         druglist = drug_combinations
         rest_combinations_list = []
-        drug_levels_list = []
+        # drug_levels_list = []
+        drug_concs_list = []
 
         for elem in rest_combinations:
             rest_combinations_list.append(elem)
         for elem in conc_combination:
-            drug_levels_list.append(elem)
+            drug_concs_list.append(elem)
         rest_list = rest_combinations_list
-        drug_levels = drug_levels_list
+        # drug_levels = drug_levels_list
+        drug_concs = drug_concs_list 
 
     # create the project folder and copy the prostate project files in it
     if not os.path.exists(project_path):
@@ -445,14 +456,17 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 
         for rest in rest_list:
 
-            for drug_level in drug_levels:
+            # for drug_level in drug_levels:
+            for drug_conc in drug_concs:
 
                 sim_count += 1
 
                 filtered_drugname = str(drug).translate(translation_table)
                 filtered_rest = str(rest).translate(translation_table)
-                filtered_drug_level = str(drug_level).translate(translation_table)
-                output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
+                # filtered_drug_level = str(drug_level).translate(translation_table)
+                filtered_drug_conc = str(drug_conc).translate(translation_table)
+                print(filtered_drug_conc)
+                output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
 
                 # create the corresponding output folder
                 if os.path.exists(output_path):
@@ -461,14 +475,16 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 
                 # modify the .xml file for the current run
                 xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
-                new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                # new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                
                 if (type(drug) is tuple):
                     # for the tuples the first two elements of node and rest belong together
-                    add_drug_to_xml(drug[0], drug_level[0], levels, rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    add_drug_to_xml(drug[1], drug_level[1], levels, rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug[0], drug_conc[0], rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug[1], drug_conc[1], rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
                 else: 
-                    add_drug_to_xml(drug, drug_level, levels, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
+                    add_drug_to_xml(drug, drug_conc, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
                 simulation_list.append(xml_config_path) 
 
     # delete created folders again 
@@ -488,8 +504,8 @@ simulation_list = []
 if (mode == "single" or mode == "double"):
     setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model,project_path, drug_rest_name_list,mode, simulation_list)
 elif (mode == "both"):
-    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, "single", simulation_list)
-    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, "double", simulation_list)
+    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, drug_concs, "single", simulation_list)
+    setup_drug_simulations(drug_list, node_list, bool_model_filename, bool_model, project_path, drug_rest_name_list, drug_concs, "double", simulation_list)
 
 # modify the project Makefile - rename all prostate to the project name 
 project_makefile = project_path + "/Makefile"
