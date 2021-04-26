@@ -112,13 +112,13 @@ const vector<pair<string, int>> drug_ids = {
     { "Alpelisib", 1560},
     { "BIBR1532", 2043},  //No growth data
     { "PI103", 302},
-    { "PD0325901", 1060}
+    { "PD0325901", 1060}, 
+    { "AKT_inhibitor_VIII", 171},
+    { "BIRB0796", 1042},
+    { "CT99021", 1241},
+    { "Oxozeaenol", 1242},
+    { "PKF118", 999999}
 };
-//  
-// { "AKT_inhibitor_VIII", 171},
-// { "BIRB0796", 1042},
-// { "CT99021", 1241},
-// { "Oxozeaenol", 1242}
 
 const vector<pair<string, string>> drug_targets = {
     { "Ipatasertib", "AKT"},
@@ -133,13 +133,13 @@ const vector<pair<string, string>> drug_targets = {
     { "Alpelisib", "PI3K"},
     { "BIBR1532", "TERT"},
     { "PI103", "PI3K"},
-    { "PD0325901", "MEK"}
+    { "PD0325901", "MEK"},
+    { "AKT_inhibitor_VIII", "AKT"},
+    { "BIRB0796", "p38alpha"},
+    { "CT99021", "GSK3"},
+    { "Oxozeaenol", "TAK1"},
+    { "PKF118", "betacatenin"}
 };
-// { "AKT_inhibitor_VIII", "AKT"},
-// { "BIRB0796", "p38alpha"},
-// { "CT99021", "GSK3"},
-// { "Oxozeaenol", "TAK1"}
-
 // not used anymore
 const vector<pair<string, int>> half_lives = {
     { "Ipatasertib", 2748},
@@ -152,10 +152,16 @@ const vector<pair<string, int>> half_lives = {
     { "Selumetinib", 822},
     { "Pictilisib", 1062},
     { "Alpelisib", 822},
-    { "PI103", 2748},
-    { "PD0325901", 2748}
+    { "PI103", 2000},
+    { "PD0325901", 2000},
+    { "AKT_inhibitor_VIII", 2000},
+    { "BIRB0796", 2000},
+    { "CT99021", 2000},
+    { "Oxozeaenol", 2000},
+    { "PKF118", 2000}
 };
 
+// TODO: change to reading it from CFG
 const vector<pair<string, vector<double>>> csv_file = read_csv( "config/gastric_drug_sensitivity.csv");
 
 string get_value (const vector<pair<string, string>> dict, string key) {

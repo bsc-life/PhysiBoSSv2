@@ -1,3 +1,43 @@
+Node AKT
+{
+  logic = (((!mTORC2 & PDK1) | (mTORC2))) AND NOT anti_AKT;
+  rate_up  = (((@logic ? $u_AKT : 0)));
+  rate_down  = (((@logic ? 0 : $d_AKT)));
+}
+
+
+Node p38alpha
+{
+  logic = (((!MKK3 & !DUSP1 & MKK4) | (MKK3 & !DUSP1))) AND NOT anti_p38alpha;
+  rate_up  = (((@logic ? $u_p38alpha : 0)));
+  rate_down  = (((@logic ? 0 : $d_p38alpha)));
+}
+
+
+Node GSK3
+{
+  logic = (((!ERK & !p38alpha & !AKT & !S6K & !LRP & !RSK & !Dvl))) AND NOT anti_GSK3;
+  rate_up  = (((@logic ? $u_GSK3 : 0)));
+  rate_down  = (((@logic ? 0 : $d_GSK3)));
+}
+
+
+Node TAK1
+{
+  logic = (((TAB))) AND NOT anti_TAK1;
+  rate_up  = (((@logic ? $u_TAK1 : 0)));
+  rate_down  = (((@logic ? 0 : $d_TAK1)));
+}
+
+
+Node betacatenin
+{
+  logic = (((!IKKA & !betaTrCP) | (IKKA))) AND NOT anti_betacatenin;
+  rate_up  = (((@logic ? $u_betacatenin : 0)));
+  rate_down  = (((@logic ? 0 : $d_betacatenin)));
+}
+
+
 Node PI3K
 {
   logic = (((!Ras & !GAB & IRS1) | (!Ras & GAB) | (Ras))) AND NOT anti_PI3K;
@@ -13,41 +53,6 @@ Node MEK
   rate_down  = (((@logic ? 0 : $d_MEK)));
 }
 
-
-Node AKT
-{
-  logic = ((!mTORC2 & PDK1) | (mTORC2));
-  rate_up  = (((@logic ? $u_AKT : 0)));
-  rate_down  = (((@logic ? 0 : $d_AKT)));
-}
-
-Node betacatenin
-{
-  logic = ((!IKKA & !betaTrCP) | (IKKA));
-  rate_up  = (((@logic ? $u_betacatenin : 0)));
-  rate_down  = (((@logic ? 0 : $d_betacatenin)));
-}
-
-Node GSK3
-{
-  logic = ((!ERK & !p38alpha & !AKT & !S6K & !LRP & !RSK & !Dvl));
-  rate_up  = (((@logic ? $u_GSK3 : 0)));
-  rate_down  = (((@logic ? 0 : $d_GSK3)));
-}
-
-Node p38alpha
-{
-  logic = ((!MKK3 & !DUSP1 & MKK4) | (MKK3 & !DUSP1));
-  rate_up  = (((@logic ? $u_p38alpha : 0)));
-  rate_down  = (((@logic ? 0 : $d_p38alpha)));
-}
-
-Node TAK1
-{
-  logic = ((TAB));
-  rate_up  = (((@logic ? $u_TAK1 : 0)));
-  rate_down  = (((@logic ? 0 : $d_TAK1)));
-}
 
 Node RTPK
 {
@@ -580,6 +585,46 @@ Node CCND1_b2
   rate_up  = (((@logic ? $u_CCND1_b2 : 0)));
   rate_down  = (((@logic ? 0 : $d_CCND1_b2)));
 }
+
+Node anti_AKT 
+{
+	logic = (anti_AKT);
+	rate_up = @logic ? 0 : 0;
+	rate_down = @logic ? 0 : 0;
+}
+
+
+Node anti_p38alpha 
+{
+	logic = (anti_p38alpha);
+	rate_up = @logic ? 0 : 0;
+	rate_down = @logic ? 0 : 0;
+}
+
+
+Node anti_GSK3 
+{
+	logic = (anti_GSK3);
+	rate_up = @logic ? 0 : 0;
+	rate_down = @logic ? 0 : 0;
+}
+
+
+Node anti_TAK1 
+{
+	logic = (anti_TAK1);
+	rate_up = @logic ? 0 : 0;
+	rate_down = @logic ? 0 : 0;
+}
+
+
+Node anti_betacatenin 
+{
+	logic = (anti_betacatenin);
+	rate_up = @logic ? 0 : 0;
+	rate_down = @logic ? 0 : 0;
+}
+
 
 Node anti_PI3K 
 {

@@ -19,12 +19,15 @@ current_wd = os.getcwd()
 arg = sys.argv
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
+parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'gastric').")
 parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "AGS"], help = "Cell line to be simulated.")
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
-parser.add_argument("--levels", default=3, type=int, help="Number of levels for the drug simulation.")
+parser.add_argument("--levels", default=1, type=int, help="Number of levels for the drug simulation.")
+# TODO: add_argument ICs
+# TODO: add_argument concentration value
+# parser.add_argument("-c", "--concentration", default=0, type=int, help="Concentration of the drugs simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
@@ -49,13 +52,13 @@ drug_node_pairs_prostate = {
 }
 
 drug_node_pairs_AGS = {
-    "GSK3" : "GSK3",
-    "p38alpha"  : "p38alpha",
-    "betacatenin" : "betacatenin",
-    "TAK1" : "TAK1",
-    "PI3K" : "PI3K",
-    "MEK" : "MEK",
-    "AKT" : "AKT"
+    "PI103": "PI3K",
+    "PD0325901": "MEK",
+    "AKT_inhibitor_VIII": "AKT",
+    "BIRB0796": "p38alpha",
+    "CT99021": "GSK3",
+    "Oxozeaenol": "TAK1",
+    "PKF118": "betacatenin"
 }
 
 ####################################################################
@@ -108,6 +111,7 @@ print("Inhibited nodes' levels: "+str(drug_rest_value_list).replace("[","").repl
 sample_project_path = "sample_projects"
 prostate_path = "{}/{}".format(sample_project_path, project)
 project_name = "{}_{}_{}".format("physiboss_drugsim", project, cell_line)
+# project_name = "{}".format(project)
 project_path = "{}/{}".format(sample_project_path, project_name) 
 
 ####################################################################
@@ -284,12 +288,16 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
     # insert drug in custom data 
     custom_data = cell_definition.find('custom_data')
     if (custom_data != None):
-        new_drug_conc = etree.SubElement(custom_data, drug + "_concentration")
+        new_drug_conc = etree.SubElement(custom_data, "concentration_reporter_" + drug )
         new_drug_conc.set("units", "dimensionless")
         new_drug_conc.text = str(0.0)
         new_drug_node = etree.SubElement(custom_data, drug + "_node")
         new_drug_node.set("units", "dimensionless")
         new_drug_node.text = str(0.0)
+        new_drug_node = etree.SubElement(custom_data, "multiplier_reporter")
+        new_drug_node.set("units", "dimensionless")
+        new_drug_node.text = str(0.0)
+        
 
     # insert two new cell strains for the drug 
     new_cell_def_1 = etree.SubElement(cell_definitions, "cell_definition")
@@ -346,7 +354,7 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
     inhibition_level.set("type", "double")
     inhibition_level.set("units", "dimensionless")
     inhibition_level.text = str(rest.replace("_", "."))
-
+    
     # set the total number of levels of drug concentration 
     num_levels = user_parameters.find('total_concentration_levels')
     if (num_levels == None):
@@ -407,7 +415,7 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 
     # set variable to count the number of simulations 
     sim_count = 0
-    # add nodes to network files
+  # add nodes to network files
     add_nodes_to_network(bool_model, nodelist)
     
     translation_table = dict.fromkeys(map(ord, "[()'[] ]"), None)
@@ -512,8 +520,8 @@ new_main_path = "{}/{}-{}.{}".format(project_path, "main", project_name, "cpp")
 os.rename(original_main_path, new_main_path)
 
 # compile the project
-#subprocess.call(["make", project_name])
-#subprocess.call(["make"])
+# subprocess.call(["make", project_name])
+# subprocess.call(["make"])
 
 # run all simulations with physiboss sequentially if cluster flag is not set
 if (cluster == False):
@@ -530,7 +538,7 @@ else:
     fw1.write('#SBATCH --job-name="drug_simulation"\n')
     fw1.write('#SBATCH --output=%j.out\n')
     fw1.write('#SBATCH --error=%j.err\n')
-    fw1.write('#SBATCH --nodes=1')
+    # fw1.write('#SBATCH --nodes=1\n')
     fw1.write('#SBATCH --ntasks=1\n')
     fw1.write('#SBATCH --tasks-per-node=6\n')
     fw1.write('#SBATCH --cpus-per-task=8\n')

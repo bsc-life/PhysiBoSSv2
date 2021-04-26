@@ -53,7 +53,8 @@ void create_cell_types( void )
 	// starts with the second density because the first density is oxygen
 	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
-		if (microenvironment.density_names[i] != "oxygen") {
+		if (microenvironment.density_names[i] != "oxygen") 
+		{
 			cell_defaults.phenotype.molecular.fraction_released_at_death[i] = 0.0;
 		}
 	}
@@ -64,7 +65,8 @@ void create_cell_types( void )
 	return; 
 }
 
-double get_decay_rate(double half_life){
+double get_decay_rate(double half_life)
+{
 	// natural logarithm of 2 / half-life = k (reaction rate coefficient)
 	double decay_rate = log(2)/(half_life);
 	return decay_rate;
@@ -87,10 +89,12 @@ void setup_microenvironment( void )
 	for (int i = 0; i < microenvironment.number_of_densities(); i++)
 	{
 		std::string drug_name = microenvironment.density_names[i];
-		if (drug_name != "oxygen") {
+		if (drug_name != "oxygen") 
+		{
 			int total_drug_levels = parameters.ints("total_concentration_levels");
-			if ( total_drug_levels == 0 ) {
-				int drug_concentration= parameters.ints("concentration_" + drug_name);
+			if ( total_drug_levels == 0 ) 
+			{
+				double drug_concentration= parameters.doubles("concentration_" + drug_name);
 				condition_vector.push_back(drug_concentration);
 				activation_vector.push_back(1);
 			}
@@ -107,7 +111,6 @@ void setup_microenvironment( void )
 			// double half_life = get_value(half_lives, drug_name);
 			// double decay_rate = get_decay_rate(half_life);
 			// decay_vector.push_back(decay_rate);
-
 		}
 	}
 	default_microenvironment_options.Dirichlet_activation_vector = activation_vector;
@@ -180,7 +183,7 @@ void setup_tissue( void )
 				// double inhibition - two drugs are present - we have 4 cell strains 
 				std::string drug_name1 = microenvironment.density_names[1];
 				double eval1 = PhysiCell::parameters.doubles( "prop_drug_resistant_" + drug_name1);
-				std::string drug_name2 = microenvironment.density_names[1];
+				std::string drug_name2 = microenvironment.density_names[2];
 				double eval2 = PhysiCell::parameters.doubles( "prop_drug_resistant_" + drug_name2);
 				// if (random_num_1 < PhysiCell::parameters.doubles("prop_drug_resistant_" + microenvironment.density_names[1]))
 				if (random_num_1 < eval1)

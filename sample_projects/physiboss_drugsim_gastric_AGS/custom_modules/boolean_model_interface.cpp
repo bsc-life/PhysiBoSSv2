@@ -19,9 +19,8 @@ void update_custom_variables( Cell* pCell )
 			// pCell->custom_data.variables.at(index_drug_node).value = pCell->boolean_network.get_node_value("anti_" + drug_target);
 			pCell->custom_data[index_drug_conc] = pCell->nearest_density_vector()[drug_index];
 			pCell->custom_data[index_drug_node] = pCell->boolean_network.get_node_value("anti_" + drug_target);
-		}
+		}	
 	}
-
 }
 
 
@@ -35,7 +34,7 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
 			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
-			if (random_num <= cell_inhibition)
+			if (random_num <= cell_inhibition) 
 			{
 			
 				pCell->boolean_network.set_node_value(node_name, 1);
@@ -202,7 +201,7 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 		//alternative: // phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->parameters.pReference_live_phenotype->.death.rates[apoptosis_index]; // for completeness sake, will it work?
 
 		//switch implementation:
-		if (multiplier == 1) // same prosurvival_value and antisurvival_value
+		if ( multiplier == 1 ) // same prosurvival_value and antisurvival_value
 		{
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
 		}
@@ -211,12 +210,12 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
 			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
 		}
-		else if ( multiplier < 1) // smaller prosurvival_value than antisurvival_value
+		else if ( multiplier < 1 ) // smaller prosurvival_value than antisurvival_value
 		{
 			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
 		}
 	}
-	//TODO: substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
+	//TODO: maybe substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
 
 	if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
 	{

@@ -95,7 +95,7 @@
     <omp_num_threads>4</omp_num_threads>
   </parallel>
   <save>
-    <folder>output/double/AGS_1_1_PI103_PD0325901_0_0_0_0</folder>
+    <folder>output/double/AGS_1_1_CT99021_PD0325901_0_0_0_0</folder>
     <full_data>
       <interval units="min">30</interval>
       <enable>true</enable>
@@ -132,7 +132,7 @@
         <filename>./config/dirichlet.mat</filename>
       </dirichlet_nodes>
     </options>
-    <variable name="PI103" units="mmol" ID="1">
+    <variable name="CT99021" units="mmol" ID="1">
       <physical_parameter_set>
         <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
         <decay_rate units="1/min">0.0275</decay_rate>
@@ -192,7 +192,7 @@
             <uptake_rate units="1/min">10</uptake_rate>
             <net_export_rate units="total substrate/min">0</net_export_rate>
           </substrate>
-          <substrate name="PI103">
+          <substrate name="CT99021">
             <secretion_rate units="1/min">0.0</secretion_rate>
             <secretion_target units="substrate density">1.0</secretion_target>
             <uptake_rate units="1/min">0.0025</uptake_rate>
@@ -210,16 +210,16 @@
       <custom_data>
         <next_physiboss_run units="dimensionless">10.</next_physiboss_run>
         <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-        <concentration_reporter_PI103 units="dimensionless">0.0</concentration_reporter_PI103>
-        <PI103_node units="dimensionless">0.0</PI103_node>
+        <concentration_reporter_CT99021 units="dimensionless">0.0</concentration_reporter_CT99021>
+        <CT99021_node units="dimensionless">0.0</CT99021_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
         <concentration_reporter_PD0325901 units="dimensionless">0.0</concentration_reporter_PD0325901>
         <PD0325901_node units="dimensionless">0.0</PD0325901_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
       </custom_data>
     </cell_definition>
-    <cell_definition name="PI103_sensitive" ID="1" parent_type="default"/>
-    <cell_definition name="PI103_resistant" ID="2" parent_type="default"/>
+    <cell_definition name="CT99021_sensitive" ID="1" parent_type="default"/>
+    <cell_definition name="CT99021_resistant" ID="2" parent_type="default"/>
     <cell_definition name="PD0325901_sensitive" ID="3" parent_type="default"/>
     <cell_definition name="PD0325901_resistant" ID="4" parent_type="default"/>
   </cell_definitions>
@@ -239,12 +239,12 @@
     <init_cells_filename type="string" units="">./config/init_5k.txt</init_cells_filename>
     <simulation_mode type="int">1</simulation_mode>
     <membrane_length type="int" units=""> 470 </membrane_length>
-    <PI103_uptake_rate type="double" units="">0.0025</PI103_uptake_rate>
-    <PI103_secretion_rate type="double" units="fg/cell/min">0.1</PI103_secretion_rate>
-    <concentration_PI103 type="double" units="uM">0.0</concentration_PI103>
-    <prop_drug_resistant_PI103 type="double" units="dimensionless">0.0</prop_drug_resistant_PI103>
+    <CT99021_uptake_rate type="double" units="">0.0025</CT99021_uptake_rate>
+    <CT99021_secretion_rate type="double" units="fg/cell/min">0.1</CT99021_secretion_rate>
+    <concentration_CT99021 type="double" units="uM">0.0</concentration_CT99021>
+    <prop_drug_resistant_CT99021 type="double" units="dimensionless">0.0</prop_drug_resistant_CT99021>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
-    <current_concentration_level_PI103 type="int" units="dimensionless">1</current_concentration_level_PI103>
+    <current_concentration_level_CT99021 type="int" units="dimensionless">1</current_concentration_level_CT99021>
     <PD0325901_uptake_rate type="double" units="">0.0025</PD0325901_uptake_rate>
     <PD0325901_secretion_rate type="double" units="fg/cell/min">0.1</PD0325901_secretion_rate>
     <concentration_PD0325901 type="double" units="uM">0.0</concentration_PD0325901>
