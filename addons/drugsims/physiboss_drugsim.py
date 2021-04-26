@@ -19,7 +19,7 @@ current_wd = os.getcwd()
 arg = sys.argv
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
+parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'gastric').")
 parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "AGS"], help = "Cell line to be simulated.")
 parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
 parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
