@@ -95,7 +95,7 @@
     <omp_num_threads>4</omp_num_threads>
   </parallel>
   <save>
-    <folder>output/single/AGS_1_AKT_inhibitor_VIII_0_0</folder>
+    <folder>output/single/AGS_AKT_inhibitor_VIII</folder>
     <full_data>
       <interval units="min">30</interval>
       <enable>true</enable>
@@ -198,9 +198,12 @@
       <custom_data>
         <next_physiboss_run units="dimensionless">10.</next_physiboss_run>
         <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-        <concentration_reporter_AKT_inhibitor_VIII units="dimensionless">0.0</concentration_reporter_AKT_inhibitor_VIII>
+        <concentration_reporter_AKT_inhibitor_VIII units="uM">0.0</concentration_reporter_AKT_inhibitor_VIII>
         <AKT_inhibitor_VIII_node units="dimensionless">0.0</AKT_inhibitor_VIII_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <AKT_inhibitor_VIII_maxc units="uM">2.56</AKT_inhibitor_VIII_maxc>
+        <AKT_inhibitor_VIII_xmid units="ln(uM)">9.930804918371141</AKT_inhibitor_VIII_xmid>
+        <AKT_inhibitor_VIII_scal units="dimensionless">1.5830000000000002</AKT_inhibitor_VIII_scal>
       </custom_data>
     </cell_definition>
     <cell_definition name="AKT_inhibitor_VIII_sensitive" ID="1" parent_type="default"/>
@@ -212,7 +215,7 @@
     <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
     <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
     <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
-    <apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
+    <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
@@ -224,9 +227,9 @@
     <membrane_length type="int" units=""> 470 </membrane_length>
     <AKT_inhibitor_VIII_uptake_rate type="double" units="">0.0025</AKT_inhibitor_VIII_uptake_rate>
     <AKT_inhibitor_VIII_secretion_rate type="double" units="fg/cell/min">0.1</AKT_inhibitor_VIII_secretion_rate>
-    <concentration_AKT_inhibitor_VIII type="double" units="uM">0.0</concentration_AKT_inhibitor_VIII>
+    <concentration_AKT_inhibitor_VIII type="double" units="uM">10.0</concentration_AKT_inhibitor_VIII>
     <prop_drug_resistant_AKT_inhibitor_VIII type="double" units="dimensionless">0.0</prop_drug_resistant_AKT_inhibitor_VIII>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
-    <current_concentration_level_AKT_inhibitor_VIII type="int" units="dimensionless">1</current_concentration_level_AKT_inhibitor_VIII>
+    <current_concentration_level_AKT_inhibitor_VIII type="int" units="dimensionless">0</current_concentration_level_AKT_inhibitor_VIII>
   </user_parameters>
 </PhysiCell_settings>

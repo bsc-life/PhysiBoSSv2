@@ -161,8 +161,8 @@ const vector<pair<string, int>> half_lives = {
     { "PKF118", 2000}
 };
 
-// TODO: chnage to reading it from CFG
-const vector<pair<string, vector<double>>> csv_file = read_csv( "config/gastric_drug_sensitivity.csv");
+// TODO: change to reading it from XML
+const vector<pair<string, vector<double>>> csv_file = read_csv( "config/gastric_drug_sensitivity2.csv");
 
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
@@ -179,6 +179,7 @@ vector<double> get_value (const vector<pair<string, vector<double>>> dict, strin
     return (*dict_iterator).second;
 }
 
+// TODO get this from XML
 int get_index(string drug_name, string cell_line_name) { 
     // retrieve the id for the drug and cell line
     int drug_identifier = get_value(drug_ids, drug_name);
@@ -204,14 +205,13 @@ int get_index(string drug_name, string cell_line_name) {
     return index;
 }
 
-
-vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_name) {
+// TODO get this from XML if possible
+vector<double> get_drug_sensitivity_values_initial (string drug_name, string cell_line_name) {
     int index = get_index(drug_name, cell_line_name);
     // static int index_max_conc = cell_defaults.custom_data.find_vector_variable_index("\"maxc\"");
     // static int index_xmid = cell_defaults.custom_data.find_vector_variable_index("\"xmid\"");
     // static int index_scale = cell_defaults.custom_data.find_vector_variable_index("\"scal\"");
-
-	// vector <double > max_conc_vector = cell_defaults.custom_data.vector_variables.at(index_max_conc).value;
+    // vector <double > max_conc_vector = cell_defaults.custom_data.vector_variables.at(index_max_conc).value;
     // vector <double > xmid_vector = cell_defaults.custom_data.vector_variables.at(index_xmid).value;
     // vector <double > scale_vector = cell_defaults.custom_data.vector_variables.at(index_scale).value;
     vector <double> max_conc_vector = get_value(csv_file, "\"maxc\"");
@@ -221,7 +221,19 @@ vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_n
     return {max_conc_vector[index], xmid_vector[index], scale_vector[index]};
 }
 
-double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode) {
+// TODO get this from XML
+vector<double> get_drug_sensitivity_values (Cell* pCell, string drug_name, string cell_line_name) {
+    static int max_conc_vector_index = pCell->custom_data.find_variable_index(drug_name+"_maxc");
+    static double  max_conc_vector = pCell->custom_data[max_conc_vector_index];
+    static int xmid_vector_index = pCell->custom_data.find_variable_index(drug_name+"_xmid");
+    static double  xmid_vector = pCell->custom_data[max_conc_vector_index];
+    static int scale_vector_index = pCell->custom_data.find_variable_index(drug_name+"_scal");
+    static double  scale_vector = pCell->custom_data[max_conc_vector_index];
+    return {max_conc_vector, xmid_vector, scale_vector};
+}
+
+// TODO get this from xml if possible
+double get_drug_concentration_from_level_initial (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode) {
     // IC10 --> cell viability = 0.9, lowest drug concentration
     double highest_limit = 0.9;
     // IC90 --> cell viability = 0.1, highest drug concentration
@@ -232,7 +244,7 @@ double get_drug_concentration_from_level (string cell_line, string drug_name, in
     double final_viability = highest_limit - (conc_level - 1) * range_size;
     
    // call functions to retrieve data from datastructure cell line and drug
-    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
+    vector<double> drug_sens_vals = get_drug_sensitivity_values_initial(drug_name, cell_line);
     // call linear_mixed_model_function
     double max_conc = drug_sens_vals[0];
     double xmid = drug_sens_vals[1];
@@ -282,7 +294,7 @@ double get_lx_from_x (double x, double max_conc) {
 // TODO: remove max_conc from this function as it is not needed
 double get_cell_viability_for_x(double x, double max_conc, double xmid, double scale) 
 {
-    // doubl♠e y_hat = 1 - logist3(x, xmid, scale);
+    // double y_hat = 1 - logist3(x, xmid, scale);
     double y_hat = 1/(1 + pow( exp(1), (x- xmid) /scale));
     return(y_hat);
 }
@@ -298,11 +310,12 @@ double get_x_for_cell_viability (double xmid, double scale, double cell_viabilit
     return x;
 }
 
-double get_cell_viability_for_drug_conc (double drug_conc, string cell_line, string drug_name, int index) 
+// TODO remove index as it is not used
+double get_cell_viability_for_drug_conc (Cell* pCell, double drug_conc, string cell_line, string drug_name, int index) 
 {
     //std::cout << "Concentration of " << drug_name << ": " << drug_conc << std::endl;
     // call functions to retrieve data from datastructure cell line and drug
-    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
+    vector<double> drug_sens_vals = get_drug_sensitivity_values(pCell, drug_name, cell_line);
     // call linear_mixed_model_function
     double max_conc = drug_sens_vals[0];
     double xmid = drug_sens_vals[1];

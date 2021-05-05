@@ -82,6 +82,7 @@ void setup_microenvironment( void )
 	}	
 
 	// set intial conditions and dirichlet boundary conditions for the drugs; vector already contains the condition for oxygen
+	// TODO add oxygen_condition to XML if possible
 	double oxygen_condition = 160.0;
 	vector<double> condition_vector = {oxygen_condition};
 	vector<bool> activation_vector {1};
@@ -104,7 +105,7 @@ void setup_microenvironment( void )
 				// int total_drug_levels = parameters.ints("total_concentration_levels");
 				string cell_line = parameters.strings("cell_line");
 				int simulation_mode = parameters.ints("simulation_mode");
-				double drug_concentration = get_drug_concentration_from_level(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
+				double drug_concentration = get_drug_concentration_from_level_initial(cell_line, drug_name, current_drug_level, total_drug_levels, simulation_mode);
 				condition_vector.push_back(drug_concentration);
 				activation_vector.push_back(1);
 			}
@@ -189,6 +190,7 @@ void setup_tissue( void )
 				if (random_num_1 < eval1)
 				{
 					// TODO: check that these gates makes sense. Right now drug1 rules: if a cell is drug1_sensitive it will also be drug2_sensitive. There is no way that a cell is drug1_sensitive and drug2_resistant. (see boolean_model_interface.cpp, line 91). Also, in this line, check that the cell definitions make sense.
+					// Maybe change names to double_resistant, drug1 or 2_resistant, and double sensitive
 					if (random_num_2 < eval2)
 					{
 						// cell is resistant to both drugs

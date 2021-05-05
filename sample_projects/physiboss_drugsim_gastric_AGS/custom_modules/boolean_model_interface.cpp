@@ -6,7 +6,7 @@ void update_custom_variables( Cell* pCell )
 	// first density is oxygen - shouldn't be changed: index from 1
 	for (int i = 0; i < microenvironment.number_of_densities(); i++) 
 	{
-		//TODO: check that this works
+		//TODO: check that update_custom_variables of drugs work
 		std::string drug_name = microenvironment.density_names[i];
 		if (drug_name != "oxygen")
 		{
@@ -21,6 +21,7 @@ void update_custom_variables( Cell* pCell )
 			pCell->custom_data[index_drug_node] = pCell->boolean_network.get_node_value("anti_" + drug_target);
 		}	
 	}
+	//TODO: should multiplier_reporter update be here?
 }
 
 
@@ -31,7 +32,7 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 			std::string node_name = "anti_" + drug_target;
 			 // get internalized substrate concentration
     		double drug_conc = pCell->nearest_density_vector()[index];
-			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
+			double cell_viability = get_cell_viability_for_drug_conc(pCell, drug_conc, parameters.strings("cell_line"), drug_name, index);
 			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
 			if (random_num <= cell_inhibition) 
@@ -188,12 +189,16 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 	int apoptosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );  
 	// static double multiplier = 1.0;
 	double multiplier = 1.0;
-	// TODO: connect multiplier_reporter with multiplier
 
 	// live model
 	if( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
 	{
 		multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
+		
+		// TODO: connect multiplier_reporter with multiplier
+		static int multiplier_reporter_index = pCell->custom_data.find_variable_index("multiplier_reporter");
+	    pCell->custom_data[multiplier_reporter_index] = multiplier;
+
 		// multiplier implementation, old AGS
 		// phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier * pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index);
 		// pCell->phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->phenotype.death.rates[apoptosis_index];
@@ -215,7 +220,7 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
 		}
 	}
-	//TODO: maybe substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
+	//TODO: substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
 
 	if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
 	{

@@ -95,7 +95,7 @@
     <omp_num_threads>4</omp_num_threads>
   </parallel>
   <save>
-    <folder>output/single/AGS_1_PI103_0_0</folder>
+    <folder>output/single/AGS_PI103</folder>
     <full_data>
       <interval units="min">30</interval>
       <enable>true</enable>
@@ -198,9 +198,12 @@
       <custom_data>
         <next_physiboss_run units="dimensionless">10.</next_physiboss_run>
         <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-        <concentration_reporter_PI103 units="dimensionless">0.0</concentration_reporter_PI103>
+        <concentration_reporter_PI103 units="uM">0.0</concentration_reporter_PI103>
         <PI103_node units="dimensionless">0.0</PI103_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <PI103_maxc units="uM">10.24</PI103_maxc>
+        <PI103_xmid units="ln(uM)">7.82511295832925</PI103_xmid>
+        <PI103_scal units="dimensionless">1.5830000000000002</PI103_scal>
       </custom_data>
     </cell_definition>
     <cell_definition name="PI103_sensitive" ID="1" parent_type="default"/>
@@ -212,7 +215,7 @@
     <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
     <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
     <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
-    <apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
+    <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
@@ -224,9 +227,9 @@
     <membrane_length type="int" units=""> 470 </membrane_length>
     <PI103_uptake_rate type="double" units="">0.0025</PI103_uptake_rate>
     <PI103_secretion_rate type="double" units="fg/cell/min">0.1</PI103_secretion_rate>
-    <concentration_PI103 type="double" units="uM">0.0</concentration_PI103>
+    <concentration_PI103 type="double" units="uM">0.7</concentration_PI103>
     <prop_drug_resistant_PI103 type="double" units="dimensionless">0.0</prop_drug_resistant_PI103>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
-    <current_concentration_level_PI103 type="int" units="dimensionless">1</current_concentration_level_PI103>
+    <current_concentration_level_PI103 type="int" units="dimensionless">0</current_concentration_level_PI103>
   </user_parameters>
 </PhysiCell_settings>

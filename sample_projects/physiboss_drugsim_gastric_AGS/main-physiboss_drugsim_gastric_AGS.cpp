@@ -50,8 +50,8 @@ int main( int argc, char* argv[] )
 	std::string time_units = "min"; 
 
 	/* Microenvironment setup */ 
-	
-	setup_microenvironment(); // modify this in the custom code 
+	// TODO load and parse XML before setting up the microenvironment and so that drug concentrations can be retrieved from XML
+	setup_microenvironment(); // TODO modify this in the custom code
 
 	// do small diffusion steps alone to initialize densities
 	// int k = microenvironment.find_density_index("tnf");

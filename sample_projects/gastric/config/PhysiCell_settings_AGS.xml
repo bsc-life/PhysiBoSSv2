@@ -153,7 +153,7 @@
 				<cycle code="5" name="live_cells_cycle_model">  
 					<phase_transition_rates units="1/min">
 						<!--  AGS doubling time: 20 - 24 hours depending on source  -->
-						<rate start_index="0" end_index="0" fixed_duration="false">0.00083‬</rate>
+						<rate start_index="0" end_index="0" fixed_duration="false">0.00083</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -217,7 +217,7 @@
 		<base_transition_rate type="double" units="">0.0003155</base_transition_rate>
 
 
-		<apoptosis_rate_multiplier type="double" units="">5</apoptosis_rate_multiplier>
+		<apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
 
 		<cell_line type="string" units="">AGS</cell_line>
 
