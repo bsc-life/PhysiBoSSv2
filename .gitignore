@@ -48,3 +48,7 @@ update_modules
 .ipynb_checkpoints/*
 
 .venv/*
+
+config/*
+sample_projects/physiboss_drugsim*
+output/*
