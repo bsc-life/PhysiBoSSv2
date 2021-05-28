@@ -140,7 +140,7 @@ const vector<pair<string, int>> half_lives = {
     
 };
 
-const vector<pair<string, vector<double>>> csv_file = read_csv( "config/prostate_drug_sensitivity.csv");
+const vector<pair<string, vector<double>>> csv_file = read_csv( "./config/prostate_drug_sensitivity.csv");
 
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
