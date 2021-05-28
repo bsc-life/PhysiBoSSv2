@@ -19,19 +19,19 @@ current_wd = os.getcwd()
 arg = sys.argv
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
+parser.add_argument("-p", "--project", required=True, help="Name of the tissue collection project that the drug simulations are based on (ex. 'prostate' or 'drug_AGS_template').")
 parser.add_argument("--cell_line", default="LNCaP", choices=["22Rv1", "BHP1", "DU145", "PC3", "LNCaP", "VCaP", "AGS"], help = "Cell line to be simulated.")
-parser.add_argument("-d", "--drugs", required=True, help="Names of drugs affecting a node, comma separated (ex. 'Ipatasertib, Afatinib').")
-parser.add_argument("-r", "--drug_rest", default="0", help="Levels of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
+parser.add_argument("-d", "--drugs", required=True, help="Names of simulated drugs, comma separated (ex. 'Ipatasertib, Afatinib').")
+parser.add_argument("-r", "--drug_rest", default="0", help="Proportion of drug resistances in the cells, between 0 and 1, comma separated (ex: '0, 0.2, 0.4, 0.6, 0.8, 1.0').")
 parser.add_argument("-m", "--mode", default="both", choices=['single', 'double', 'both'], help="Mode of simulation for drug inhibition: single, double or both.")
-parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", "IC70", "IC90"], help="Drug concentrations to be simulated either in IC values: IC10 IC50 or in uM: 0.1 2.3.")
+parser.add_argument("--drug-concs", nargs='+', default=["IC10", "IC30", "IC50", "IC70", "IC90"], help="Drug concentrations to be simulated either in IC values e.g.: IC10 IC50 or in uM e.g: 0.1 2.3 .")
 # parser.add_argument("--levels", default=3, type=int, help="[Deprecated: Use --drug-concs instead!] Number of levels for the drug simulation.")
-parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
-parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
-parser.add_argument("--replicates", default=1, type=int, help="Number of replicates for each simulation")
-# example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
-# currently just supports input-condition: 00
+# parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
+parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not. This flag creates the bash-script to run with SLURM workload manager.") 
+parser.add_argument("--replicates", default=1, type=int, help="Number of replicates for each simulation.")
 
+# example usage (to obtain the setup for the showcasing project in my master thesis):
+# python3 addons/drugsims/physiboss_drugsim.py -p prostate --cell_line LNCaP -d Ipatasertib,Afatinib,Ulixertinib,Luminespib,Selumetinib,Pictilisib --mode both --drug-concs IC10 IC30 IC50 IC70 IC90 --replicates 10 -cl True
 args = parser.parse_args()
 #%% Process Arguments
 
@@ -91,7 +91,7 @@ else :
 
 
 # specify boolean model path
-input_cond = args.input_cond
+#input_cond = args.input_cond
 bool_model_path_dir = "{}/{}/{}/{}".format("sample_projects", project, "config", "boolean_network")
 if (project == "prostate") :
     bool_model_filename = cell_line + "_mut_RNA_00"
@@ -106,8 +106,8 @@ node_list_1 = [x.split(", ") for x in node_list]
 drug_rest = args.drug_rest
 drug_rest_value_list = [float(i) for i in drug_rest.replace(" ","").replace(",",", ").split(", ")]
 drug_rest_name_list = [str(i).replace(".", "_") for i in drug_rest_value_list]
-print("Inhibited nodes' levels: "+str(drug_rest_value_list).replace("[","").replace("]",""))
-
+print("Applied drug resistance proportions: "+str(drug_rest_value_list).replace("[","").replace("]",""))
+print("Applied drug concentrations: " + str(drug_concs).replace("[","").replace("]",""))
 # set base paths for output and project folders 
 sample_project_path = "sample_projects"
 prostate_path = "{}/{}".format(sample_project_path, project)
@@ -396,6 +396,7 @@ def add_project_to_makefile(project_name, makefile_path):
         buf = input_makefile.readlines()
 
     with open(makefile_path, "w") as output_makefile:
+        print("Add drug simulation " + project_name + " to makefile.")
         make_string = ""
         line_count = 11
         for line in buf:
@@ -404,8 +405,6 @@ def add_project_to_makefile(project_name, makefile_path):
                 line_count = 0
             if line_count <= 10:
                 make_string = make_string + line.replace("prostate", project_name)
-                print(line_count)
-                print(make_string)
                 line_count += 1
             if "template_BM:" in line:
                 line = make_string  + line 
@@ -469,7 +468,6 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
                     filtered_rest = str(rest).translate(translation_table)
                     # filtered_drug_level = str(drug_level).translate(translation_table)
                     filtered_drug_conc = str(drug_conc).translate(translation_table)
-                    print(filtered_drug_conc)
                     output_path = "{}/{}_{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), replicate)
 
                     # create the corresponding output folder
@@ -556,37 +554,3 @@ else:
     fw1.write('#SBATCH --cpus-per-task=8\n')
     fw1.write('#SBATCH -t 22:00:00\n\n')
     fw1.write('/apps/GREASY/latest/INTEL/IMPI/bin/greasy run_drug_simulations.sh\n')
-
-# for each run: each drug and each resistance level (and each initial condition) depending on the mode create the different run folders in sample_projects
-# named for example "MYC_MAX_00_0_8" or "MYC_MAX_ERK_00_0_4_0_8"
-# rule: first initial condition, then used drugs then all resistance levels in the same order than the drugs
-# copy the files of the prostate project into every created folder
-
-# create in the same loop the output folder structure (depending on which mode was chosen)
-# output
-#     single
-#         --MYC_MAX_00_0_8
-#     double
-#         --MYC_MAX_ERK_00_0_4_0_8
-
-
-# modify copied prostate files accordingly:
-# i just need to create one config file right? - a config file that contains all specified drug nodes and anti nodes
-# anti nodes are set to 0[1] in the beginning and the drug itself to random : it's like a simulation without the drug, 0.0 inhibition
-# to simulate different resistance levels of the drug .cpp file is modified when cells are initialized 
-
-# then add the used densities in the files and all the other things that have to be modified 
-
-
-# in .xml file specify the corresponding output folder 
-
-# when everything is set: sample project contains all folders for each run and output folders are set too then run physicell
-
-# then call another script "create_all_sims_txt.py" that creates txt file with:
-    # make run0
-    # ./run0
-    # make run1
-    # ./run1
-
-# then call another script "run_drug_sim.sh"/"run_drug_sim_mn4.sh" - that can be either for cluster or not that runs the created .txt file
-# the mn4 one calls it with greasy to parallelize 
