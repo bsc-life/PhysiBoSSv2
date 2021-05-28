@@ -19,14 +19,14 @@ void update_custom_variables( Cell* pCell )
 }
 
 
-void set_boolean_node (Cell* pCell, std::string drug_name, int index, double threshold) {
-	if (index != -1)
+void set_boolean_node (Cell* pCell, std::string drug_name, int drug_index, double threshold) {
+	if (drug_index != -1)
 		{
 			string drug_target = get_value(drug_targets, drug_name);
 			std::string node_name = "anti_" + drug_target;
 			 // get internalized substrate concentration
-    		double drug_conc = pCell->nearest_density_vector()[index];
-			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name, index);
+    		double drug_conc = pCell->nearest_density_vector()[drug_index];
+			double cell_viability = get_cell_viability_for_drug_conc(drug_conc, parameters.strings("cell_line"), drug_name);
 			double cell_inhibition = 1 - cell_viability;
 			double random_num = (double) rand()/RAND_MAX;
 			if (random_num <= cell_inhibition) 

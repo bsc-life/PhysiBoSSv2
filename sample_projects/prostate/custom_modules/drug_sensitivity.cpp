@@ -14,103 +14,6 @@
 
 using namespace std;
 
-vector<pair<string, vector<double>>> read_csv(string filename){
-    // Reads a CSV file into a vector of <string, vector<int>> pairs where
-    // each pair represents <column name, column values>
-
-    // Create a vector of <string, int vector> pairs to store the result
-    vector<pair<string, vector<double>>> result;
-
-    // Create an input filestream
-    ifstream myFile(filename);
-
-    // Make sure the file is open
-    if(!myFile.is_open()) throw runtime_error("Could not open file");
-
-    // Helper vars
-    string line, colname;
-    double val;
-
-    // Read the column names
-    if(myFile.good())
-    {
-        // Extract the first line in the file
-        getline(myFile, line);
-
-        // Create a stringstream from line
-        stringstream ss(line);
-
-        // Extract each column name
-        while(getline(ss, colname, ',')){
-            
-            // Initialize and add <colname, double vector> pairs to result
-            result.push_back({colname, vector<double> {}});
-        }
-    }
-
-    // Read data, line by line
-    while(getline(myFile, line))
-    {
-        // Create a stringstream of the current line
-        stringstream ss(line);
-        
-        // Keep track of the current column index
-        int colIdx = 0;
-        string token;
-        
-        // Extract each double
-        while(std::getline(ss, token, ',')){
-            
-            // Add the current double to the 'colIdx' column's values vector
-            double value;
-            try
-            {
-                value = std::stod(token);
-            }
-            catch(std::exception& e)
-            {
-                colIdx++;
-                continue;
-            }
-            result.at(colIdx).second.push_back(value);
-            
-            // If the next token is a comma, ignore it and move on
-            if(ss.peek() == ',') ss.ignore();
-            
-            // Increment the column index
-            colIdx++;
-           
-        }
-    }
-
-    // Close file
-    myFile.close();
-
-    return result;
-}
-
-const vector<pair<string, int>> cell_line_ids = {
-    { "LNCaP", 907788},
-    { "BPH1", 924105},
-    { "DU145", 905935},
-    { "22Rv1", 924100},
-    { "VCaP", 1299075},
-    { "PC3", 905934}
-};
-
-const vector<pair<string, int>> drug_ids = {
-    { "Ipatasertib", 1924},
-    { "Afuresertib", 1912},
-    { "Afatinib", 1032},
-    { "Erlotinib", 1168},
-    { "Ulixertinib", 2047},
-    { "Luminespib", 1559},
-    { "Trametinib", 1372},
-    { "Selumetinib", 1736},
-    { "Pictilisib", 1058},
-    { "Alpelisib", 1560},
-    { "BIBR1532", 2043}
-};
 
 const vector<pair<string, string>> drug_targets = {
     { "Ipatasertib", "AKT"},
@@ -140,8 +43,6 @@ const vector<pair<string, int>> half_lives = {
     
 };
 
-const vector<pair<string, vector<double>>> csv_file = read_csv( "./config/prostate_drug_sensitivity.csv");
-
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
     return (*dict_iterator).second;
@@ -152,81 +53,15 @@ int get_value (const vector<pair<string, int>> dict, string key) {
     return (*dict_iterator).second;
 }
 
-vector<double> get_value (const vector<pair<string, vector<double>>> dict, string key) {
-    vector< pair<string, vector<double>>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, vector<double>>& element){ return element.first  == key;} );
-    return (*dict_iterator).second;
+
+vector<double> get_drug_sensitivity_values (string drug_name) {
+    static double max_conc = parameters.doubles(drug_name+"_maxc");
+    static double xmid = parameters.doubles(drug_name+"_xmid");
+    static double scale = parameters.doubles(drug_name+"_scal");
+
+    return {max_conc, xmid, scale};
 }
 
-int get_index(string drug_name, string cell_line_name) { 
-    // retrieve the id for the drug and cell line
-    int drug_identifier = get_value(drug_ids, drug_name);
-    int cell_identifier = get_value(cell_line_ids, cell_line_name);
-   
-    // retrieve the index for the csv datastructure where both identifiers are met
-    int index = 0;
-    //static int index_CL = cell_defaults.custom_data.find_vector_variable_index("\"CL\"");
-	//vector <double > cell_line_vector = cell_defaults.custom_data.vector_variables.at(index_CL).value;
-    vector <double> cell_line_vector = get_value(csv_file, "\"CL\"");
-    // static int index_drug = cell_defaults.custom_data.find_vector_variable_index("\"DRUG_ID_lib\"");
-	// vector <double > drug_vector = cell_defaults.custom_data.vector_variables.at(index_drug).value;
-    vector <double> drug_vector = get_value(csv_file, "\"DRUG_ID_lib\"");
-    for (int i = 0; i < drug_vector.size(); i++) {
-        if (cell_line_vector[i] == cell_identifier && drug_vector[i] == drug_identifier)
-        {
-            index = i;
-            // cout << "Index found: drug was found in the csv file!" << endl;
-            break;
-        }
-    }
-  
-    return index;
-}
-
-
-vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_name) {
-    int index = get_index(drug_name, cell_line_name);
-    // static int index_max_conc = cell_defaults.custom_data.find_vector_variable_index("\"maxc\"");
-    // static int index_xmid = cell_defaults.custom_data.find_vector_variable_index("\"xmid\"");
-    // static int index_scale = cell_defaults.custom_data.find_vector_variable_index("\"scal\"");
-
-	// vector <double > max_conc_vector = cell_defaults.custom_data.vector_variables.at(index_max_conc).value;
-    // vector <double > xmid_vector = cell_defaults.custom_data.vector_variables.at(index_xmid).value;
-    // vector <double > scale_vector = cell_defaults.custom_data.vector_variables.at(index_scale).value;
-    vector <double> max_conc_vector = get_value(csv_file, "\"maxc\"");
-    vector <double> xmid_vector = get_value(csv_file, "\"xmid\"");
-    vector <double> scale_vector = get_value(csv_file, "\"scal\"");
-    
-    return {max_conc_vector[index], xmid_vector[index], scale_vector[index]};
-}
-
-// deprecated function: not used
-double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode) {
-    // IC10 --> cell viability = 0.9, lowest drug concentration
-    double highest_limit = 0.9;
-    // IC90 --> cell viability = 0.1, highest drug concentration
-    double lowest_limit = 0.1;
-
-    // divide the range into the total number of levels
-    double range_size = (highest_limit - lowest_limit) / (num_of_conc_levels - 1);
-    double final_viability = highest_limit - (conc_level - 1) * range_size;
-    
-   // call functions to retrieve data from datastructure cell line and drug
-    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
-    // call linear_mixed_model_function
-    double max_conc = drug_sens_vals[0];
-    double xmid = drug_sens_vals[1];
-    double scale = drug_sens_vals[2];
-
-    // get the drug concentration for the cell viability
-    double x = get_x_for_cell_viability(xmid, scale, final_viability);
-    double drug_conc = get_conc_from_x(x, max_conc);
-
-    // if simulation mode is on double drugs half the drug concentration
-    //if (simulation_mode == 1) {
-    //    drug_conc = drug_conc / 2;
-    //}
-    return drug_conc;
-}
 
 double get_drug_concentration_from_IC (string cell_line, string drug_name, string IC_value, int simulation_mode) {
     std::stringstream ss;
@@ -236,7 +71,7 @@ double get_drug_concentration_from_IC (string cell_line, string drug_name, strin
     double final_viability = 1.0 - inhibition_value;
     
    // call functions to retrieve data from datastructure cell line and drug
-    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
+    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name);
     // call linear_mixed_model_function
     double max_conc = drug_sens_vals[0];
     double xmid = drug_sens_vals[1];
@@ -246,10 +81,6 @@ double get_drug_concentration_from_IC (string cell_line, string drug_name, strin
     double x = get_x_for_cell_viability(xmid, scale, final_viability);
     double drug_conc = get_conc_from_x(x, max_conc);
 
-    // if simulation mode is on double drugs half the drug concentration
-    //if (simulation_mode == 1) {
-    //    drug_conc = drug_conc / 2;
-    //}
     return drug_conc;
 }
 
@@ -290,22 +121,17 @@ double get_cell_viability_for_x(double x, double max_conc, double xmid, double s
     return(y_hat);
 }
 
-double derivative_linear_mixed_model(double lx, double max_conc, double xmid, double scale){
-    double x = get_x_from_conc( exp(lx), max_conc);
-    double derivative_y_hat = pow(exp(1), (x-xmid) /scale) /  (scale * pow((pow (exp(1), (x-xmid) /scale) + 1), 2));
-    return derivative_y_hat;
-}
 
 double get_x_for_cell_viability (double xmid, double scale, double cell_viability) {
     double x = (log((1/cell_viability) - 1) * scale) + xmid;
     return x;
 }
 
-double get_cell_viability_for_drug_conc (double drug_conc, string cell_line, string drug_name, int index) 
+double get_cell_viability_for_drug_conc (double drug_conc, string cell_line, string drug_name) 
 {
     //std::cout << "Concentration of " << drug_name << ": " << drug_conc << std::endl;
     // call functions to retrieve data from datastructure cell line and drug
-    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name, cell_line);
+    vector<double> drug_sens_vals = get_drug_sensitivity_values(drug_name);
     // call linear_mixed_model_function
     double max_conc = drug_sens_vals[0];
     double xmid = drug_sens_vals[1];

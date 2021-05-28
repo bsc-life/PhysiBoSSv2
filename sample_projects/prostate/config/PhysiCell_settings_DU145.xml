@@ -235,7 +235,6 @@
 
 		<bnd_file type="string" units="">./config/boolean_network/DU145_mut_RNA_00.bnd</bnd_file>
 		<cfg_file type="string" units="">./config/boolean_network/DU145_mut_RNA_00.cfg</cfg_file>
-		<drug_sensitivity_file type="string" units="">./config/prostate_drug_sensitivity.csv</drug_sensitivity_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
 

@@ -25,18 +25,12 @@ using namespace std;
 using namespace PhysiCell;
 using namespace BioFVM;
 
-extern const vector<pair<string, int>> cell_line_ids;
-extern const vector<pair<string, int>> drug_ids;
 extern const vector<pair<string, string>> drug_targets;
 extern const vector<pair<string, int>> half_lives;
-extern const std::vector<std::pair<std::string, std::vector<double>>> csv_file;
 
-std::vector<std::pair<std::string, std::vector<double>>> read_csv(std::string filename);
-
-string get_value (const vector<pair<string, string>> dict, string key);
 int get_value (const vector<pair<string, int>> dict, string key);
-int get_index(string drug_name, string cell_line_name);
-vector<double> get_drug_sensitivity_values (string drug_name, string cell_line_name);
+string get_value (const vector<pair<string, string>> dict, string key);
+vector<double> get_drug_sensitivity_values (string drug_name);
 double get_drug_concentration_from_level (string cell_line, string drug_name, int conc_level, int num_of_conc_levels, int simulation_mode);
 double get_drug_concentration_from_IC (string cell_line, string drug_name, string IC_value, int simulation_mode);
 
@@ -45,4 +39,4 @@ double get_conc_from_x (double x, double max_conc);
 double get_lx_from_x (double x, double max_conc);
 double get_x_for_cell_viability (double xmid, double scale, double cell_viability);
 double linear_mixed_model_function(double x, double max_conc, double xmid, double scale);
-double get_cell_viability_for_drug_conc (double drug_conc, string cell_line, string drug_name, int index);
+double get_cell_viability_for_drug_conc (double drug_conc, string cell_line, string drug_name);

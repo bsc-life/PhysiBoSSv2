@@ -14,6 +14,7 @@ import shutil
 from itertools import combinations, product
 from lxml import etree
 import subprocess
+import pandas as pd
 
 current_wd = os.getcwd()
 arg = sys.argv
@@ -60,6 +61,29 @@ drug_node_pairs_AGS = {
     "AKT" : "AKT"
 }
 
+cell_line_ids = {
+    "LNCaP":907788,
+    "BPH1": 924105,
+    "DU145": 905935,
+    "22Rv1": 924100,
+    "VCaP": 1299075,
+    "PC3": 905934
+};
+
+drug_ids = {
+    "Ipatasertib": 1924,
+    "Afuresertib": 1912,
+    "Afatinib": 1032,
+    "Erlotinib": 1168,
+    "Ulixertinib": 2047,
+    "Luminespib":1559,
+    "Trametinib": 1372,
+    "Selumetinib": 1736,
+    "Pictilisib":1058,
+    "Alpelisib": 1560,
+    "BIBR1532": 2043
+};
+
 ####################################################################
 # Process arguments
 ####################################################################
@@ -101,6 +125,10 @@ bool_model = "{}/{}".format(bool_model_path_dir, bool_model_filename)
 
 
 node_list_1 = [x.split(", ") for x in node_list]
+
+# set drug sensitivity path
+drug_csv_path =  "{}/{}/{}/{}_{}".format("sample_projects", project, "config", project,"drug_sensitivity.csv")
+drug_dataframe = pd.read_csv(drug_csv_path)
 
 # create two list containing the value and the name of the chosen drug resistance levels 
 drug_rest = args.drug_rest
@@ -221,7 +249,12 @@ def add_nodes_to_network(bool_model, nodelist):
                 nf.write(str(line))
         nf.close()
 
-
+def get_param_from_drug_df(drug_name, drug_df, param):
+    drug_id = drug_ids.get(drug_name)
+    cell_line_id = cell_line_ids.get(cell_line)
+    filtered_df = drug_df[(drug_df["DRUG_ID_lib"] == drug_id) & (drug_df["CL"] == cell_line_id)]
+    param = filtered_df.iloc[0][param]
+    return param
 
 # adds a drug to a physicell xml file
 def add_drug_to_xml(drug, drug_concs, rest, path_to_xml, xml_output_path, model_name, mode, output_path):
@@ -306,6 +339,12 @@ def add_drug_to_xml(drug, drug_concs, rest, path_to_xml, xml_output_path, model_
     new_cell_def_2.set("ID", str(len(cell_definitions.getchildren())-1))
     new_cell_def_2.set("parent_type", "default")
 
+
+    # get drug sensitivity parameters
+    scal = get_param_from_drug_df(drug, drug_dataframe, "scal")
+    xmid = get_param_from_drug_df(drug, drug_dataframe, "xmid")
+    maxc = get_param_from_drug_df(drug, drug_dataframe, "maxc") 
+
     # insert drug in user parameters
     user_parameters = root.find('user_parameters')
 
@@ -318,6 +357,19 @@ def add_drug_to_xml(drug, drug_concs, rest, path_to_xml, xml_output_path, model_
     secretion_rate.set("type", "double")
     secretion_rate.set("units", "fg/cell/min")
     secretion_rate.text = str(0.1)
+
+    new_drug_scal = etree.SubElement(user_parameters, drug + "_scal")
+    new_drug_scal.set("units", "dimensionless")
+    new_drug_scal.set("type", "double")
+    new_drug_scal.text = str(scal)
+    new_drug_xmid = etree.SubElement(user_parameters, drug + "_xmid")
+    new_drug_xmid.set("units", "ln(uM)")
+    new_drug_xmid.set("type", "double")
+    new_drug_xmid.text = str(xmid)
+    new_drug_maxc = etree.SubElement(user_parameters, drug + "_maxc")
+    new_drug_maxc.set("units", "uM")
+    new_drug_maxc.set("type", "double")
+    new_drug_maxc.text = str(maxc)
 
     # duration_add = etree.SubElement(user_parameters, "duration_add_" + drug)
     # duration_add.set("type", "int")
@@ -479,7 +531,7 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
                     xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
                     # new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
                     new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_conc.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), replicate, "xml")
-                    
+
                     if (type(drug) is tuple):
                         # for the tuples the first two elements of node and rest belong together
                         add_drug_to_xml(drug[0], drug_conc[0], rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
