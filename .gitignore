@@ -52,3 +52,5 @@ update_modules
 config/*
 sample_projects/physiboss_drugsim*
 output/*
+*.directory
+*depend.mk
