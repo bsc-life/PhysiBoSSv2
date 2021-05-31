@@ -13,12 +13,10 @@ import re
 import shutil
 from itertools import combinations, product
 from lxml import etree
-# import subprocess
-# import csv
-import pandas
+import subprocess
 
 current_wd = os.getcwd()
-# arg = sys.argv
+arg = sys.argv
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-p", "--project", required=True, help="Name of project that drug simulations are based on (ex. 'prostate' or 'gastric').")
@@ -32,7 +30,6 @@ parser.add_argument("--levels", default=1, type=int, help="Number of levels for 
 # parser.add_argument("-c", "--concentration", default=0, type=int, help="Concentration of the drugs simulation.")
 parser.add_argument("-i", "--input_cond", default='00', nargs='?', choices=['00', 'AR', 'AR_EGF', 'EGF'], help="Initial condition for drug simulation.")
 parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of cluster or not.") 
-parser.add_argument("-s", "--sensitivity", default="", type=str, help="Name and location of the drug sensitivity file.")
 # example: physiboss_drugsim.py -p prostate -d "MYC_MAX, ERK, AKT" -c "0.2, 0.8" -m "single" -i "00" -cl yes
 # currently just supports input-condition: 00
 
@@ -91,6 +88,7 @@ if (project == "prostate") :
 else :
     node_list = [drug_node_pairs_AGS.get(item,item)  for item in drug_list]
 
+
 # specify boolean model path
 input_cond = args.input_cond
 bool_model_path_dir = "{}/{}/{}/{}".format("sample_projects", project, "config", "boolean_network")
@@ -100,6 +98,7 @@ else:
     bool_model_filename = cell_line
 bool_model = "{}/{}".format(bool_model_path_dir, bool_model_filename)
 
+
 node_list_1 = [x.split(", ") for x in node_list]
 
 # create two list containing the value and the name of the chosen drug resistance levels 
@@ -107,16 +106,6 @@ drug_rest = args.drug_rest
 drug_rest_value_list = [float(i) for i in drug_rest.replace(" ","").replace(",",", ").split(", ")]
 drug_rest_name_list = [str(i).replace(".", "_") for i in drug_rest_value_list]
 print("Inhibited nodes' levels: "+str(drug_rest_value_list).replace("[","").replace("]",""))
-
-sensitivity = args.sensitivity
-# sensitiv = sys.argv[1]
-if (os.path.exists(sensitivity) == False):
-    print("File %s does not exist" % sensitivity)
-    sys.exit(0)
-# csv_reader = csv.DictReader(sensitivity)
-# df = pandas.read_csv('../../sample_projects/gastric/config/gastric_drug_sensitivity2.csv')
-df_sensitiv = pandas.read_csv(sensitivity)
-# df_sensitiv = pandas.read_csv(open(sensitivity,'rU'), encoding='utf-8', engine='c')
 
 # set base paths for output and project folders 
 sample_project_path = "sample_projects"
@@ -300,23 +289,15 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
     custom_data = cell_definition.find('custom_data')
     if (custom_data != None):
         new_drug_conc = etree.SubElement(custom_data, "concentration_reporter_" + drug )
-        new_drug_conc.set("units", "uM")
+        new_drug_conc.set("units", "dimensionless")
         new_drug_conc.text = str(0.0)
         new_drug_node = etree.SubElement(custom_data, drug + "_node")
         new_drug_node.set("units", "dimensionless")
         new_drug_node.text = str(0.0)
-        new_drug_multip = etree.SubElement(custom_data, "multiplier_reporter")
-        new_drug_multip.set("units", "dimensionless")
-        new_drug_multip.text = str(0.0)
-        new_maxc = etree.SubElement(custom_data, drug + "_maxc")
-        new_maxc.set("units", "uM")
-        new_maxc.text = str(float(df_sensitiv[df_sensitiv['drug'] == drug]['maxc']))
-        new_xmid = etree.SubElement(custom_data, drug + "_xmid")
-        new_xmid.set("units", "ln(uM)")
-        new_xmid.text = str(float(df_sensitiv[df_sensitiv['drug'] == drug]['xmid']))
-        new_scal = etree.SubElement(custom_data, drug + "_scal")
-        new_scal.set("units", "dimensionless")
-        new_scal.text = str(float(df_sensitiv[df_sensitiv['drug'] == drug]['scal']))
+        new_drug_node = etree.SubElement(custom_data, "multiplier_reporter")
+        new_drug_node.set("units", "dimensionless")
+        new_drug_node.text = str(0.0)
+        
 
     # insert two new cell strains for the drug 
     new_cell_def_1 = etree.SubElement(cell_definitions, "cell_definition")
@@ -405,7 +386,7 @@ def add_drug_to_xml(drug, drug_level, total_drug_levels, rest, path_to_xml, xml_
         simulation_mode.text = "1"
 
     et = etree.ElementTree(root)
-    et.write(xml_output_path, pretty_print=True)
+    et.write(xml_output_path, pretty_print=True)   
 
 
 def add_project_to_makefile(project_name, makefile_path):
@@ -433,10 +414,12 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
 
 
     # set variable to count the number of simulations 
-    # sim_count = 0
+    sim_count = 0
   # add nodes to network files
     add_nodes_to_network(bool_model, nodelist)
+    
     translation_table = dict.fromkeys(map(ord, "[()'[] ]"), None)
+
     drug_levels = list(range(1,levels+1))
 
     # modify nodelist and resistancelist if mode is double
@@ -469,53 +452,32 @@ def setup_drug_simulations(druglist, nodelist, bool_model_name, bool_model, proj
     for drug in druglist:
 
         for rest in rest_list:
-            if (len(drug_levels)==0):
+
+            for drug_level in drug_levels:
+
+                sim_count += 1
+
                 filtered_drugname = str(drug).translate(translation_table)
-                output_path = "{}/{}_{}".format(output_base_path, bool_model_name, filtered_drugname.replace(",","_"))
+                filtered_rest = str(rest).translate(translation_table)
+                filtered_drug_level = str(drug_level).translate(translation_table)
+                output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
+
                 # create the corresponding output folder
                 if os.path.exists(output_path):
                     shutil.rmtree(output_path)
-                os.makedirs(output_path)
+                os.makedirs(output_path)  
+
+                # modify the .xml file for the current run
                 xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
-                xml_config_path = "{}/{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drugname.replace(",","_"), "xml")
-                new_xml_output_path = "{}/{}".format(project_path, xml_config_path)
+                new_xml_output_path = "{}/{}/{}_{}_{}_{}_{}.{}".format(project_path, "config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
                 if (type(drug) is tuple):
                     # for the tuples the first two elements of node and rest belong together
-                    add_drug_to_xml(drug[0], 0, 0, rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    add_drug_to_xml(drug[1], 0, 0, rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug[0], drug_level[0], levels, rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug[1], drug_level[1], levels, rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
                 else: 
-                    add_drug_to_xml(drug, 0, levels, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                    add_drug_to_xml(drug, drug_level, levels, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
+                xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
                 simulation_list.append(xml_config_path) 
-            else:
-                for drug_level in drug_levels:
-                    # sim_count += 1
-                    filtered_drugname = str(drug).translate(translation_table)
-                    filtered_rest = str(rest).translate(translation_table)
-                    filtered_drug_level = str(drug_level).translate(translation_table)
-                    if (((filtered_rest == "0_0,0_0") and  (filtered_drug_level == "1,1")) or ((filtered_rest == "0_0") and  (filtered_drug_level == "1"))):
-                        output_path = "{}/{}_{}".format(output_base_path, bool_model_name, filtered_drugname.replace(",","_"))
-                    else:
-                        output_path = "{}/{}_{}_{}_{}".format(output_base_path, bool_model_name,filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"))
-
-                    # create the corresponding output folder
-                    if os.path.exists(output_path):
-                        shutil.rmtree(output_path)
-                    os.makedirs(output_path)
-
-                    # modify the .xml file for the current run
-                    xml_path = "{}/{}/{}_{}.{}".format(project_path, "config", "PhysiCell_settings", cell_line, "xml")
-                    if (((filtered_rest == "0_0,0_0") and  (filtered_drug_level == "1,1")) or ((filtered_rest == "0_0") and  (filtered_drug_level == "1"))):
-                        xml_config_path = "{}/{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drugname.replace(",","_"), "xml")
-                    else:
-                        xml_config_path = "{}/{}_{}_{}_{}_{}.{}".format("config", "settings", cell_line, filtered_drug_level.replace(",", "_"), filtered_drugname.replace(",","_"), filtered_rest.replace(",","_"), "xml")
-                    new_xml_output_path = "{}/{}".format(project_path, xml_config_path)
-                    if (type(drug) is tuple):
-                        # for the tuples the first two elements of node and rest belong together
-                        add_drug_to_xml(drug[0], drug_level[0], levels, rest[0],  xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                        add_drug_to_xml(drug[1], drug_level[1], levels, rest[1], new_xml_output_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    else: 
-                        add_drug_to_xml(drug, drug_level, levels, rest, xml_path, new_xml_output_path, bool_model_filename, mode, output_path)
-                    simulation_list.append(xml_config_path) 
 
     # delete created folders again 
     # shutil.rmtree(project_path)
@@ -616,5 +578,3 @@ else:
 
 # then call another script "run_drug_sim.sh"/"run_drug_sim_mn4.sh" - that can be either for cluster or not that runs the created .txt file
 # the mn4 one calls it with greasy to parallelize 
-
-# %%

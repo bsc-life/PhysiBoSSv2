@@ -63,7 +63,7 @@ all:
 # sample projects 	
 list-projects:
 	@echo "Sample projects: template2D template3D biorobots-sample cancer-biorobots-sample heterogeneity-sample"
-	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF spheroid-TNF-v2 drug-AGS drug-AGS-baseline"
+	@echo "                 cancer-immune-sample virus-macrophage-sample template spheroid-TNF-v2 drug-AGS template_BM prostate physiboss_drugsim_prostate_PC3 physiboss_drugsim_gastric_AGS"
 	
 template2D: 
 	cp ./sample_projects/template2D/custom_modules/* ./custom_modules/
@@ -181,16 +181,51 @@ drug-AGS:
 	mkdir ./scripts/
 	cp ./sample_projects/drug_AGS/scripts/* ./scripts/
 
-drug-AGS-baseline: 	
-	cp ./sample_projects/drug_AGS_baseline/custom_modules/* ./custom_modules/
+	
+prostate: 	
+	cp ./sample_projects/prostate/custom_modules/* ./custom_modules/
 	touch main.cpp && cp main.cpp main-backup.cpp
-	cp ./sample_projects/drug_AGS_baseline/main-drug_AGS.cpp ./main.cpp 
+	cp ./sample_projects/prostate/main-prostate.cpp ./main.cpp 
 	cp Makefile Makefile-backup
-	cp ./sample_projects/drug_AGS_baseline/Makefile .
+	cp ./sample_projects/prostate/Makefile .
 	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
-	cp -r ./sample_projects/drug_AGS_baseline/config/* ./config/
+	cp -r ./sample_projects/prostate/config/* ./config/
 	mkdir ./scripts/
-	cp -r ./sample_projects/drug_AGS_baseline/scripts/* ./scripts/
+	cp ./sample_projects/prostate/scripts/* ./scripts/
+
+physiboss_drugsim_prostate_PC3: 	
+	cp ./sample_projects/physiboss_drugsim_prostate_PC3/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/physiboss_drugsim_prostate_PC3/main-physiboss_drugsim_prostate_PC3.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/physiboss_drugsim_prostate_PC3/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp -r ./sample_projects/physiboss_drugsim_prostate_PC3/config/* ./config/
+	mkdir ./scripts/
+	cp ./sample_projects/physiboss_drugsim_prostate_PC3/scripts/* ./scripts/
+
+physiboss_drugsim_gastric_AGS: 	
+	cp ./sample_projects/physiboss_drugsim_gastric_AGS/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/physiboss_drugsim_gastric_AGS/main-physiboss_drugsim_gastric_AGS.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/physiboss_drugsim_gastric_AGS/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp -r ./sample_projects/physiboss_drugsim_gastric_AGS/config/* ./config/
+	mkdir ./scripts/
+	cp ./sample_projects/physiboss_drugsim_gastric_AGS/scripts/* ./scripts/
+
+template_BM: 	
+	cp ./sample_projects/template_BM/custom_modules/* ./custom_modules/
+	touch main.cpp && cp main.cpp main-backup.cpp
+	cp ./sample_projects/template_BM/main-template_BM.cpp ./main.cpp 
+	cp Makefile Makefile-backup
+	cp ./sample_projects/template_BM/Makefile .
+	cp ./config/PhysiCell_settings.xml ./config/PhysiCell_settings-backup.xml 
+	cp -r ./sample_projects/template_BM/config/* ./config/
+	mkdir ./scripts/
+	cp ./sample_projects/template_BM/scripts/* ./scripts/
+
 
 # early examples for convergence testing 
 
