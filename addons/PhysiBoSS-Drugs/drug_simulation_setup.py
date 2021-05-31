@@ -32,7 +32,7 @@ parser.add_argument("-cl", "--cluster", default=False ,type=bool, help="Use of c
 parser.add_argument("--replicates", default=1, type=int, help="Number of replicates for each simulation.")
 
 # example usage (to obtain the setup for the showcasing project in my master thesis):
-# python3 addons/drugsims/physiboss_drugsim.py -p prostate --cell_line LNCaP -d Ipatasertib,Afatinib,Ulixertinib,Luminespib,Selumetinib,Pictilisib --mode both --drug-concs IC10 IC30 IC50 IC70 IC90 --replicates 10 -cl True
+# python3 addons/PhysiBoSS-Drugs/drug_simulation_setup.py -p prostate --cell_line LNCaP -d Ipatasertib,Afatinib,Ulixertinib,Luminespib,Selumetinib,Pictilisib --mode both --drug-concs IC10 IC30 IC50 IC70 IC90 --replicates 10 -cl True
 args = parser.parse_args()
 #%% Process Arguments
 
