@@ -209,6 +209,10 @@ MaBoSS-clean:
 clean: MaBoSS-clean
 	rm -f *.o
 	rm -f $(PROGRAM_NAME)*
+
+Drugs-clean:
+	rm run_drug_simulations.sh
+	rm run_greasy.sh
 	
 data-cleanup:
 	rm -f *.mat
