@@ -68,7 +68,7 @@ cell_line_ids = {
     "22Rv1": 924100,
     "VCaP": 1299075,
     "PC3": 905934
-};
+}
 
 drug_ids = {
     "Ipatasertib": 1924,
@@ -82,7 +82,7 @@ drug_ids = {
     "Pictilisib":1058,
     "Alpelisib": 1560,
     "BIBR1532": 2043
-};
+}
 
 ####################################################################
 # Process arguments
@@ -600,7 +600,7 @@ else:
     fw1.write('#SBATCH --job-name="drug_simulation"\n')
     fw1.write('#SBATCH --output=%j.out\n')
     fw1.write('#SBATCH --error=%j.err\n')
-    fw1.write('#SBATCH --nodes=1')
+    fw1.write('#SBATCH --nodes=1\n')
     fw1.write('#SBATCH --ntasks=1\n')
     fw1.write('#SBATCH --tasks-per-node=6\n')
     fw1.write('#SBATCH --cpus-per-task=8\n')
