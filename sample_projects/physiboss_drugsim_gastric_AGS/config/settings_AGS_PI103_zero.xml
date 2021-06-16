@@ -145,7 +145,8 @@
         <cycle code="5" name="live_cells_cycle_model">
           <phase_transition_rates units="1/min">
             <!--  AGS doubling time: 20 - 24 hours depending on source  -->
-            <rate start_index="0" end_index="0" fixed_duration="false">0.00083</rate>
+            <!-- <rate start_index="0" end_index="0" fixed_duration="false">0.00083</rate> -->
+            <rate start_index="0" end_index="0" fixed_duration="false">0.0</rate>
           </phase_transition_rates>
         </cycle>
         <death>
@@ -201,6 +202,7 @@
         <concentration_reporter_PI103 units="uM">0.0</concentration_reporter_PI103>
         <PI103_node units="dimensionless">0.0</PI103_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <PI103_maxc units="uM">10.24</PI103_maxc>
         <PI103_xmid units="ln(uM)">7.82511295832925</PI103_xmid>
         <PI103_scal units="dimensionless">1.5830000000000002</PI103_scal>
@@ -213,9 +215,10 @@
     <random_seed type="int" units="dimensionless">0</random_seed>
     <!-- example parameters from the template -->
     <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-    <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-    <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
-    <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
+    <!-- <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier> -->
+    <!-- <base_transition_rate type="double" units="">0.0003155</base_transition_rate> -->
+    <!-- <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier> -->
+    <multiplier_divisor type="double" units="">30</multiplier_divisor>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
@@ -225,8 +228,8 @@
     <init_cells_filename type="string" units="">./config/init_5k.txt</init_cells_filename>
     <simulation_mode type="int">0</simulation_mode>
     <membrane_length type="int" units=""> 470 </membrane_length>
-    <PI103_uptake_rate type="double" units="">0.0025</PI103_uptake_rate>
-    <PI103_secretion_rate type="double" units="fg/cell/min">0.1</PI103_secretion_rate>
+    <!-- <PI103_uptake_rate type="double" units="">0.0025</PI103_uptake_rate> -->
+    <!-- <PI103_secretion_rate type="double" units="fg/cell/min">0.1</PI103_secretion_rate> -->
     <concentration_PI103 type="double" units="uM">0.0</concentration_PI103>
     <prop_drug_resistant_PI103 type="double" units="dimensionless">0.0</prop_drug_resistant_PI103>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>

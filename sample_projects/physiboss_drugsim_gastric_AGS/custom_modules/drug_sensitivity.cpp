@@ -162,7 +162,7 @@ const vector<pair<string, int>> half_lives = {
 };
 
 // TODO: change to reading it from XML
-const vector<pair<string, vector<double>>> csv_file = read_csv( "config/gastric_drug_sensitivity2.csv");
+const vector<pair<string, vector<double>>> csv_file = read_csv( "./gastric_drug_sensitivity2.csv");
 
 string get_value (const vector<pair<string, string>> dict, string key) {
     vector< pair<string, string>>::const_iterator dict_iterator = find_if( dict.begin(), dict.end(),[&key](const pair < string, string>& element){ return element.first  == key;} );
@@ -226,9 +226,9 @@ vector<double> get_drug_sensitivity_values (Cell* pCell, string drug_name, strin
     static int max_conc_vector_index = pCell->custom_data.find_variable_index(drug_name+"_maxc");
     static double  max_conc_vector = pCell->custom_data[max_conc_vector_index];
     static int xmid_vector_index = pCell->custom_data.find_variable_index(drug_name+"_xmid");
-    static double  xmid_vector = pCell->custom_data[max_conc_vector_index];
+    static double  xmid_vector = pCell->custom_data[xmid_vector_index];
     static int scale_vector_index = pCell->custom_data.find_variable_index(drug_name+"_scal");
-    static double  scale_vector = pCell->custom_data[max_conc_vector_index];
+    static double  scale_vector = pCell->custom_data[scale_vector_index];
     return {max_conc_vector, xmid_vector, scale_vector};
 }
 

@@ -213,6 +213,7 @@
         <concentration_reporter_BIRB0796 units="uM">0.0</concentration_reporter_BIRB0796>
         <BIRB0796_node units="dimensionless">0.0</BIRB0796_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <BIRB0796_maxc units="uM">10.0</BIRB0796_maxc>
         <BIRB0796_xmid units="ln(uM)">12.634854720533</BIRB0796_xmid>
         <BIRB0796_scal units="dimensionless">1.5830000000000002</BIRB0796_scal>
@@ -235,6 +236,7 @@
     <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
     <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
     <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
+    <multiplier_divisor type="double" units="">30</multiplier_divisor>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>

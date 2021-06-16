@@ -151,7 +151,8 @@
         <cycle code="5" name="live_cells_cycle_model">
           <phase_transition_rates units="1/min">
             <!--  AGS doubling time: 20 - 24 hours depending on source  -->
-            <rate start_index="0" end_index="0" fixed_duration="false">0.00083</rate>
+            <!-- <rate start_index="0" end_index="0" fixed_duration="false">0.00083</rate> -->
+            <rate start_index="0" end_index="0" fixed_duration="false">0.0</rate>
           </phase_transition_rates>
         </cycle>
         <death>
@@ -213,6 +214,7 @@
         <concentration_reporter_Oxozeaenol units="uM">0.0</concentration_reporter_Oxozeaenol>
         <Oxozeaenol_node units="dimensionless">0.0</Oxozeaenol_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <Oxozeaenol_maxc units="uM">10.0</Oxozeaenol_maxc>
         <Oxozeaenol_xmid units="ln(uM)">6.643872681366281</Oxozeaenol_xmid>
         <Oxozeaenol_scal units="dimensionless">1.5830000000000002</Oxozeaenol_scal>
@@ -232,9 +234,10 @@
     <random_seed type="int" units="dimensionless">0</random_seed>
     <!-- example parameters from the template -->
     <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-    <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-    <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
-    <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
+    <!-- <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier> -->
+    <!-- <base_transition_rate type="double" units="">0.0003155</base_transition_rate> -->
+    <!-- <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier> -->
+    <multiplier_divisor type="double" units="">30</multiplier_divisor>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
@@ -244,14 +247,14 @@
     <init_cells_filename type="string" units="">./config/init_5k.txt</init_cells_filename>
     <simulation_mode type="int">1</simulation_mode>
     <membrane_length type="int" units=""> 470 </membrane_length>
-    <Oxozeaenol_uptake_rate type="double" units="">0.0025</Oxozeaenol_uptake_rate>
-    <Oxozeaenol_secretion_rate type="double" units="fg/cell/min">0.1</Oxozeaenol_secretion_rate>
+    <!-- <Oxozeaenol_uptake_rate type="double" units="">0.0025</Oxozeaenol_uptake_rate> -->
+    <!-- <Oxozeaenol_secretion_rate type="double" units="fg/cell/min">0.1</Oxozeaenol_secretion_rate> -->
     <concentration_Oxozeaenol type="double" units="uM">0.05</concentration_Oxozeaenol>
     <prop_drug_resistant_Oxozeaenol type="double" units="dimensionless">0.0</prop_drug_resistant_Oxozeaenol>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
     <current_concentration_level_Oxozeaenol type="int" units="dimensionless">0</current_concentration_level_Oxozeaenol>
-    <PD0325901_uptake_rate type="double" units="">0.0025</PD0325901_uptake_rate>
-    <PD0325901_secretion_rate type="double" units="fg/cell/min">0.1</PD0325901_secretion_rate>
+    <!-- <PD0325901_uptake_rate type="double" units="">0.0025</PD0325901_uptake_rate> -->
+    <!-- <PD0325901_secretion_rate type="double" units="fg/cell/min">0.1</PD0325901_secretion_rate> -->
     <concentration_PD0325901 type="double" units="uM">0.035</concentration_PD0325901>
     <prop_drug_resistant_PD0325901 type="double" units="dimensionless">0.0</prop_drug_resistant_PD0325901>
     <current_concentration_level_PD0325901 type="int" units="dimensionless">0</current_concentration_level_PD0325901>

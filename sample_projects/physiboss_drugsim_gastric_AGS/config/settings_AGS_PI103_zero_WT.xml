@@ -92,10 +92,10 @@
     <dt_phenotype units="min">2</dt_phenotype>
   </overall>
   <parallel>
-    <omp_num_threads>4</omp_num_threads>
+    <omp_num_threads>6</omp_num_threads>
   </parallel>
   <save>
-    <folder>output/double/AGS_PKF118_PI103</folder>
+    <folder>output/AGS_PI103_zero_WT</folder>
     <full_data>
       <interval units="min">30</interval>
       <enable>true</enable>
@@ -132,13 +132,7 @@
         <filename>./config/dirichlet.mat</filename>
       </dirichlet_nodes>
     </options>
-    <variable name="PKF118" units="mmol" ID="1">
-      <physical_parameter_set>
-        <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
-        <decay_rate units="1/min">0.0275</decay_rate>
-      </physical_parameter_set>
-    </variable>
-    <variable name="PI103" units="mmol" ID="2">
+    <variable name="PI103" units="mmol" ID="1">
       <physical_parameter_set>
         <diffusion_coefficient units="micron^2/min">1200.0</diffusion_coefficient>
         <decay_rate units="1/min">0.0275</decay_rate>
@@ -193,12 +187,6 @@
             <uptake_rate units="1/min">10</uptake_rate>
             <net_export_rate units="total substrate/min">0</net_export_rate>
           </substrate>
-          <substrate name="PKF118">
-            <secretion_rate units="1/min">0.0</secretion_rate>
-            <secretion_target units="substrate density">1.0</secretion_target>
-            <uptake_rate units="1/min">0.0025</uptake_rate>
-            <net_export_rate units="total substrate/min">0.0</net_export_rate>
-          </substrate>
           <substrate name="PI103">
             <secretion_rate units="1/min">0.0</secretion_rate>
             <secretion_target units="substrate density">1.0</secretion_target>
@@ -211,24 +199,17 @@
       <custom_data>
         <next_physiboss_run units="dimensionless">10.</next_physiboss_run>
         <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-        <concentration_reporter_PKF118 units="uM">0.0</concentration_reporter_PKF118>
-        <PKF118_node units="dimensionless">0.0</PKF118_node>
-        <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
-        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
-        <PKF118_maxc units="uM">10.0</PKF118_maxc>
-        <PKF118_xmid units="ln(uM)">2.94107124622752</PKF118_xmid>
-        <PKF118_scal units="dimensionless">1.5830000000000002</PKF118_scal>
         <concentration_reporter_PI103 units="uM">0.0</concentration_reporter_PI103>
         <PI103_node units="dimensionless">0.0</PI103_node>
+        <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <PI103_maxc units="uM">10.24</PI103_maxc>
         <PI103_xmid units="ln(uM)">7.82511295832925</PI103_xmid>
         <PI103_scal units="dimensionless">1.5830000000000002</PI103_scal>
       </custom_data>
     </cell_definition>
-    <cell_definition name="PKF118_sensitive" ID="1" parent_type="default"/>
-    <cell_definition name="PKF118_resistant" ID="2" parent_type="default"/>
-    <cell_definition name="PI103_sensitive" ID="3" parent_type="default"/>
-    <cell_definition name="PI103_resistant" ID="4" parent_type="default"/>
+    <cell_definition name="PI103_sensitive" ID="1" parent_type="default"/>
+    <cell_definition name="PI103_resistant" ID="2" parent_type="default"/>
   </cell_definitions>
   <user_parameters>
     <random_seed type="int" units="dimensionless">0</random_seed>
@@ -245,18 +226,13 @@
     <drug_sensitivity_file type="string" units="">./config/gastric_drug_sensitivity2.csv</drug_sensitivity_file>
     <maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
     <init_cells_filename type="string" units="">./config/init_5k.txt</init_cells_filename>
-    <simulation_mode type="int">1</simulation_mode>
+    <simulation_mode type="int">0</simulation_mode>
     <membrane_length type="int" units=""> 470 </membrane_length>
-    <!-- <PKF118_uptake_rate type="double" units="">0.0025</PKF118_uptake_rate> -->
-    <!-- <PKF118_secretion_rate type="double" units="fg/cell/min">0.1</PKF118_secretion_rate> -->
-    <concentration_PKF118 type="double" units="uM">0.15</concentration_PKF118>
-    <prop_drug_resistant_PKF118 type="double" units="dimensionless">0.0</prop_drug_resistant_PKF118>
-    <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
-    <current_concentration_level_PKF118 type="int" units="dimensionless">0</current_concentration_level_PKF118>
     <!-- <PI103_uptake_rate type="double" units="">0.0025</PI103_uptake_rate> -->
     <!-- <PI103_secretion_rate type="double" units="fg/cell/min">0.1</PI103_secretion_rate> -->
-    <concentration_PI103 type="double" units="uM">0.7</concentration_PI103>
+    <concentration_PI103 type="double" units="uM">0.0</concentration_PI103>
     <prop_drug_resistant_PI103 type="double" units="dimensionless">0.0</prop_drug_resistant_PI103>
+    <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
     <current_concentration_level_PI103 type="int" units="dimensionless">0</current_concentration_level_PI103>
   </user_parameters>
 </PhysiCell_settings>

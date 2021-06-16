@@ -213,6 +213,7 @@
         <concentration_reporter_AKT_inhibitor_VIII units="uM">0.0</concentration_reporter_AKT_inhibitor_VIII>
         <AKT_inhibitor_VIII_node units="dimensionless">0.0</AKT_inhibitor_VIII_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <AKT_inhibitor_VIII_maxc units="uM">2.56</AKT_inhibitor_VIII_maxc>
         <AKT_inhibitor_VIII_xmid units="ln(uM)">9.930804918371141</AKT_inhibitor_VIII_xmid>
         <AKT_inhibitor_VIII_scal units="dimensionless">1.5830000000000002</AKT_inhibitor_VIII_scal>
@@ -232,9 +233,10 @@
     <random_seed type="int" units="dimensionless">0</random_seed>
     <!-- example parameters from the template -->
     <!-- TODO: include here multiplier, "[drug] closest to cell" to be able to plot it (cell definition are cell_types and are already in the output files)-->
-    <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
-    <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
-    <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
+    <!-- <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier> -->
+    <!-- <base_transition_rate type="double" units="">0.0003155</base_transition_rate> -->
+    <!-- <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier> -->
+    <multiplier_divisor type="double" units="">30</multiplier_divisor>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
@@ -244,14 +246,14 @@
     <init_cells_filename type="string" units="">./config/init_5k.txt</init_cells_filename>
     <simulation_mode type="int">1</simulation_mode>
     <membrane_length type="int" units=""> 470 </membrane_length>
-    <AKT_inhibitor_VIII_uptake_rate type="double" units="">0.0025</AKT_inhibitor_VIII_uptake_rate>
-    <AKT_inhibitor_VIII_secretion_rate type="double" units="fg/cell/min">0.1</AKT_inhibitor_VIII_secretion_rate>
+    <!-- <AKT_inhibitor_VIII_uptake_rate type="double" units="">0.0025</AKT_inhibitor_VIII_uptake_rate> -->
+    <!-- <AKT_inhibitor_VIII_secretion_rate type="double" units="fg/cell/min">0.1</AKT_inhibitor_VIII_secretion_rate> -->
     <concentration_AKT_inhibitor_VIII type="double" units="uM">10.0</concentration_AKT_inhibitor_VIII>
     <prop_drug_resistant_AKT_inhibitor_VIII type="double" units="dimensionless">0.0</prop_drug_resistant_AKT_inhibitor_VIII>
     <total_concentration_levels type="int" units="dimensionless">0</total_concentration_levels>
     <current_concentration_level_AKT_inhibitor_VIII type="int" units="dimensionless">0</current_concentration_level_AKT_inhibitor_VIII>
-    <Oxozeaenol_uptake_rate type="double" units="">0.0025</Oxozeaenol_uptake_rate>
-    <Oxozeaenol_secretion_rate type="double" units="fg/cell/min">0.1</Oxozeaenol_secretion_rate>
+    <!-- <Oxozeaenol_uptake_rate type="double" units="">0.0025</Oxozeaenol_uptake_rate> -->
+    <!-- <Oxozeaenol_secretion_rate type="double" units="fg/cell/min">0.1</Oxozeaenol_secretion_rate> -->
     <concentration_Oxozeaenol type="double" units="uM">0.05</concentration_Oxozeaenol>
     <prop_drug_resistant_Oxozeaenol type="double" units="dimensionless">0.0</prop_drug_resistant_Oxozeaenol>
     <current_concentration_level_Oxozeaenol type="int" units="dimensionless">0</current_concentration_level_Oxozeaenol>

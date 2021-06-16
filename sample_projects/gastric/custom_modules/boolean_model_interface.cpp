@@ -30,7 +30,7 @@ void set_boolean_node (Cell* pCell, std::string drug_name, int index, double thr
 		{
 			string drug_target = get_value(drug_targets, drug_name);
 			std::string node_name = "anti_" + drug_target;
-			 // get internalized substrate concentration
+			 // get internalized substrate concentration. not really, you are getting the nearest voxel values.
     		double drug_conc = pCell->nearest_density_vector()[index];
 			double cell_viability = get_cell_viability_for_drug_conc(pCell, drug_conc, parameters.strings("cell_line"), drug_name, index);
 			double cell_inhibition = 1 - cell_viability;
@@ -187,40 +187,110 @@ void from_nodes_to_cell (Cell* pCell, Phenotype& phenotype, double dt)
 	int start_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live ); // Q_phase_index; 
 	int end_phase_index = phenotype.cycle.model().find_phase_index( PhysiCell_constants::live ); // K_phase_index;
 	int apoptosis_index = phenotype.death.find_death_model_index( PhysiCell_constants::apoptosis_death_model );  
-	// static double multiplier = 1.0;
-	double multiplier = 1.0;
 
 	// live model
 	if( pCell->phenotype.cycle.model().code == PhysiCell_constants::live_cells_cycle_model )
 	{
-		multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
-		
-		// TODO: connect multiplier_reporter with multiplier
-		static int multiplier_reporter_index = pCell->custom_data.find_variable_index("multiplier_reporter");
-	    pCell->custom_data[multiplier_reporter_index] = multiplier;
-
 		// multiplier implementation, old AGS
 		// phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier * pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index);
 		// pCell->phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->phenotype.death.rates[apoptosis_index];
 		//alternative: // phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) = multiplier *	phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index);
 		//alternative: // phenotype.death.rates[apoptosis_index] = ( 1 / multiplier ) * pCell->parameters.pReference_live_phenotype->.death.rates[apoptosis_index]; // for completeness sake, will it work?
 
-		//switch implementation:
-		if ( multiplier == 1 ) // same prosurvival_value and antisurvival_value
+		// switch implementation:
+
+		// double multiplier = 1.0;
+		// multiplier = ( prosurvival_value + 1 ) / ( antisurvival_value + 1 ) ; //[0.25, 0.33, 0.5, 0.58, 0.66, 0.75, 1, 1.5, 2, 3, 4]
+		// // TODO: connect multiplier_reporter with multiplier
+		// static int multiplier_reporter_index = pCell->custom_data.find_variable_index("multiplier_reporter");
+	    // pCell->custom_data[multiplier_reporter_index] = multiplier;
+
+		// if ( multiplier == 1 ) // same prosurvival_value and antisurvival_value
+		// {
+		// 	pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
+		// }
+		// else if ( multiplier > 1 ) // bigger prosurvival_value than antisurvival_value
+		// {
+		// 	double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
+		// 	pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
+		// }
+		// else if ( multiplier < 1 ) // smaller prosurvival_value than antisurvival_value
+		// {
+		// 	pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
+		// }
+		//TODO: substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
+
+		// TODO: fer figura de saturació i pujar i baixar amb tokens
+		// https://web.expasy.org/cellosaurus/CVCL_0139
+		// normalitzar dades Asmund i eixides de simulació
+
+		// void simple_volume_function( Cell* pCell, Phenotype& phenotype, double dt )
+		// {
+		// 	double V_target = phenotype.volume.target_solid_nuclear * (1.0 + phenotype.volume.target_cytoplasmic_to_nuclear_ratio) / (1 - phenotype.volume.fluid_fraction);
+		// 	double rate = phenotype.cycle.model().transition_rate(0,0) * log(0.1);
+		// 	double addme = V_target;
+		// 	addme -= phenotype.volume.total;
+		// 	addme *= rate;
+		// 	addme *= dt; // dt*rate*( V_target - V )
+		// 	phenotype.volume.total += addme;
+		// 	return;
+		// }
+
+		// hyperbole implementation:
+		// no base_transition_rate, no transition_rate_multiplier, no apoptosis_rate_multiplier
+		// fit target_prolif, pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate, multiplier_divisor
+		// AGS doubling time: 20 - 24 hours depending on source. rate is "1/min". thus, 20 hours = 0.00083
+
+		// prosurvival_value i antisurvival_value = [0, 1, 2, 3], so we add 3 to the base multiplier_exp to have it between 0 and 6, instead of -3 and +3.
+		// double multiplier_exp = 3.0; // [0, 6]
+		// multiplier_exp += prosurvival_value;
+		// multiplier_exp -= antisurvival_value;
+		// double target_prolif = 0.00083;
+		// logistic curve: max_value/(1 + e^(-(x- xmid/scale))
+		// el rate multiplicador ha de ser <1 per a tenir el comportament exponencial, si és 1, quan satura i ja no baixa 
+		// double multiplier_divisor = 60;
+		// double rhs = multiplier_exp/multiplier_divisor * ( target_prolif - pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) );
+		// pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) += rhs;
+		// double rhs = multiplier_exp/6 * ( target_prolif - pCell->phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) );
+		// pCell->phenotype.cycle.data.transition_rate(start_phase_index,end_phase_index) += rhs;
+		
+		// rhs ara és positiu i negatiu per a que puge i baixe:
+		// fit target_prolif, pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate
+		// multiplier_divisor
+		double multiplier_exp = 0.0; // [-3, +3], but then transition_rate can be negative!
+		multiplier_exp += prosurvival_value;
+		multiplier_exp -= antisurvival_value;
+		double target_prolif = 0.00083;
+		// logistic curve: max_value/(1 + e^(-(x- xmid/scale))
+		// rate * (xmax - x)
+		// el rate multiplicador ha de ser <1 per a tenir el comportament exponencial, si és 1,  satura a la primea i ja no baixa 
+		// double divisor_prolif = 30;
+		double divisor_prolif = PhysiCell::parameters.doubles("divisor_prolif");
+		// double rhs = multiplier_exp/divisor_prolif * ( target_prolif - pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) );
+		double rhs = prosurvival_value/divisor_prolif * ( target_prolif - pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) );
+		pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) += rhs;
+		if ( pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) < 0)
 		{
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = PhysiCell::parameters.doubles("base_transition_rate");
+			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = 0;
 		}
-		else if ( multiplier > 1 ) // bigger prosurvival_value than antisurvival_value
-		{
-			double high_transition_rate = PhysiCell::parameters.doubles("base_transition_rate") * PhysiCell::parameters.doubles("transition_rate_multiplier");
-			pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) = high_transition_rate;
-		}
-		else if ( multiplier < 1 ) // smaller prosurvival_value than antisurvival_value
-		{
-			pCell->phenotype.death.rates[apoptosis_index] = PhysiCell::parameters.doubles("apoptosis_rate_multiplier") * pCell->phenotype.death.rates[apoptosis_index];
-		}
+
+		double multiplier_apop = PhysiCell::parameters.doubles("multiplier_apop");
+		pCell->phenotype.death.rates[apoptosis_index] = (antisurvival_value * -1 * multiplier_apop) * pCell->phenotype.death.rates[apoptosis_index];
+		// if ( multiplier_exp < 1 )
+		// {
+		// 	pCell->phenotype.death.rates[apoptosis_index] = (multiplier_exp * -1 * multiplier_apop) * pCell->phenotype.death.rates[apoptosis_index];
+		// }
+
+		//  connect multiplier_reporter with multiplier
+		static int multiplier_reporter_index = pCell->custom_data.find_variable_index("multiplier_reporter");
+		pCell->custom_data[multiplier_reporter_index] = multiplier_exp;
+		static int multiplier_prolif_index = pCell->custom_data.find_variable_index("divisor_prolif_reporter");
+		pCell->custom_data[multiplier_prolif_index] = divisor_prolif;
+		static int multiplier_apop_index = pCell->custom_data.find_variable_index("multiplier_apop_reporter");
+		pCell->custom_data[multiplier_apop_index] = multiplier_apop;
+
+		// TODO: overwrite pCell->parameters.pReference_live_phenotype->cycle.data.transition_rate(start_phase_index,end_phase_index) if the sims do not grow enough
 	}
-	//TODO: substitute transition_rate_multiplier and apoptosis_rate_multiplier with the multiplier defined by prosurvival_value than antisurvival_value
 
 	if( phenotype.cycle.model().code == PhysiCell_constants::advanced_Ki67_cycle_model || phenotype.cycle.model().code == PhysiCell_constants::basic_Ki67_cycle_model )
 	{

@@ -213,6 +213,7 @@
         <concentration_reporter_AKT_inhibitor_VIII units="uM">0.0</concentration_reporter_AKT_inhibitor_VIII>
         <AKT_inhibitor_VIII_node units="dimensionless">0.0</AKT_inhibitor_VIII_node>
         <multiplier_reporter units="dimensionless">0.0</multiplier_reporter>
+        <multiplier_divisor_reporter units="dimensionless">0.0</multiplier_divisor_reporter>
         <AKT_inhibitor_VIII_maxc units="uM">2.56</AKT_inhibitor_VIII_maxc>
         <AKT_inhibitor_VIII_xmid units="ln(uM)">9.930804918371141</AKT_inhibitor_VIII_xmid>
         <AKT_inhibitor_VIII_scal units="dimensionless">1.5830000000000002</AKT_inhibitor_VIII_scal>
@@ -235,6 +236,7 @@
     <transition_rate_multiplier type="double" units="">2</transition_rate_multiplier>
     <base_transition_rate type="double" units="">0.0003155</base_transition_rate>
     <apoptosis_rate_multiplier type="double" units="">2</apoptosis_rate_multiplier>
+    <multiplier_divisor type="double" units="">30</multiplier_divisor>
     <cell_line type="string" units="">AGS</cell_line>
     <bnd_file type="string" units="">./config/boolean_network/AGS_all_nodes.bnd</bnd_file>
     <cfg_file type="string" units="">./config/boolean_network/AGS_all_nodes.cfg</cfg_file>
