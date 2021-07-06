@@ -108,19 +108,19 @@ drugs=args.drugs
 drug_list = str(drugs.replace (" ", "").replace(",", ", ")).split(", ")
 print("Drugs to be administered: "+str(drug_list).replace("[", "").replace("]","").replace("'",""))
 # convert druglist into node-list
-if (project == "prostate") :
-    node_list = [drug_node_pairs_prostate.get(item,item)  for item in drug_list]
-else :
+if (project == "AGS") :
     node_list = [drug_node_pairs_AGS.get(item,item)  for item in drug_list]
+else :
+    node_list = [drug_node_pairs_prostate.get(item,item)  for item in drug_list]
 
 
 # specify boolean model path
 #input_cond = args.input_cond
 bool_model_path_dir = "{}/{}/{}/{}".format("sample_projects", project, "config", "boolean_network")
-if (project == "prostate") :
-    bool_model_filename = cell_line + "_mut_RNA_00"
-else:
+if (project == "AGS") :
     bool_model_filename = cell_line
+else:
+    bool_model_filename = cell_line + "_mut_RNA_00"
 bool_model = "{}/{}".format(bool_model_path_dir, bool_model_filename)
 
 
